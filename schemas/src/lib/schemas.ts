@@ -7,5 +7,4 @@ const userSchema = new Schema({
 })
 
 export type User = InferSchemaType<typeof userSchema>
-
 export const UserModel = model('User', userSchema)
