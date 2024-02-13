@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 name: bitwise
 
@@ -11,17 +11,17 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
       MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
     ports:
-      - "27017:27017"
+      - '27017:27017'
     restart: unless-stopped
     healthcheck:
       test:
         [
-          "CMD",
-          "mongosh",
-          "admin",
-          "--port",
-          "27017",
-          "--eval",
+          'CMD',
+          'mongosh',
+          'admin',
+          '--port',
+          '27017',
+          '--eval',
           "db.adminCommand('ping').ok",
         ]
       interval: 5s
