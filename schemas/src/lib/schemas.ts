@@ -1,4 +1,4 @@
-import { InferSchemaType, model, Schema } from 'mongoose'
+import { HydratedDocument, InferSchemaType, model, Schema } from 'mongoose'
 
 const userSchema = new Schema({
 	name: String,
@@ -8,3 +8,22 @@ const userSchema = new Schema({
 
 export type User = InferSchemaType<typeof userSchema>
 export const UserModel = model('User', userSchema)
+
+const productSchema = new Schema({
+	name: {
+		type: String,
+		required: true,
+	},
+	description: {
+		type: String,
+		required: true,
+	},
+	price: {
+		type: Number,
+		required: true,
+		min: 0,
+	},
+})
+
+export type Product = HydratedDocument<InferSchemaType<typeof productSchema>>
+export const ProductModel = model('Product', productSchema)
