@@ -1,3 +1,4 @@
+// IMPORTANT: This file is a test file which might be removed in the future
 import { Button, List, Loader, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import type { User } from '@schemas'
