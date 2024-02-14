@@ -7,34 +7,45 @@ import morgan from 'morgan'
 
 const app = express()
 
+// load env vars
+const PORT = process.env.PORT || 3333
+const DATABASE_URL = process.env.DATABASE_URL
+
+// middleware
 app.use(cors())
 app.use(morgan('dev'))
 app.use(express.json())
-
-const port = process.env.PORT || 3333
-const DATABASE_URL = process.env.DATABASE_URL
 
 if (!DATABASE_URL) {
 	throw new Error('DATABASE_URL is not set')
 }
 
+// connect to the database
 async function connectDB() {
 	await mongoose.connect(DATABASE_URL)
 }
+console.log('Connecting to the database...')
+connectDB()
+	.then(() => console.log('Connected to the database'))
+	.catch((err) => console.log(err))
 
-console.log(`Connecting to ${DATABASE_URL}`)
-connectDB().catch((err) => console.log(err))
+// util function to set the root path for the url
+function root(url: string) {
+	return `/api${url}`
+}
 
-app.get('/api', async (_req, res) => {
+// routes
+app.get(root(''), async (_req, res) => {
 	return res.send({ message: 'Welcome to bitwise!' })
 })
 
-app.get('/users', async (req, res) => {
+// TODO: test routes which will be changed/removed later
+app.get(root('/users'), async (req, res) => {
 	const users = await UserModel.find()
 	return res.json(users)
 })
 
-app.post('/user', async (req, res) => {
+app.post(root('/user'), async (req, res) => {
 	const { name, email }: User = req.body
 
 	const user = new UserModel({ name, email })
@@ -42,8 +53,8 @@ app.post('/user', async (req, res) => {
 	return res.json(user)
 })
 
-const server = app.listen(port, () => {
-	console.log(`Listening at http://localhost:${port}/api`)
+const server = app.listen(PORT, () => {
+	console.log(`Listening at http://localhost:${PORT}/api`)
 })
 
 server.on('error', console.error)

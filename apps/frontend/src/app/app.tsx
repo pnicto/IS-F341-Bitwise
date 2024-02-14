@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 
 async function fetchUsers() {
-	const response = await axios.get<User[]>('http://localhost:5000/users')
+	const response = await axios.get<User[]>('http://localhost:5000/api/users')
 	return response.data
 }
 
@@ -18,7 +18,7 @@ function App() {
 
 	const createUser = useMutation({
 		mutationFn: (newUser: User) => {
-			return axios.post('http://localhost:5000/user', newUser)
+			return axios.post('http://localhost:5000/api/user', newUser)
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['users'] })
