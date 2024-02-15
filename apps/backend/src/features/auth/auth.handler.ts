@@ -14,12 +14,12 @@ export const createAccount: RequestHandler = async (
 			return res.status(400).send({ message: 'Invalid body' })
 		}
 
-		const name = extractUsernameFromEmail(email)
+		const username = extractUsernameFromEmail(email)
 		const password = crypto.randomBytes(8).toString("hex");
         const hashedPassword = await hashPassword(password);
 
 		try {
-			const user: User = new UserModel({ name, email, hashedPassword })
+			const user: User = new UserModel({ username, email, hashedPassword })
 			user.save()
 			return res.status(201).send({ message: 'User created successfully' })
 		} catch (err) {
