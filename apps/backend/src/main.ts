@@ -46,9 +46,9 @@ app.get(root('/users'), async (req, res) => {
 })
 
 app.post(root('/user'), async (req, res) => {
-	const { name, email }: User = req.body
+	const { username, email }: User = req.body
 
-	const user = new UserModel({ name, email })
+	const user = new UserModel({ username, email })
 	await user.save()
 	return res.json(user)
 })
