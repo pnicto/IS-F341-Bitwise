@@ -1,9 +1,9 @@
-import { WalletModel, Transaction, TransactionModel } from '@schemas'
+import { UserModel, TransactionModel } from '@schemas'
 import { RequestHandler } from 'express'
 import mongoose, { ClientSession } from 'mongoose'
 
 export const makePayment: RequestHandler = async (req, res) => {
-	const { from, to, amount }: Transaction = req.body
+	const { from, to, amount } = req.body
 	if (!from || !to || !amount) {
 		return res.status(400).send({ message: 'Invalid body' })
 	}
@@ -11,25 +11,25 @@ export const makePayment: RequestHandler = async (req, res) => {
 	session.startTransaction()
 
 	try {
-		const fromWallet = await WalletModel.findOne({ user: from })
-		if (!fromWallet) {
+		const fromUser = await UserModel.findOne({ idNumber: from })
+		if (!fromUser) {
 			return res.status(400).send({ message: `Invalid from user: ${from}` })
 		}
-		const toWallet = await WalletModel.findOne({ user: to })
-		if (!toWallet) {
+		const toUser = await UserModel.findOne({ idNumber: to })
+		if (!toUser) {
 			return res.status(400).send({ message: `Invalid to user: ${to}` })
 		}
-		if (fromWallet.balance < amount) {
+		if (fromUser.wallet.balance < amount) {
 			return res
 				.status(400)
 				.send({ message: 'Insufficient funds, please top up your wallet' })
 		}
-		fromWallet.balance -= amount
-		toWallet.balance += amount
-		await fromWallet.save()
-		await toWallet.save()
+		fromUser.wallet.balance -= amount
+		toUser.wallet.balance += amount
+		await fromUser.save()
+		await toUser.save()
         const time = Date.now()
-		const transaction = new TransactionModel({ from, to, amount, time})
+		const transaction = new TransactionModel({ amount, from: fromUser._id, to: toUser._id, time })
 		await transaction.save()
 		await session.commitTransaction()
 		return res.status(201).json({ transaction })
