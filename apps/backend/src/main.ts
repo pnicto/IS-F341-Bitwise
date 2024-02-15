@@ -5,6 +5,9 @@ import express from 'express'
 import mongoose from 'mongoose'
 import morgan from 'morgan'
 
+import { walletRouter } from './features/wallet/wallet.router'
+
+
 const app = express()
 
 // load env vars
@@ -52,6 +55,8 @@ app.post(root('/user'), async (req, res) => {
 	await user.save()
 	return res.json(user)
 })
+
+app.use(root('/wallet'), walletRouter)
 
 const server = app.listen(PORT, () => {
 	console.log(`Listening at http://localhost:${PORT}/api`)
