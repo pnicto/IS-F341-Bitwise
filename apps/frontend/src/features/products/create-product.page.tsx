@@ -1,6 +1,6 @@
 import { Button, NumberInput, TextInput, Textarea } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { Product } from '@schemas'
+import { NewProduct } from '@schemas'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
@@ -15,7 +15,7 @@ const CreateProduct = () => {
 	})
 
 	const createProduct = useMutation({
-		mutationFn: (newProduct: Product) => {
+		mutationFn: (newProduct: NewProduct) => {
 			return axios.post('http://localhost:5000/api/products/new', newProduct)
 		},
 		onSuccess: ({ data }) => {

@@ -25,5 +25,6 @@ const productSchema = new Schema({
 	},
 })
 
-export type Product = HydratedDocument<InferSchemaType<typeof productSchema>>
+export type NewProduct = InferSchemaType<typeof productSchema>
+export type Product = HydratedDocument<NewProduct>
 export const ProductModel = model('Product', productSchema)
