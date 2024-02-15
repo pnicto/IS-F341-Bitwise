@@ -1,12 +1,28 @@
 import { HydratedDocument, InferSchemaType, model, Schema } from 'mongoose'
 
 const userSchema = new Schema({
-	name: String,
-	email: String,
-	password: String,
+	name: {
+		type: String,
+		required: true,
+	},
+	email: {
+		type: String,
+		required: true,
+		unique: true,
+	},
+	password: {
+		type: String,
+		required: true,
+	},
+	wallet: {
+		type: Schema.Types.ObjectId,
+		ref: 'Wallet',
+		required: true,
+	},
 })
 
-export type User = InferSchemaType<typeof userSchema>
+export type NewUser = InferSchemaType<typeof userSchema>
+export type User = HydratedDocument<NewUser>
 export const UserModel = model('User', userSchema)
 
 const walletSchema = new Schema({
