@@ -7,7 +7,9 @@ export const sendLoginCredentials = async (user: User) => {
 			from: 'bitwise@gmail.com',
 			to: user.email,
 			subject: 'Bitwise Account created successfully',
-			html: `<h2>Welcome to Bitwise!</h2>\nYour username is <b>${user.username}</b>.\nYour password is <b>${user.password}</b>\n`,
+			html: `<p><h2>Welcome to Bitwise!</h2></p>
+			<p>Your username is <b>${user.username}</b>.</p>
+			<p>Your password is <b>${user.password}</b>.</p>`,
 		}
 
 		transporter
