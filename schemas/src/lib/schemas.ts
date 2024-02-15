@@ -1,6 +1,11 @@
 import { HydratedDocument, InferSchemaType, model, Schema } from 'mongoose'
 
 const userSchema = new Schema({
+	idNumber: {
+		type: String,
+		required: true,
+		unique: true,
+	},
 	name: {
 		type: String,
 		required: true,
@@ -19,10 +24,6 @@ const userSchema = new Schema({
 			type: Number,
 			required: true,
 			min: 0,
-		},
-		tags: {
-			type: [String],
-			default: [],
 		},
 	},
 })
