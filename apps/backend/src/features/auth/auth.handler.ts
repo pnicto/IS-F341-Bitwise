@@ -1,6 +1,7 @@
 import { User, UserModel } from '@schemas'
 import { Request, RequestHandler, Response } from 'express'
 import { extractUsernameFromEmail, hashPassword } from './auth.utils'
+import { sendLoginCredentials } from './auth.middleware';
 import crypto from "crypto";
 
 export const createAccount: RequestHandler = async (
@@ -19,8 +20,17 @@ export const createAccount: RequestHandler = async (
         const hashedPassword = await hashPassword(password);
 
 		try {
+            const emailUser: User = new UserModel({ username, email, password })
 			const user: User = new UserModel({ username, email, hashedPassword })
 			user.save()
+
+            try {
+                const err = await sendLoginCredentials(emailUser);
+                if (err) throw err;
+            } catch (err) {
+                return res.status(500).send(err);
+            }
+            
 			return res.status(201).send({ message: 'User created successfully' })
 		} catch (err) {
 			console.log(err)
