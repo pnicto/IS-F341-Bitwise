@@ -42,3 +42,29 @@ const walletSchema = new Schema({
 export type NewWallet = InferSchemaType<typeof walletSchema>
 export type Wallet = HydratedDocument<NewWallet>
 export const WalletModel = model('Wallet', walletSchema)
+
+const transactionSchema = new Schema({
+	amount: {
+		type: Number,
+		required: true,
+		min: 0,
+	},
+	from: {
+		type: Schema.Types.ObjectId,
+		ref: 'User',
+		required: true,
+	},
+	to: {
+		type: Schema.Types.ObjectId,
+		ref: 'User',
+		required: true,
+	},
+	time: {
+		type: Date,
+		default: Date.now,
+	},
+})
+
+export type NewTransaction = InferSchemaType<typeof transactionSchema>
+export type Transaction = HydratedDocument<NewTransaction>
+export const TransactionModel = model('Transaction', transactionSchema)
