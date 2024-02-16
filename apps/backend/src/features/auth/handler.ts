@@ -56,8 +56,15 @@ export const logout: RequestHandler = async (req: Request, res: Response) => {
 	try {
 		res
 			.status(200)
-			.clearCookie('jwt')
-			.send({ message: 'Logged out successfully' })
+			.clearCookie('jwt', {
+				httpOnly: true,
+				domain: process.env.FRONTEND_URL.replace('https://', '')
+					.replace('http://', '')
+					.split(':')[0],
+				secure: true,
+				sameSite: 'lax',
+			})
+			.send({ message: 'Logged out successfully', redirect: '/login' })
 	} catch (err) {
 		res.status(500).send({
 			error: 'Something went wrong while logging out',

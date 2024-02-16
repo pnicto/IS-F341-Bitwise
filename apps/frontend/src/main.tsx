@@ -7,6 +7,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import App from './features/app'
 import CreateAccount from './features/dashboard/admin/create-account.page'
 import Login from './features/auth/login.page'
+import Logout from './features/auth/logout.page'
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
 export const router = createBrowserRouter([
@@ -21,6 +22,10 @@ export const router = createBrowserRouter([
 	{
 		path: '/login',
 		element: <Login />,
+	},
+	{
+		path: '/logout',
+		element: <Logout />
 	},
 	{
 		path: '/dashboard/admin/create',
