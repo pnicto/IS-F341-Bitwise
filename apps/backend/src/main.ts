@@ -58,6 +58,19 @@ app.post(root('/user'), async (req, res) => {
 
 app.use(root('/wallet'), walletRouter)
 
+// add/remove balance to/from wallet
+app.post(root('/wallet'), async (req, res) => {
+	const {id, amt} = req.body
+	const user = await UserModel.findOne({ idNumber: id })
+	const currentBalance = user.wallet.balance
+	if (amt < 0 && amt > currentBalance) {
+		res.status(403).json({ insufficientBal: 'Not enough balance' })
+	}
+	await user.save()
+	return res.json(user)
+})
+
+
 const server = app.listen(PORT, () => {
 	console.log(`Listening at http://localhost:${PORT}/api`)
 })
