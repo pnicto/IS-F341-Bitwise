@@ -17,7 +17,19 @@ const DATABASE_URL = process.env.DATABASE_URL
 
 // middleware
 app.use(cookieParser())
-app.use(cors())
+const frontendIsHTTPS = process.env.FRONTEND_URL.includes('https://')
+app.use(
+	cors({
+		credentials: true,
+		origin: [
+			process.env.FRONTEND_URL,
+			process.env.FRONTEND_URL.replace(
+				frontendIsHTTPS ? 'https://' : 'http://',
+				frontendIsHTTPS ? 'https://www.' : 'http://www.',
+			),
+		],
+	}),
+)
 app.use(morgan('dev'))
 app.use(express.json())
 app.use(passport.initialize())
