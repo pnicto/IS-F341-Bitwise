@@ -4,6 +4,7 @@ import cors from 'cors'
 import express from 'express'
 import mongoose from 'mongoose'
 import morgan from 'morgan'
+import passport from 'passport'
 import { dashboardRouter } from './features/dashboard/route'
 
 const app = express()
@@ -16,6 +17,7 @@ const DATABASE_URL = process.env.DATABASE_URL
 app.use(cors())
 app.use(morgan('dev'))
 app.use(express.json())
+app.use(passport.initialize())
 
 if (!DATABASE_URL) {
 	throw new Error('DATABASE_URL is not set')
