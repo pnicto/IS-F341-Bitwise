@@ -37,3 +37,16 @@ export const login: RequestHandler = async (req: Request, res: Response) => {
 		})
 	}
 }
+
+export const logout: RequestHandler = async (req: Request, res: Response) => {
+	try {
+		res
+			.status(200)
+			.clearCookie('jwt')
+			.send({ message: 'Logged out successfully' })
+	} catch (err) {
+		res.status(500).send({
+			error: 'Something went wrong while logging out',
+		})
+	}
+}
