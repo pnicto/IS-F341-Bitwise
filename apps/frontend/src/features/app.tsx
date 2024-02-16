@@ -1,7 +1,7 @@
 // IMPORTANT: This file is a test file which might be removed in the future
-import { Button, List, Loader, TextInput } from '@mantine/core'
+import { Button, List, Loader, PasswordInput, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import type { User } from '@schemas'
+import type { NewUser, User } from '@schemas'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 
@@ -18,7 +18,7 @@ function App() {
 	const queryClient = useQueryClient()
 
 	const createUser = useMutation({
-		mutationFn: (newUser: User) => {
+		mutationFn: (newUser: NewUser) => {
 			return axios.post('http://localhost:5000/api/user', newUser)
 		},
 		onSuccess: () => {
@@ -27,10 +27,11 @@ function App() {
 	})
 
 	const form = useForm({
-		initialValues: { email: '', name: '' },
+		initialValues: { email: '', username: '', password: '' },
 		validate: {
-			name: (value) => (value.length > 0 ? null : 'Name cannot be empty'),
+			username: (value) => (value.length > 0 ? null : 'Name cannot be empty'),
 			email: (value) => (value.length > 0 ? null : 'Invalid email'),
+			password: (value) => (value.length > 8 ? null : 'Password is too short'),
 		},
 	})
 
@@ -61,13 +62,18 @@ function App() {
 						placeholder='Eg., john@john.com'
 						{...form.getInputProps('email')}
 					/>
+					<PasswordInput
+						label='Password'
+						description='Your password'
+						{...form.getInputProps('password')}
+					/>
 					<Button type='submit'>Create</Button>
 				</form>
 			</div>
 			<div className='m-10'>
 				<List>
 					{data.map((user, i) => (
-						<List.Item key={i}>{user.name}</List.Item>
+						<List.Item key={i}>{user.username}</List.Item>
 					))}
 				</List>
 			</div>
