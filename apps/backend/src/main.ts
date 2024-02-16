@@ -4,7 +4,9 @@ import cors from 'cors'
 import express from 'express'
 import mongoose from 'mongoose'
 import morgan from 'morgan'
+import cookieParser from 'cookie-parser'
 import passport from 'passport'
+import { authRouter } from './features/auth/route'
 import { dashboardRouter } from './features/dashboard/route'
 
 const app = express()
@@ -14,6 +16,7 @@ const PORT = process.env.PORT || 3333
 const DATABASE_URL = process.env.DATABASE_URL
 
 // middleware
+app.use(cookieParser())
 app.use(cors())
 app.use(morgan('dev'))
 app.use(express.json())
@@ -56,6 +59,7 @@ app.post(root('/user'), async (req, res) => {
 	return res.json(user)
 })
 
+app.use(root('/auth'), authRouter)
 app.use(root('/dashboard'), dashboardRouter)
 
 const server = app.listen(PORT, () => {
