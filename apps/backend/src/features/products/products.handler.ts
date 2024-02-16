@@ -16,3 +16,13 @@ export const createProduct: RequestHandler = async (req, res) => {
 		return res.json({ msg: 'Something went wrong' })
 	}
 }
+
+export const getAllProducts: RequestHandler = async (req, res) => {
+	try {
+		const products = await ProductModel.find()
+		return res.json(products)
+	} catch (err) {
+		console.log(err)
+		return res.json({ msg: 'Something went wrong' })
+	}
+}
