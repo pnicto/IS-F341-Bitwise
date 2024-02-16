@@ -5,19 +5,26 @@ import { generateAccessToken } from '../../utils/generateToken'
 
 export const login: RequestHandler = async (req: Request, res: Response) => {
 	try {
-		const user: User = await UserModel.findOne({ email: req.body.email })
-		if (!user) {
+		const isValidUser: User = await UserModel.findOne({ email: req.body.email })
+		if (!isValidUser) {
 			return res
 				.status(404)
 				.send({ error: 'Account with this email does not exist' })
 		}
 
-		const validPassword = await verifyPassword(req.body.password, user.password)
+		const validPassword = await verifyPassword(
+			req.body.password,
+			isValidUser.password,
+		)
 		if (!validPassword) {
 			return res.status(403).send({ error: 'Incorrect password' })
 		}
 
-		const accessToken = generateAccessToken(user)
+		const accessToken = generateAccessToken(isValidUser)
+		const user = await UserModel.findOne(
+			{ email: isValidUser.email },
+			{ _id: 0, password: 0 },
+		)
 
 		res
 			.status(200)
