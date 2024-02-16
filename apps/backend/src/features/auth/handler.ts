@@ -26,17 +26,24 @@ export const login: RequestHandler = async (req: Request, res: Response) => {
 			{ _id: 0, password: 0 },
 		)
 
+		// TODO: Set correct redirect pathname
 		res
 			.status(200)
 			.cookie('jwt', accessToken, {
 				maxAge: 24 * 60 * 60 * 1000,
 				httpOnly: true,
+				domain: process.env.FRONTEND_URL.replace('https://', '')
+					.replace('http://', '')
+					.split(':')[0],
+				secure: true,
+				sameSite: 'lax',
 			})
 			.send({
 				data: {
 					user,
 				},
 				message: 'Logged in successfully',
+				redirect: '/logout',
 			})
 	} catch (err) {
 		res.status(500).send({

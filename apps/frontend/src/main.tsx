@@ -6,9 +6,10 @@ import * as ReactDOM from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import App from './features/app'
 import CreateAccount from './features/dashboard/admin/create-account.page'
+import Login from './features/auth/login.page'
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
 	{
 		path: '/',
 		element: <App />,
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
 	{
 		path: '/test',
 		element: <div>tested</div>,
+	},
+	{
+		path: '/login',
+		element: <Login />,
 	},
 	{
 		path: '/dashboard/admin/create',
