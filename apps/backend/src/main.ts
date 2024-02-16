@@ -4,7 +4,7 @@ import cors from 'cors'
 import express from 'express'
 import mongoose from 'mongoose'
 import morgan from 'morgan'
-import { authRouter } from './features/auth/auth.route'
+import { dashboardRouter } from './features/dashboard/route'
 
 const app = express()
 
@@ -54,7 +54,7 @@ app.post(root('/user'), async (req, res) => {
 	return res.json(user)
 })
 
-app.use(root('/auth'), authRouter)
+app.use(root('/dashboard'), dashboardRouter)
 
 const server = app.listen(PORT, () => {
 	console.log(`Listening at http://localhost:${PORT}/api`)

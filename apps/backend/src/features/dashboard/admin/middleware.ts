@@ -1,5 +1,5 @@
 import { User } from '@schemas'
-import { transporter } from '../../config/mailer'
+import { transporter } from '../../../config/mailer'
 
 export const sendLoginCredentials = async (user: User) => {
 	try {
@@ -8,8 +8,8 @@ export const sendLoginCredentials = async (user: User) => {
 			to: user.email,
 			subject: 'Bitwise Account created successfully',
 			html: `<p><h2>Welcome to Bitwise!</h2></p>
-			<p>Your username is <b>${user.username}</b>.</p>
-			<p>Your password is <b>${user.password}</b>.</p>`,
+			<p>Your username is <b>${user.username}</b>.<br>
+			Your password is <b>${user.password}</b>.</p>`,
 		}
 
 		transporter

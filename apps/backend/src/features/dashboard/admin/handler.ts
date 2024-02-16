@@ -1,7 +1,7 @@
 import { User, UserModel } from '@schemas'
 import { Request, RequestHandler, Response } from 'express'
-import { extractUsernameFromEmail, hashPassword } from './auth.utils'
-import { sendLoginCredentials } from './auth.middleware'
+import { extractUsernameFromEmail, hashPassword } from './utils'
+import { sendLoginCredentials } from './middleware'
 import crypto from 'crypto'
 
 export const createAccount: RequestHandler = async (
