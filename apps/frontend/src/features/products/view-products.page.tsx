@@ -1,8 +1,7 @@
 import { Grid } from '@mantine/core'
-import { Product } from '@schemas'
+import { Product } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { get } from 'http'
 
 const ViewProducts = () => {
 	const getProducts = useQuery({
@@ -21,8 +20,6 @@ const ViewProducts = () => {
 	if (getProducts.isError) {
 		return <div>Error fetching products</div>
 	}
-
-	getProducts
 
 	return (
 		<main className='mx-auto p-24 text-center'>

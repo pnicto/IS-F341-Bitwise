@@ -1,6 +1,6 @@
 import { Button, NumberInput, TextInput, Textarea } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { NewProduct } from '@schemas'
+import { Product } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
@@ -15,7 +15,7 @@ const CreateProduct = () => {
 	})
 
 	const createProduct = useMutation({
-		mutationFn: (newProduct: NewProduct) => {
+		mutationFn: (newProduct: Product) => {
 			return axios.post('http://localhost:5000/api/products/new', newProduct)
 		},
 		onSuccess: ({ data }) => {
@@ -29,7 +29,8 @@ const CreateProduct = () => {
 			<div>
 				<form
 					onSubmit={form.onSubmit((values) => {
-						createProduct.mutate(values)
+						// FIXME: remove typecast
+						createProduct.mutate(values as Product)
 					})}
 					className='flex flex-col gap-5'
 				>

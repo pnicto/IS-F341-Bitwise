@@ -1,15 +1,14 @@
+import { JwtPayload } from 'jsonwebtoken'
 import passport, { DoneCallback } from 'passport'
 import { Strategy as JwtStrategy } from 'passport-jwt'
-import { JwtPayload } from 'jsonwebtoken'
 import { accessTokenExtractor } from '../utils/tokenExtractor'
-import { UserModel } from '@schemas'
+import { prisma } from './prisma'
 
 const JwtAuthCallback = async (jwt_payload: JwtPayload, done: DoneCallback) => {
 	try {
-		const user = await UserModel.findOne({ _id: jwt_payload.sub })
-		if (!user) {
-			return done(null, false)
-		}
+		const user = await prisma.user.findUniqueOrThrow({
+			where: { id: jwt_payload.sub },
+		})
 
 		return done(null, user)
 	} catch (err) {
@@ -22,7 +21,8 @@ passport.use(
 	new JwtStrategy(
 		{
 			jwtFromRequest: accessTokenExtractor,
-			secretOrKey: process.env.TOKEN_SECRET,
+			// FIXME: Add a proper check
+			secretOrKey: process.env.TOKEN_SECRET as string,
 		},
 		JwtAuthCallback,
 	),

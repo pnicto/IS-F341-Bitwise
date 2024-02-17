@@ -1,18 +1,18 @@
-import { User, UserModel } from '@schemas'
+import { User } from '@prisma/client'
+import crypto from 'crypto'
 import { Request, RequestHandler, Response } from 'express'
+import { prisma } from '../../../config/prisma'
 import {
 	extractUsernameFromEmail,
 	hashPassword,
 	sendLoginCredentials,
 } from './utils'
-import crypto from 'crypto'
-import mongoose, { ClientSession } from 'mongoose'
 
 export const createAccount: RequestHandler = async (
 	req: Request,
 	res: Response,
 ) => {
-	const email = req.body.email
+	const { email }: User = req.body
 
 	if (!email) {
 		return res.status(400).send({ message: 'Invalid body' })
@@ -22,40 +22,25 @@ export const createAccount: RequestHandler = async (
 	const password = crypto.randomBytes(4).toString('hex')
 	const hashedPassword = await hashPassword(password)
 
-	const session: ClientSession = await mongoose.startSession()
-	session.startTransaction()
+	let user: User | undefined
 
 	try {
-		const user: User = new UserModel({
-			username: username,
-			email: email,
-			password: hashedPassword,
+		user = await prisma.user.create({
+			data: { username, email, password: hashedPassword },
 		})
-		await user.save({ session })
-
-		const emailUser: User = new UserModel({
-			username: user.username,
-			email: user.email,
-			password: password,
-		})
-
-		try {
-			const err = await sendLoginCredentials(emailUser)
-			if (err) {
-				throw err
-			} else {
-				await session.commitTransaction()
-				return res.status(201).send({ message: 'User created successfully' })
-			}
-		} catch (err) {
-			await session.abortTransaction()
-			return res.status(500).send({ error: err })
-		}
 	} catch (err) {
 		console.log(err)
-		await session.abortTransaction()
-		return res.status(400).send({ error: err })
-	} finally {
-		session.endSession()
+		return res.status(500).json({ error: 'Error creating user' })
 	}
+
+	try {
+		// FIXME: check if this is working as expected
+		await sendLoginCredentials(user, password)
+		console.log('', 'email')
+	} catch (err) {
+		console.log(err)
+		return res.status(207).json({ error: 'Error sending email to the user' })
+	}
+
+	return res.status(201).json({ message: 'User created successfully' })
 }

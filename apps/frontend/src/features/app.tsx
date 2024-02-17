@@ -1,7 +1,7 @@
 // IMPORTANT: This file is a test file which might be removed in the future
 import { Button, List, Loader, PasswordInput, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import type { NewUser, User } from '@schemas'
+import { User } from '@prisma/client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 
@@ -18,7 +18,7 @@ function App() {
 	const queryClient = useQueryClient()
 
 	const createUser = useMutation({
-		mutationFn: (newUser: NewUser) => {
+		mutationFn: (newUser: User) => {
 			return axios.post('http://localhost:5000/api/user', newUser)
 		},
 		onSuccess: () => {
@@ -46,7 +46,8 @@ function App() {
 			<div>
 				<form
 					onSubmit={form.onSubmit((values) => {
-						createUser.mutate(values)
+						// FIXME: remove typecast
+						createUser.mutate(values as User)
 					})}
 					className='flex flex-col gap-5'
 				>

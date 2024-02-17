@@ -22,7 +22,7 @@ const Login = () => {
 	const login = useMutation({
 		mutationFn: (body: { email: string; password: string }) => {
 			return axios.post('http://localhost:5000/api/auth/login', body, {
-                withCredentials: true,
+				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json ',
 				},

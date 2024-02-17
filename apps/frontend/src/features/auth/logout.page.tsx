@@ -7,12 +7,16 @@ import { router } from '../../main'
 const Logout = () => {
 	const logout = useMutation({
 		mutationFn: () => {
-			return axios.post('http://localhost:5000/api/auth/logout', {}, {
-				withCredentials: true,
-				headers: {
-					'Content-Type': 'application/json ',
+			return axios.post(
+				'http://localhost:5000/api/auth/logout',
+				{},
+				{
+					withCredentials: true,
+					headers: {
+						'Content-Type': 'application/json ',
+					},
 				},
-			})
+			)
 		},
 		onSuccess: ({ data }) => {
 			console.log(data)

@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  VENDOR
+  ADMIN
+}
+
+model User {
+  id                   String        @id @default(auto()) @map("_id") @db.ObjectId
+  username             String        @unique
+  email                String        @unique
+  password             String
+  mobile               String?
+  role                 Role          @default(STUDENT)
+  balance              Float         @default(0)
+  // TODO: Uncomment them once the endpoints are ready
+  // Product             Products[]
+  transactionsSend     Transaction[] @relation("sender")
+  transactionsReceived Transaction[] @relation("receiver")
+}
+
+model Product {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  price       Float    @default(0)
+  // TODO: Uncomment them once the endpoints are ready
+  // vendor      User     @relation(fields: [vendorId], references: [id])
+  // vendorId    String   @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Transaction {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  sender     User     @relation("sender", fields: [senderId], references: [id])
+  senderId   String   @db.ObjectId
+  receiver   User     @relation("receiver", fields: [receiverId], references: [id])
+  receiverId String   @db.ObjectId
+  amount     Float
+  createdAt  DateTime @default(now())
+  status     Boolean  @default(true)
+}

@@ -1,0 +1,33 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: restore cached npm dependencies
+        uses: actions/cache/restore@v3
+        with:
+          path: node_modules
+          key: npm-dependencies-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: cache npm dependencies
+        uses: actions/cache/save@v3
+        with:
+          path: node_modules
+          key: npm-dependencies-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: formatter
+        run: pnpm prettier --check .
+      - name: lint
+        run: pnpm lint
+      - name: build
+        run: pnpm build
