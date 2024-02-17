@@ -24,27 +24,28 @@ export const createAccount: RequestHandler = async (
 			email: email,
 			password: hashedPassword,
 		})
-		user
-			.save()
-			.then(async (user: User) => {
-				const emailUser: User = new UserModel({
-					username: user.username,
-					email: user.email,
-					password: password,
-				})
-				try {
-					const err = await sendLoginCredentials(emailUser)
-					if (err) throw err
-				} catch (err) {
-					return res.status(500).send(err)
-				}
 
-				return res.status(201).send({ message: 'User created successfully' })
+		try {
+			await user.save()
+
+			const emailUser: User = new UserModel({
+				username: user.username,
+				email: user.email,
+				password: password,
 			})
-			.catch((err) => {
-				console.log(err)
-				return res.status(400).send({ error: err })
-			})
+
+			try {
+				const err = await sendLoginCredentials(emailUser)
+				if (err) throw err
+			} catch (err) {
+				return res.status(500).send(err)
+			}
+		} catch (err) {
+			console.log(err)
+			return res.status(400).send({ error: err })
+		}
+
+		return res.status(201).send({ message: 'User created successfully' })
 	} catch (err) {
 		console.log(err)
 		res.status(500).send({
