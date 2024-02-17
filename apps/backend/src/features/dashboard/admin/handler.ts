@@ -12,7 +12,7 @@ export const createAccount: RequestHandler = async (
 	req: Request,
 	res: Response,
 ) => {
-	const { email }: User = req.body.email
+	const { email }: User = req.body
 
 	if (!email) {
 		return res.status(400).send({ message: 'Invalid body' })
@@ -36,6 +36,7 @@ export const createAccount: RequestHandler = async (
 	try {
 		// FIXME: check if this is working as expected
 		await sendLoginCredentials(user, password)
+		console.log('', 'email')
 	} catch (err) {
 		console.log(err)
 		return res.status(207).json({ error: 'Error sending email to the user' })
