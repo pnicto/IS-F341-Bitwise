@@ -25,6 +25,26 @@ export type NewUser = InferSchemaType<typeof userSchema>
 export type User = HydratedDocument<NewUser>
 export const UserModel = model('User', userSchema)
 
+const productSchema = new Schema({
+	name: {
+		type: String,
+		required: true,
+	},
+	description: {
+		type: String,
+		required: true,
+	},
+	price: {
+		type: Number,
+		required: true,
+		min: 0,
+	},
+})
+
+export type NewProduct = InferSchemaType<typeof productSchema>
+export type Product = HydratedDocument<NewProduct>
+export const ProductModel = model('Product', productSchema)
+
 const walletSchema = new Schema({
 	balance: {
 		type: Number,
@@ -36,7 +56,6 @@ const walletSchema = new Schema({
 		ref: 'User',
 		required: true,
 	},
-
 })
 
 export type NewWallet = InferSchemaType<typeof walletSchema>
