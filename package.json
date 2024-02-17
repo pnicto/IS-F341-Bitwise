@@ -2,7 +2,10 @@
 	"name": "@bitwise/source",
 	"version": "0.0.0",
 	"license": "MIT",
-	"scripts": {},
+	"scripts": {
+		"dev": "nx run-many -t serve",
+		"lint": "nx run-many -t lint"
+	},
 	"private": true,
 	"dependencies": {
 		"@mantine/core": "^7.5.2",
