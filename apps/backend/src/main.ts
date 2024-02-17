@@ -4,6 +4,7 @@ import cors from 'cors'
 import express from 'express'
 import mongoose from 'mongoose'
 import morgan from 'morgan'
+import { dashboardRouter } from './features/dashboard/route'
 import { productRouter } from './features/products/products.route'
 
 const app = express()
@@ -47,15 +48,16 @@ app.get(root('/users'), async (req, res) => {
 })
 
 app.post(root('/user'), async (req, res) => {
-	const { name, email }: User = req.body
+	const { username, email }: User = req.body
 
-	const user = new UserModel({ name, email })
+	const user = new UserModel({ username, email })
 	await user.save()
 	return res.json(user)
 })
 
 // routes
 app.use(root('/products'), productRouter)
+app.use(root('/dashboard'), dashboardRouter)
 
 const server = app.listen(PORT, () => {
 	console.log(`Listening at http://localhost:${PORT}/api`)

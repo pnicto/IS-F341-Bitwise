@@ -1,18 +1,18 @@
 import { HydratedDocument, InferSchemaType, model, Schema } from 'mongoose'
 
 const userSchema = new Schema({
-	name: {
+	username: {
 		type: String,
-		required: true,
+		required: [true, 'User must have a username'],
 	},
 	email: {
 		type: String,
-		required: true,
-		unique: true,
+		required: [true, 'User must have an email'],
+		unique: [true, 'This email has already been used'],
 	},
 	password: {
 		type: String,
-		required: true,
+		required: [true, 'User must have a password'],
 	},
 	wallet: {
 		type: Schema.Types.ObjectId,

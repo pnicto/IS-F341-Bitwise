@@ -5,9 +5,9 @@ import { StrictMode } from 'react'
 import * as ReactDOM from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import App from './features/app'
+import CreateAccount from './features/dashboard/admin/create-account.page'
 import CreateProduct from './features/products/create-product.page'
 import ViewProducts from './features/products/view-products.page'
-
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
 const router = createBrowserRouter([
@@ -26,6 +26,10 @@ const router = createBrowserRouter([
 	{
 		path: '/view-products',
 		element: <ViewProducts />,
+	},
+	{
+		path: '/dashboard/admin/create',
+		element: <CreateAccount />,
 	},
 ])
 
