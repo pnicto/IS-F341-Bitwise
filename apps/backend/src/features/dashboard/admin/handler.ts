@@ -38,7 +38,7 @@ export const createAccount: RequestHandler = async (
 				const err = await sendLoginCredentials(emailUser)
 				if (err) throw err
 			} catch (err) {
-				return res.status(500).send(err)
+				return res.status(500).send({ error: err })
 			}
 		} catch (err) {
 			console.log(err)
