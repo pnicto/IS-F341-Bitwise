@@ -6,6 +6,7 @@ import * as ReactDOM from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import App from './features/app'
 import CreateProduct from './features/products/create-product.page'
+import ViewProducts from './features/products/view-products.page'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
 	{
 		path: '/create-product',
 		element: <CreateProduct />,
+	},
+	{
+		path: '/view-products',
+		element: <ViewProducts />,
 	},
 ])
 
