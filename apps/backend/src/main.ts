@@ -1,9 +1,12 @@
 import type { User } from '@schemas'
 import { UserModel } from '@schemas'
+import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import mongoose from 'mongoose'
 import morgan from 'morgan'
+import passport from 'passport'
+import { authRouter } from './features/auth/route'
 import { dashboardRouter } from './features/dashboard/route'
 import { productRouter } from './features/products/products.route'
 
@@ -14,9 +17,23 @@ const PORT = process.env.PORT || 3333
 const DATABASE_URL = process.env.DATABASE_URL
 
 // middleware
-app.use(cors())
+app.use(cookieParser())
+const frontendIsHTTPS = process.env.FRONTEND_URL.includes('https://')
+app.use(
+	cors({
+		credentials: true,
+		origin: [
+			process.env.FRONTEND_URL,
+			process.env.FRONTEND_URL.replace(
+				frontendIsHTTPS ? 'https://' : 'http://',
+				frontendIsHTTPS ? 'https://www.' : 'http://www.',
+			),
+		],
+	}),
+)
 app.use(morgan('dev'))
 app.use(express.json())
+app.use(passport.initialize())
 
 if (!DATABASE_URL) {
 	throw new Error('DATABASE_URL is not set')
@@ -58,6 +75,7 @@ app.post(root('/user'), async (req, res) => {
 // routes
 app.use(root('/products'), productRouter)
 app.use(root('/dashboard'), dashboardRouter)
+app.use(root('/auth'), authRouter)
 
 const server = app.listen(PORT, () => {
 	console.log(`Listening at http://localhost:${PORT}/api`)
