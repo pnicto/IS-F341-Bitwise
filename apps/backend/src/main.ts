@@ -1,13 +1,14 @@
 import type { User } from '@schemas'
 import { UserModel } from '@schemas'
+import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import mongoose from 'mongoose'
 import morgan from 'morgan'
-import cookieParser from 'cookie-parser'
 import passport from 'passport'
 import { authRouter } from './features/auth/route'
 import { dashboardRouter } from './features/dashboard/route'
+import { productRouter } from './features/products/products.route'
 
 const app = express()
 
@@ -71,8 +72,10 @@ app.post(root('/user'), async (req, res) => {
 	return res.json(user)
 })
 
-app.use(root('/auth'), authRouter)
+// routes
+app.use(root('/products'), productRouter)
 app.use(root('/dashboard'), dashboardRouter)
+app.use(root('/auth'), authRouter)
 
 const server = app.listen(PORT, () => {
 	console.log(`Listening at http://localhost:${PORT}/api`)
