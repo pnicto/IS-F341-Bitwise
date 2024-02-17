@@ -1,9 +1,6 @@
-import type { User } from '@schemas'
-import { UserModel } from '@schemas'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
-import mongoose from 'mongoose'
 import morgan from 'morgan'
 import passport from 'passport'
 import { authRouter } from './features/auth/route'
@@ -18,13 +15,17 @@ const DATABASE_URL = process.env.DATABASE_URL
 
 // middleware
 app.use(cookieParser())
-const frontendIsHTTPS = process.env.FRONTEND_URL.includes('https://')
+
+// FIXME: deal with the typecast
+const frontendIsHTTPS = (process.env.FRONTEND_URL as string).includes(
+	'https://',
+)
 app.use(
 	cors({
 		credentials: true,
 		origin: [
-			process.env.FRONTEND_URL,
-			process.env.FRONTEND_URL.replace(
+			process.env.FRONTEND_URL as string,
+			(process.env.FRONTEND_URL as string).replace(
 				frontendIsHTTPS ? 'https://' : 'http://',
 				frontendIsHTTPS ? 'https://www.' : 'http://www.',
 			),
@@ -39,15 +40,6 @@ if (!DATABASE_URL) {
 	throw new Error('DATABASE_URL is not set')
 }
 
-// connect to the database
-async function connectDB() {
-	await mongoose.connect(DATABASE_URL)
-}
-console.log('Connecting to the database...')
-connectDB()
-	.then(() => console.log('Connected to the database'))
-	.catch((err) => console.log(err))
-
 // util function to set the root path for the url
 function root(url: string) {
 	return `/api${url}`
@@ -56,20 +48,6 @@ function root(url: string) {
 // routes
 app.get(root(''), async (_req, res) => {
 	return res.send({ message: 'Welcome to bitwise!' })
-})
-
-// TODO: test routes which will be changed/removed later
-app.get(root('/users'), async (req, res) => {
-	const users = await UserModel.find()
-	return res.json(users)
-})
-
-app.post(root('/user'), async (req, res) => {
-	const { username, email }: User = req.body
-
-	const user = new UserModel({ username, email })
-	await user.save()
-	return res.json(user)
 })
 
 // routes

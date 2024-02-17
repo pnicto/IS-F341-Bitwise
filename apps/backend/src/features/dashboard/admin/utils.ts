@@ -1,12 +1,16 @@
-import { User } from '@schemas'
-import { transporter } from '../../../config/mailer'
+import { User } from '@prisma/client'
 import bcrypt from 'bcrypt'
+import { transporter } from '../../../config/mailer'
+
+// FIXME: the type cast
+const SENDER_EMAIL = process.env.GOOGLE_MAIL_USER as string
 
 export const extractUsernameFromEmail = (emailStr: string) => {
 	if (!emailStr) {
 		return ''
 	} else {
-		return emailStr.replace(/\./g, '').match(/([^@]+)/)?.[1]
+		// FIXME: the type cast
+		return emailStr.replace(/\./g, '').match(/([^@]+)/)?.[1] as string
 	}
 }
 
@@ -16,21 +20,18 @@ export const hashPassword = async (password: string) => {
 	return await bcrypt.hash(password, salt)
 }
 
-export const sendLoginCredentials = async (user: User) => {
-	try {
-		const msg = {
-			from: 'bitwise@gmail.com',
-			to: user.email,
-			subject: 'Bitwise Account created successfully',
-			html: `<p><h2>Welcome to Bitwise!</h2></p>
-			<p>Your username is <b>${user.username}</b>.<br>
-			Your password is <b>${user.password}</b>.</p>`,
-		}
-
-		await transporter.sendMail(msg)
-		return null
-	} catch (err) {
-		console.log(err)
-		return err
+export const sendLoginCredentials = async (
+	newUser: User,
+	rawPassword: string,
+) => {
+	const msg = {
+		from: SENDER_EMAIL,
+		to: newUser.email,
+		subject: 'Bitwise Account created successfully',
+		html: `<p><h2>Welcome to Bitwise!</h2></p>
+			<p>Your username is <b>${newUser.username}</b>.<br>
+			Your password is <b>${rawPassword}</b>.</p>`,
 	}
+
+	return transporter.sendMail(msg)
 }

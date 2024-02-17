@@ -1,13 +1,14 @@
+import { User } from '@prisma/client'
 import jwt from 'jsonwebtoken'
-import { User } from '@schemas'
 
 export const generateAccessToken = (user: User) => {
 	// Create JWT Token
 	const accessToken = jwt.sign(
 		{
-			sub: user._id,
+			sub: user.id,
 		},
-		process.env.TOKEN_SECRET,
+		// FIXME: Add a proper check
+		process.env.TOKEN_SECRET as string,
 		{ expiresIn: '1d' },
 	)
 	if (!accessToken) {
