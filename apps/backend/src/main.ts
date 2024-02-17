@@ -5,6 +5,7 @@ import express from 'express'
 import mongoose from 'mongoose'
 import morgan from 'morgan'
 import { dashboardRouter } from './features/dashboard/route'
+import { productRouter } from './features/products/products.route'
 
 const app = express()
 
@@ -54,6 +55,8 @@ app.post(root('/user'), async (req, res) => {
 	return res.json(user)
 })
 
+// routes
+app.use(root('/products'), productRouter)
 app.use(root('/dashboard'), dashboardRouter)
 
 const server = app.listen(PORT, () => {
