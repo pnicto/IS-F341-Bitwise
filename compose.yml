@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  db:
+    container_name: bitwise-db-dev
+    build:
+      context: ./mongodb_rs
+      args:
+        MONGO_VERSION: 6
+    environment:
+      MONGO_REPLICA_HOST: 127.0.0.1
+      MONGO_REPLICA_PORT: 27017
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_COMMAND: 'mongosh'
+    ports:
+      - '27017:27017'
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'mongosh',
+          'admin',
+          '--port',
+          '27017',
+          '--eval',
+          "db.adminCommand('ping').ok",
+        ]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+    volumes:
+      - data:/data/db
+
+volumes:
+  data:
