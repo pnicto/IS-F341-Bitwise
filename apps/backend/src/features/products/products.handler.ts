@@ -1,19 +1,16 @@
 import { Product } from '@prisma/client'
 import { RequestHandler } from 'express'
 import { prisma } from '../../config/prisma'
+import { validateRequest } from '../../utils/validateRequest'
 
-export const createProduct: RequestHandler = async (req, res) => {
-	const { name, description, price }: Product = req.body
-
-	if (!name || !description || !price) {
-		return res.status(400).send({ message: 'Invalid body' })
-	}
-
-	const product = await prisma.product.create({
-		data: { name, description, price },
-	})
-
-	return res.status(201).json({ product })
+export const validateNewProduct = [
+	body('name').trim().notEmpty().withMessage('Product name is required'),
+	body('description')
+		.trim()
+		.notEmpty()
+		.withMessage('Product description is required'),
+	body('price').isNumeric().toInt().withMessage('Price must be a number'),
+]
 }
 
 export const getAllProducts: RequestHandler = async (req, res) => {
