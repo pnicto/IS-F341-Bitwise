@@ -1,8 +1,11 @@
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
-import express from 'express'
+import express, { ErrorRequestHandler } from 'express'
+import { StatusCodes } from 'http-status-codes'
 import morgan from 'morgan'
 import passport from 'passport'
+import { CustomError } from './errors/BaseCustomError'
+import { ValidationError } from './errors/CustomErrors'
 import { authRouter } from './features/auth/route'
 import { dashboardRouter } from './features/dashboard/route'
 import { productRouter } from './features/products/products.route'
@@ -54,6 +57,34 @@ app.get(root(''), async (_req, res) => {
 app.use(root('/products'), productRouter)
 app.use(root('/dashboard'), dashboardRouter)
 app.use(root('/auth'), authRouter)
+
+// Custom error handler
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
+	switch (true) {
+		case err instanceof ValidationError:
+			console.error('Validation Error at', req.url, err)
+			res.status(err.statusCode).json({ errors: err.errors })
+			break
+		case err instanceof CustomError:
+			console.error('Custom Error at', req.url, err)
+			res.status(err.statusCode).json({ errors: err.serializeErrors() })
+			break
+		case err instanceof Error:
+			console.error('Known Error at', req.url, err)
+			res
+				.status(StatusCodes.INTERNAL_SERVER_ERROR)
+				.json({ errors: [{ msg: 'Something went wrong' }] })
+			break
+		default:
+			console.error('Unknown Error at', req.url, err)
+			res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+				errors: [{ msg: err }],
+			})
+	}
+}
+
+app.use(errorHandler)
 
 const server = app.listen(PORT, () => {
 	console.log(`Listening at http://localhost:${PORT}/api`)
