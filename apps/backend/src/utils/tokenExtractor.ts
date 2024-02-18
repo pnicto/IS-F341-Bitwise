@@ -1,9 +1,9 @@
 import { Request } from 'express'
+import { Unauthorized } from '../errors/CustomErrors'
 
 export function accessTokenExtractor(req: Request) {
-	let token = null
-	if (req && req.cookies) {
-		token = req.cookies.jwt
+	if (!('jwt' in req.cookies)) {
+		throw new Unauthorized('Access denied')
 	}
-	return token
+	return req.cookies.jwt
 }
