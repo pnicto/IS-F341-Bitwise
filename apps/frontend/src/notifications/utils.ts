@@ -14,6 +14,8 @@ export function notifyErrors(errors: APIErrors) {
 
 export function handleAxiosErrors(error: unknown) {
 	if (error instanceof AxiosError) {
-		notifyErrors(error.response?.data.errors)
+		if (error.response && error.response.data)
+			notifyErrors(error.response.data.errors)
+		else notifications.show({ message: error.message, color: 'red' })
 	}
 }
