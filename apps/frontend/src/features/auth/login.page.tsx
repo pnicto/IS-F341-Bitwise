@@ -1,12 +1,28 @@
 import { Button, PasswordInput, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
+import { notifications } from '@mantine/notifications'
 import { useMutation } from '@tanstack/react-query'
+import { redirect, useNavigate } from 'react-router-dom'
 import axios from '../../lib/axios'
-import { router } from '../../main'
+import { handleAxiosErrors } from '../../notifications/utils'
+
+export async function loginLoader() {
+	try {
+		await axios.get('/auth/me')
+		return redirect('/')
+	} catch (err) {
+		return null
+	}
+}
 
 const Login = () => {
+	const navigate = useNavigate()
+
 	const form = useForm({
-		initialValues: { email: '', password: '' },
+		initialValues: {
+			email: '',
+			password: '',
+		},
 		validate: {
 			email: (value) =>
 				value.length > 0
@@ -21,14 +37,15 @@ const Login = () => {
 
 	const login = useMutation({
 		mutationFn: (body: { email: string; password: string }) => {
-			return axios.post('http://localhost:5000/api/auth/login', body)
+			return axios.post<{ message: string }>('/auth/login', body)
 		},
 		onSuccess: ({ data }) => {
-			form.reset()
-			console.log(data)
-			router.navigate({ pathname: data.redirect })
+			notifications.show({ message: data.message, color: 'green' })
+			navigate('/', { replace: true })
 		},
-		/* TODO: Handle onError */
+		onError: (err) => {
+			handleAxiosErrors(err)
+		},
 	})
 
 	return (
@@ -55,10 +72,6 @@ const Login = () => {
 					<Button type='submit'>Login</Button>
 				</form>
 			</div>
-
-			{/* TODO: Move to mantine notifications */}
-			{login.isSuccess && <div>Logged in successfully</div>}
-			{login.isError && <div>Failed to login</div>}
 		</main>
 	)
 }
