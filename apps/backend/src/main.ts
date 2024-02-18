@@ -9,6 +9,7 @@ import { ValidationError } from './errors/CustomErrors'
 import { authRouter } from './features/auth/route'
 import { dashboardRouter } from './features/dashboard/route'
 import { productRouter } from './features/products/products.route'
+import { paymentRouter } from './features/payments/payment.route'
 
 const app = express()
 
@@ -57,6 +58,7 @@ app.get(root(''), async (_req, res) => {
 app.use(root('/products'), productRouter)
 app.use(root('/dashboard'), dashboardRouter)
 app.use(root('/auth'), authRouter)
+app.use(root('/pay'), paymentRouter)
 
 // Custom error handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
