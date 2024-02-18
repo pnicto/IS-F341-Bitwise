@@ -41,10 +41,10 @@ model Product {
 
 model Transaction {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  sender     User     @relation("sender", fields: [senderId], references: [id])
-  senderId   String   @db.ObjectId
-  receiver   User     @relation("receiver", fields: [receiverId], references: [id])
-  receiverId String   @db.ObjectId
+  sender     User     @relation("sender", fields: [senderId], references: [username])
+  senderId   String
+  receiver   User     @relation("receiver", fields: [receiverId], references: [username])
+  receiverId String
   amount     Float
   createdAt  DateTime @default(now())
   status     Boolean  @default(true)
