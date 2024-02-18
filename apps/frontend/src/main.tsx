@@ -1,5 +1,7 @@
 import { MantineProvider } from '@mantine/core'
 import '@mantine/core/styles.css'
+import { Notifications } from '@mantine/notifications'
+import '@mantine/notifications/styles.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { StrictMode } from 'react'
 import * as ReactDOM from 'react-dom/client'
@@ -10,6 +12,7 @@ import Logout from './features/auth/logout.page'
 import CreateAccount from './features/dashboard/admin/create-account.page'
 import CreateProduct from './features/products/create-product.page'
 import ViewProducts from './features/products/view-products.page'
+
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
 export const router = createBrowserRouter([
@@ -49,6 +52,7 @@ root.render(
 	<StrictMode>
 		<QueryClientProvider client={queryClient}>
 			<MantineProvider>
+				<Notifications />
 				<RouterProvider router={router} />
 			</MantineProvider>
 		</QueryClientProvider>
