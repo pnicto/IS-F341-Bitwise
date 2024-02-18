@@ -10,6 +10,9 @@ This project is setup with [nx](https://nx.dev/) a new tool found in the wild.
 - [Other questions](#other-questions)
   - [Adding new packages](#adding-new-packages)
   - [Schemas](#schemas)
+  - [The terminal output is messed up](#the-terminal-output-is-messed-up)
+  - [Deleting `.nx` folder](#deleting-nx-folder)
+  - [The backend is too slow to update changes after save](#the-backend-is-too-slow-to-update-changes-after-save)
 
 # How to run
 
@@ -29,6 +32,10 @@ This project is setup with [nx](https://nx.dev/) a new tool found in the wild.
 ## Development
 
 - Make prettier your default formatter in your editor.
+- ```bash
+  cp .example.env .env
+  ```
+  Add the required fields in `.env`.
 - In the project root, run to start the db.
 
   ```bash
@@ -61,4 +68,16 @@ You have to install them in the project root using `pnpm`.
 
 ## Schemas
 
-The schemas for the entire project are defined and exported from `schemas/src/lib/schemas.ts`.
+The schemas for the entire project are defined in `prisma/schema.prisma`
+
+## The terminal output is messed up
+
+I think there's some problem with the `nx` cli's stdout with new lines. Even if the terminal is not responsive it is going to work fine. If you want to kill it you can run `pkill node` in another window.
+
+## Deleting `.nx` folder
+
+Yes, you can delete that folder.
+
+## The backend is too slow to update changes after save
+
+We are relying on webpack hope that helps.
