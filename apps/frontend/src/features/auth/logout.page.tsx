@@ -1,22 +1,13 @@
 // IMPORTANT: This file is a test file for logging out, and will probably be reworked in the future
 import { Button } from '@mantine/core'
 import { useMutation } from '@tanstack/react-query'
-import axios from 'axios'
+import axios from '../../lib/axios'
 import { router } from '../../main'
 
 const Logout = () => {
 	const logout = useMutation({
 		mutationFn: () => {
-			return axios.post(
-				'http://localhost:5000/api/auth/logout',
-				{},
-				{
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json ',
-					},
-				},
-			)
+			return axios.post('http://localhost:5000/api/auth/logout')
 		},
 		onSuccess: ({ data }) => {
 			console.log(data)

@@ -1,7 +1,7 @@
 import { Grid } from '@mantine/core'
 import { Product } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+import axios from '../../lib/axios'
 
 const ViewProducts = () => {
 	const getProducts = useQuery({

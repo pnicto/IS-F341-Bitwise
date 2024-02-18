@@ -1,7 +1,7 @@
 import { Button, PasswordInput, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useMutation } from '@tanstack/react-query'
-import axios from 'axios'
+import axios from '../../lib/axios'
 import { router } from '../../main'
 
 const Login = () => {
@@ -21,12 +21,7 @@ const Login = () => {
 
 	const login = useMutation({
 		mutationFn: (body: { email: string; password: string }) => {
-			return axios.post('http://localhost:5000/api/auth/login', body, {
-				withCredentials: true,
-				headers: {
-					'Content-Type': 'application/json ',
-				},
-			})
+			return axios.post('http://localhost:5000/api/auth/login', body)
 		},
 		onSuccess: ({ data }) => {
 			form.reset()
