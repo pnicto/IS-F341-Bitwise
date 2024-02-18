@@ -1,5 +1,5 @@
 # This is a test compose file for SonarQube and Postgres
-version: "3"
+version: '3'
 
 services:
   sonarqube:
@@ -11,7 +11,7 @@ services:
       SONAR_JDBC_USERNAME: sonar
       SONAR_JDBC_PASSWORD: sonar
     ports:
-      - "9001:9000"
+      - '9001:9000'
     volumes:
       - sonarqube_conf:/opt/sonarqube/conf
       - sonarqube_data:/opt/sonarqube/data
