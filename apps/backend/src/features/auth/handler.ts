@@ -64,3 +64,7 @@ export const logout: RequestHandler = async (req: Request, res: Response) => {
 		})
 	}
 }
+
+export const check: RequestHandler = async (req, res) => {
+	res.status(200).json({ msg: 'Logged in' })
+}
