@@ -1,23 +1,17 @@
-import { User } from '@prisma/client'
 import { Request, RequestHandler, Response } from 'express'
 import { prisma } from '../../config/prisma'
+import { Unauthorized } from '../../errors/CustomErrors'
 import { generateAccessToken } from '../../utils/generateToken'
 import { verifyPassword } from './utils'
 
 export const login: RequestHandler = async (req: Request, res: Response) => {
-	let user: User | undefined
-	try {
-		user = await prisma.user.findUniqueOrThrow({
-			where: { email: req.body.email },
-		})
-	} catch (err) {
-		return res.status(404).send({ error: 'User not found' })
-	}
+	const user = await prisma.user.findUniqueOrThrow({
+		where: { email: req.body.email },
+	})
 
 	const validPassword = await verifyPassword(req.body.password, user.password)
-
 	if (!validPassword) {
-		return res.status(403).send({ error: 'Incorrect password' })
+		throw new Unauthorized('Invalid email or password')
 	}
 
 	const accessToken = generateAccessToken(user)
@@ -35,10 +29,7 @@ export const login: RequestHandler = async (req: Request, res: Response) => {
 			secure: true,
 			sameSite: 'lax',
 		})
-		.send({
-			data: {
-				user,
-			},
+		.json({
 			message: 'Logged in successfully',
 			redirect: '/logout',
 		})
