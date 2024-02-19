@@ -44,8 +44,6 @@ export const transact: RequestHandler = async (req, res, next) => {
 					senderUsername,
 					receiverUsername,
 					amount,
-					status: true,
-					createdAt: new Date(),
 				},
 			}),
 		])
