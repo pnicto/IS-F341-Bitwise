@@ -40,12 +40,12 @@ model Product {
 }
 
 model Transaction {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  sender     User     @relation("sender", fields: [senderId], references: [id])
-  senderId   String   @db.ObjectId
-  receiver   User     @relation("receiver", fields: [receiverId], references: [id])
-  receiverId String   @db.ObjectId
-  amount     Float
-  createdAt  DateTime @default(now())
-  status     Boolean  @default(true)
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  sender             User     @relation("sender", fields: [senderUsername], references: [username])
+  senderUsername     String
+  receiver           User     @relation("receiver", fields: [receiverUsername], references: [username])
+  receiverUsername   String
+  amount             Float
+  createdAt          DateTime @default(now())
+  status             Boolean  @default(true)
 }
