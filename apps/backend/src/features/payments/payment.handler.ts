@@ -7,14 +7,21 @@ import { validateRequest } from '../../utils/validateRequest'
 import { BadRequest } from '../../errors/CustomErrors'
 
 export const validateTransaction = [
-	body('senderUsername').trim().notEmpty().withMessage('From account is required'),
-	body('receiverUsername').trim().notEmpty().withMessage('To account is required'),
+	body('senderUsername')
+		.trim()
+		.notEmpty()
+		.withMessage('From account is required'),
+	body('receiverUsername')
+		.trim()
+		.notEmpty()
+		.withMessage('To account is required'),
 	body('amount').isNumeric().toInt().withMessage('Amount must be a number'),
 ]
 
 export const transact: RequestHandler = async (req, res, next) => {
 	try {
-		const { senderUsername, receiverUsername, amount } = validateRequest<Transaction>(req)
+		const { senderUsername, receiverUsername, amount } =
+			validateRequest<Transaction>(req)
 		const sender = await prisma.user.findUnique({
 			where: { username: senderUsername },
 		})
@@ -49,7 +56,7 @@ export const transact: RequestHandler = async (req, res, next) => {
 		])
 		return res
 			.status(StatusCodes.CREATED)
-			.json({ message: 'Transaction successful'})
+			.json({ message: 'Transaction successful' })
 	} catch (err) {
 		next(err)
 	}
