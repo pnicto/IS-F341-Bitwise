@@ -29,5 +29,7 @@ jobs:
         run: pnpm prettier --check .
       - name: lint
         run: pnpm lint
+      - name: generate prisma client
+        run: pnpm prisma generate
       - name: build
         run: pnpm build
