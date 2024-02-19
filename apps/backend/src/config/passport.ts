@@ -8,6 +8,7 @@ const JwtAuthCallback = async (jwt_payload: JwtPayload, done: DoneCallback) => {
 	try {
 		const user = await prisma.user.findUniqueOrThrow({
 			where: { id: jwt_payload.sub },
+			select: { id: true, email: true, role: true },
 		})
 
 		return done(null, user)

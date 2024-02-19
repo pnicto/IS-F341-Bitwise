@@ -1,28 +1,30 @@
 // IMPORTANT: This file is a test file for logging out, and will probably be reworked in the future
 import { Button } from '@mantine/core'
+import { notifications } from '@mantine/notifications'
 import { useMutation } from '@tanstack/react-query'
-import axios from 'axios'
-import { router } from '../../main'
+import { useNavigate } from 'react-router-dom'
+import axios from '../../lib/axios'
 
 const Logout = () => {
+	const navigate = useNavigate()
 	const logout = useMutation({
 		mutationFn: () => {
-			return axios.post(
-				'http://localhost:5000/api/auth/logout',
-				{},
-				{
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'application/json ',
-					},
-				},
-			)
+			return axios.post<{ message: string }>('/auth/logout')
 		},
 		onSuccess: ({ data }) => {
-			console.log(data)
-			router.navigate({ pathname: data.redirect })
+			notifications.show({
+				message: data.message,
+				color: 'green',
+			})
+			navigate('/', { replace: true })
 		},
-		/* TODO: Handle onError */
+		onError: () => {
+			notifications.show({
+				message: 'Something went wrong while logging out',
+				color: 'red',
+			})
+			navigate('/', { replace: true })
+		},
 	})
 
 	return (
