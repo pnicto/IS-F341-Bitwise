@@ -8,7 +8,8 @@ const MainLayout = () => {
 				<NavLink to='/'>Home</NavLink>
 				<NavLink to='/login'>Login</NavLink>
 				<NavLink to='/logout'>Logout</NavLink>
-				<NavLink to='/dashboard/admin/create'>Create</NavLink>
+				<NavLink to='/products'>Products</NavLink>
+				<NavLink to='/admin/add-student'>Create</NavLink>
 			</nav>
 			<Outlet />
 		</div>

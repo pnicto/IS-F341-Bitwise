@@ -15,8 +15,10 @@ import App from './features/app'
 import Login, { loginLoader } from './features/auth/login.page'
 import Logout from './features/auth/logout.page'
 import CreateAccount from './features/dashboard/admin/create-account.page'
+import ViewProducts from './features/products/view-products.page'
 import ErrorBoundary from './shared/error-boundary'
 import MainLayout from './shared/main-layout'
+import PermissionGuard from './shared/permissino-guard'
 import ProtectedLayout, { protectedLoader } from './shared/protected-layout'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
@@ -38,7 +40,12 @@ const router = createBrowserRouter(
 				errorElement={<ErrorBoundary />}
 			>
 				<Route index element={<App />} />
-				<Route path='/dashboard/admin/create' element={<CreateAccount />} />
+				<Route path='/products' element={<ViewProducts />} />
+
+				{/* Role based example */}
+				<Route path='admin' element={<PermissionGuard permission='ADMIN' />}>
+					<Route path='add-student' element={<CreateAccount />} />
+				</Route>
 			</Route>
 		</Route>,
 	),
