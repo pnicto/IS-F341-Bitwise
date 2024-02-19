@@ -1,14 +1,14 @@
 import { Grid } from '@mantine/core'
 import { Product } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+import axios from '../../lib/axios'
 
 const ViewProducts = () => {
 	const getProducts = useQuery({
 		queryKey: ['products'],
 		queryFn: () => {
 			return axios
-				.get<Product[]>('http://localhost:5000/api/products')
+				.get<{ products: Product[] }>('http://localhost:5000/api/products')
 				.then((res) => res.data)
 		},
 	})
@@ -34,7 +34,7 @@ const ViewProducts = () => {
 					Price
 				</Grid.Col>
 
-				{getProducts.data.map((product) => {
+				{getProducts.data.products.map((product) => {
 					return (
 						<>
 							<Grid.Col span={2}>{product.name}</Grid.Col>

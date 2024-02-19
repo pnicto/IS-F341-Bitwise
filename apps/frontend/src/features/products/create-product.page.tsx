@@ -2,7 +2,7 @@ import { Button, NumberInput, TextInput, Textarea } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { Product } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
-import axios from 'axios'
+import axios from '../../lib/axios'
 
 const CreateProduct = () => {
 	const form = useForm({
