@@ -23,7 +23,7 @@ const MainLayout = () => {
 				message: data.message,
 				color: 'green',
 			})
-			navigate('/', { replace: true })
+			navigate('/login', { replace: true })
 		},
 		onError: (err) => {
 			handleAxiosErrors(err)
