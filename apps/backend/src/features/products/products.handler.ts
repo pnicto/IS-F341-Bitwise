@@ -28,7 +28,7 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 export const getAllProducts: RequestHandler = async (_req, res, next) => {
 	try {
 		const products = await prisma.product.findMany()
-		return res.json({ products })
+		return res.status(StatusCodes.OK).json({ products })
 	} catch (err) {
 		next(err)
 	}
