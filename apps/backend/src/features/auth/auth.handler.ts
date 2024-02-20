@@ -46,6 +46,7 @@ export const login: RequestHandler = async (req, res, next) => {
 			})
 			.json({
 				message: 'Logged in successfully',
+				user: { role: user.role },
 			})
 	} catch (err) {
 		next(err)
