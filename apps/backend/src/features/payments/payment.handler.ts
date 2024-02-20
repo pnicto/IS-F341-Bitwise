@@ -15,7 +15,10 @@ export const validateTransaction = [
 		.trim()
 		.notEmpty()
 		.withMessage('To account is required'),
-	body('amount').isNumeric().toInt().withMessage('Amount must be a number'),
+	body('amount')
+		.isInt({ min: 1 })
+		.toInt()
+		.withMessage('Amount must be a number'),
 ]
 export const transact: RequestHandler = async (req, res, next) => {
 	try {

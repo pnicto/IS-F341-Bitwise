@@ -11,7 +11,7 @@ export const validateNewProduct = [
 		.trim()
 		.notEmpty()
 		.withMessage('Product description is required'),
-	body('price').isNumeric().toInt().withMessage('Price must be a number'),
+	body('price').isInt({ min: 1 }).toInt().withMessage('Price must be a number'),
 ]
 export const createProduct: RequestHandler = async (req, res, next) => {
 	try {
