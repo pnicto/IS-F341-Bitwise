@@ -1,46 +1,41 @@
 import { User } from '@prisma/client'
 import crypto from 'crypto'
-import { Request, RequestHandler, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
+import { body } from 'express-validator'
+import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../../config/prisma'
+import { validateRequest } from '../../../utils/validateRequest'
 import {
 	extractUsernameFromEmail,
 	hashPassword,
 	sendLoginCredentials,
 } from './utils'
 
-export const createAccount: RequestHandler = async (
+export const validateNewUser = [
+	body('email').trim().isEmail().withMessage('Invalid email'),
+]
+export const createAccount = async (
 	req: Request,
 	res: Response,
+	next: NextFunction,
 ) => {
-	const { email }: User = req.body
-
-	if (!email) {
-		return res.status(400).send({ message: 'Invalid body' })
-	}
-
-	const username = extractUsernameFromEmail(email)
-	const password = crypto.randomBytes(4).toString('hex')
-	const hashedPassword = await hashPassword(password)
-
-	let user: User | undefined
-
 	try {
-		user = await prisma.user.create({
+		const { email } = validateRequest<Pick<User, 'email'>>(req)
+
+		const username = extractUsernameFromEmail(email)
+		const password = crypto.randomBytes(4).toString('hex')
+		const hashedPassword = await hashPassword(password)
+
+		const user = await prisma.user.create({
 			data: { username, email, password: hashedPassword },
 		})
-	} catch (err) {
-		console.log(err)
-		return res.status(500).json({ error: 'Error creating user' })
-	}
 
-	try {
-		// FIXME: check if this is working as expected
+		// TODO: Check if throws errors as expected
 		await sendLoginCredentials(user, password)
-		console.log('', 'email')
+		return res
+			.status(StatusCodes.CREATED)
+			.json({ message: 'User created successfully' })
 	} catch (err) {
-		console.log(err)
-		return res.status(207).json({ error: 'Error sending email to the user' })
+		next(err)
 	}
-
-	return res.status(201).json({ message: 'User created successfully' })
 }
