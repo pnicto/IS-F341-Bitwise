@@ -13,6 +13,9 @@ This project is setup with [nx](https://nx.dev/) a new tool found in the wild.
   - [The terminal output is messed up](#the-terminal-output-is-messed-up)
   - [Deleting `.nx` folder](#deleting-nx-folder)
   - [The backend is too slow to update changes after save](#the-backend-is-too-slow-to-update-changes-after-save)
+- [Useful commands](#useful-commands)
+- [API Response formats](#api-response-formats)
+- [References](#references)
 
 # How to run
 
@@ -28,10 +31,14 @@ This project is setup with [nx](https://nx.dev/) a new tool found in the wild.
   ```bash
   pnpm install
   ```
+- Run this generate the typescript types for our schemas.
+  ```bash
+  pnpm prisma generate
+  ```
 
 ## Development
 
-- Make prettier your default formatter in your editor.
+- Make `Prettier` your default formatter in your editor.
 - ```bash
   cp .example.env .env
   ```
@@ -42,7 +49,7 @@ This project is setup with [nx](https://nx.dev/) a new tool found in the wild.
   docker compose up
 
   # alternatively you can use this command to run in detached mode
-  docker compose up  -d
+  docker compose up -d
   ```
 
 - Once the db is up and running, you use nx to serve the project
@@ -80,4 +87,45 @@ Yes, you can delete that folder.
 
 ## The backend is too slow to update changes after save
 
-We are relying on webpack hope that helps.
+We are relying on webpack hope that answers.
+
+# Useful commands
+
+```bash
+# to open the mongodb shell where you can interact with the database
+docker exec -it bitwise-db-dev mongosh -u bitwise -p password --authenticationDatabase admin bitwise
+```
+
+# API Response formats
+
+```typescript
+// success
+// both of these formats can be combined if required for success responses
+// this message will be displayed on the frontend
+{
+	msg: string
+}
+// or
+// this data will be used by the frontend
+{
+  products: [...]
+}
+
+// errors
+{ msg: string }[]
+// example
+const errors = [
+	{ msg: 'Missing field price' },
+	{ msg: 'Age needs to a number greater than 0' },
+]
+```
+
+# References
+
+- https://www.mongodb.com/developer/products/mongodb/cheat-sheet/#crud
+- https://www.prisma.io/docs/orm/prisma-client/queries/crud
+- https://github.com/validatorjs/validator.js/?tab=readme-ov-file#validators
+- https://github.com/validatorjs/validator.js/?tab=readme-ov-file#sanitizers
+- https://express-validator.github.io/docs/guides/validation-chain
+- https://reactrouter.com/en/main/route/loader
+- https://nx.dev/getting-started/intro
