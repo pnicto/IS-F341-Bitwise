@@ -71,7 +71,7 @@ const Login = () => {
 				</span>
 			</div>
 			<form
-				className='flex flex-col gap-5 max-w-lg mx-auto'
+				className='flex flex-col gap-5'
 				onSubmit={form.onSubmit((values) => {
 					login.mutate(values)
 				})}
