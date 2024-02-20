@@ -11,9 +11,7 @@ import {
 	createBrowserRouter,
 	createRoutesFromElements,
 } from 'react-router-dom'
-import App from './features/app'
 import Login, { loginLoader } from './features/auth/login.page'
-import Logout from './features/auth/logout.page'
 import CreateAccount from './features/dashboard/admin/create-account.page'
 import ViewProducts from './features/products/view-products.page'
 import ErrorBoundary from './shared/error-boundary'
@@ -29,7 +27,6 @@ const router = createBrowserRouter(
 	createRoutesFromElements(
 		<Route path='/' element={<MainLayout />}>
 			<Route path='login' element={<Login />} loader={loginLoader} />
-			<Route path='logout' element={<Logout />} />
 
 			{/* Protected example */}
 			<Route
