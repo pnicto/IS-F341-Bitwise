@@ -23,7 +23,9 @@ export const validateTransaction = [
 export const transact: RequestHandler = async (req, res, next) => {
 	try {
 		const { senderUsername, receiverUsername, amount } =
-			validateRequest<Transaction>(req)
+			validateRequest<
+				Pick<Transaction, 'senderUsername' | 'receiverUsername' | 'amount'>
+			>(req)
 		const sender = await prisma.user.findUnique({
 			where: { username: senderUsername },
 		})

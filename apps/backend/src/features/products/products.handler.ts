@@ -15,7 +15,8 @@ export const validateNewProduct = [
 ]
 export const createProduct: RequestHandler = async (req, res, next) => {
 	try {
-		const { name, description, price } = validateRequest<Product>(req)
+		const { name, description, price } =
+			validateRequest<Pick<Product, 'name' | 'description' | 'price'>>(req)
 		const product = await prisma.product.create({
 			data: { name, description, price },
 		})
