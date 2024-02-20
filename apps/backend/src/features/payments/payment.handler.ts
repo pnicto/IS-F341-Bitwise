@@ -4,13 +4,10 @@ import { body } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
 import { BadRequest } from '../../errors/CustomErrors'
+import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 
 export const validateTransaction = [
-	body('senderUsername')
-		.trim()
-		.notEmpty()
-		.withMessage('From account is required'),
 	body('receiverUsername')
 		.trim()
 		.notEmpty()
@@ -22,16 +19,10 @@ export const validateTransaction = [
 ]
 export const transact: RequestHandler = async (req, res, next) => {
 	try {
-		const { senderUsername, receiverUsername, amount } =
-			validateRequest<
-				Pick<Transaction, 'senderUsername' | 'receiverUsername' | 'amount'>
-			>(req)
-		const sender = await prisma.user.findUnique({
-			where: { username: senderUsername },
-		})
-		if (!sender) {
-			throw new BadRequest('Sender not found')
-		}
+		const { receiverUsername, amount } =
+			validateRequest<Pick<Transaction, 'receiverUsername' | 'amount'>>(req)
+		const sender = getAuthorizedUser(req)
+
 		const receiver = await prisma.user.findUnique({
 			where: { username: receiverUsername },
 		})
@@ -43,7 +34,7 @@ export const transact: RequestHandler = async (req, res, next) => {
 		}
 		await prisma.$transaction([
 			prisma.user.update({
-				where: { username: senderUsername },
+				where: { username: sender.username },
 				data: { balance: { decrement: amount } },
 			}),
 			prisma.user.update({
@@ -52,7 +43,7 @@ export const transact: RequestHandler = async (req, res, next) => {
 			}),
 			prisma.transaction.create({
 				data: {
-					senderUsername,
+					senderUsername: sender.username,
 					receiverUsername,
 					amount,
 				},
