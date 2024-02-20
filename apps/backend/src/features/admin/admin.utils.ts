@@ -1,6 +1,6 @@
 import { User } from '@prisma/client'
 import bcrypt from 'bcrypt'
-import { transporter } from '../../../config/mailer'
+import { transporter } from '../../config/mailer'
 
 // FIXME: the type cast
 const SENDER_EMAIL = process.env.GOOGLE_MAIL_USER as string
