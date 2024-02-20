@@ -1,6 +1,6 @@
 import { User } from '@prisma/client'
 import crypto from 'crypto'
-import { NextFunction, Request, Response } from 'express'
+import { RequestHandler } from 'express'
 import { body } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../../config/prisma'
@@ -14,11 +14,7 @@ import {
 export const validateNewUser = [
 	body('email').trim().isEmail().withMessage('Invalid email'),
 ]
-export const createAccount = async (
-	req: Request,
-	res: Response,
-	next: NextFunction,
-) => {
+export const createAccount: RequestHandler = async (req, res, next) => {
 	try {
 		const { email } = validateRequest<Pick<User, 'email'>>(req)
 
