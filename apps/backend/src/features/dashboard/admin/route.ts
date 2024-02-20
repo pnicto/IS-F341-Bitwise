@@ -1,5 +1,5 @@
 import express from 'express'
-import { createAccount } from './handler'
+import { createAccount, validateNewUser } from './handler'
 
 export const adminDashboardRouter = express.Router()
-adminDashboardRouter.post('/create', createAccount)
+adminDashboardRouter.post('/create', validateNewUser, createAccount)

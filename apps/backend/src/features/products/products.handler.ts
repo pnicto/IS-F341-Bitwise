@@ -11,11 +11,12 @@ export const validateNewProduct = [
 		.trim()
 		.notEmpty()
 		.withMessage('Product description is required'),
-	body('price').isNumeric().toInt().withMessage('Price must be a number'),
+	body('price').isInt({ min: 1 }).toInt().withMessage('Price must be a number'),
 ]
 export const createProduct: RequestHandler = async (req, res, next) => {
 	try {
-		const { name, description, price } = validateRequest<Product>(req)
+		const { name, description, price } =
+			validateRequest<Pick<Product, 'name' | 'description' | 'price'>>(req)
 		const product = await prisma.product.create({
 			data: { name, description, price },
 		})
@@ -28,7 +29,7 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 export const getAllProducts: RequestHandler = async (_req, res, next) => {
 	try {
 		const products = await prisma.product.findMany()
-		return res.json({ products })
+		return res.status(StatusCodes.OK).json({ products })
 	} catch (err) {
 		next(err)
 	}

@@ -2,5 +2,8 @@
 	"files.associations": {
 		"*.css": "tailwindcss"
 	},
-	"typescript.preferences.importModuleSpecifier": "project-relative"
+	"typescript.preferences.importModuleSpecifier": "project-relative",
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": "always"
+	}
 }

@@ -20,7 +20,7 @@ model User {
   password             String
   mobile               String?
   role                 Role          @default(STUDENT)
-  balance              Float         @default(0)
+  balance              Int           @default(0)
   // TODO: Uncomment them once the endpoints are ready
   // Product             Products[]
   transactionsSend     Transaction[] @relation("sender")
@@ -31,7 +31,7 @@ model Product {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String
-  price       Float    @default(0)
+  price       Int      @default(0)
   // TODO: Uncomment them once the endpoints are ready
   // vendor      User     @relation(fields: [vendorId], references: [id])
   // vendorId    String   @db.ObjectId
@@ -40,12 +40,12 @@ model Product {
 }
 
 model Transaction {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  sender             User     @relation("sender", fields: [senderUsername], references: [username])
-  senderUsername     String
-  receiver           User     @relation("receiver", fields: [receiverUsername], references: [username])
-  receiverUsername   String
-  amount             Float
-  createdAt          DateTime @default(now())
-  status             Boolean  @default(true)
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  sender           User     @relation("sender", fields: [senderUsername], references: [username])
+  senderUsername   String
+  receiver         User     @relation("receiver", fields: [receiverUsername], references: [username])
+  receiverUsername String
+  amount           Int
+  createdAt        DateTime @default(now())
+  status           Boolean  @default(true)
 }

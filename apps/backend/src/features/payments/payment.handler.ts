@@ -3,8 +3,8 @@ import { RequestHandler } from 'express'
 import { body } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
-import { validateRequest } from '../../utils/validateRequest'
 import { BadRequest } from '../../errors/CustomErrors'
+import { validateRequest } from '../../utils/validateRequest'
 
 export const validateTransaction = [
 	body('senderUsername')
@@ -15,13 +15,17 @@ export const validateTransaction = [
 		.trim()
 		.notEmpty()
 		.withMessage('To account is required'),
-	body('amount').isNumeric().toInt().withMessage('Amount must be a number'),
+	body('amount')
+		.isInt({ min: 1 })
+		.toInt()
+		.withMessage('Amount must be a number'),
 ]
-
 export const transact: RequestHandler = async (req, res, next) => {
 	try {
 		const { senderUsername, receiverUsername, amount } =
-			validateRequest<Transaction>(req)
+			validateRequest<
+				Pick<Transaction, 'senderUsername' | 'receiverUsername' | 'amount'>
+			>(req)
 		const sender = await prisma.user.findUnique({
 			where: { username: senderUsername },
 		})
