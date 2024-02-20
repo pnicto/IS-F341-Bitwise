@@ -18,7 +18,7 @@ import CreateProduct from './features/products/create-product.page'
 import ViewProducts from './features/products/view-products.page'
 import ErrorBoundary from './shared/error-boundary'
 import MainLayout from './shared/main-layout'
-import PermissionGuard from './shared/permissino-guard'
+import PermissionGuard from './shared/permission-guard'
 import ProtectedLayout, { protectedLoader } from './shared/protected-layout'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
@@ -28,9 +28,10 @@ const queryClient = new QueryClient()
 const router = createBrowserRouter(
 	createRoutesFromElements(
 		<Route path='/' element={<MainLayout />}>
+			{/* Public routes */}
 			<Route path='login' element={<Login />} loader={loginLoader} />
 
-			{/* Protected example */}
+			{/* Protected routes */}
 			<Route
 				path='/'
 				element={<ProtectedLayout />}
@@ -38,19 +39,25 @@ const router = createBrowserRouter(
 				loader={protectedLoader}
 				errorElement={<ErrorBoundary />}
 			>
-				<Route index element={<PaymentsPage />} />
-				<Route path='/products' element={<ViewProducts />} />
+				{/* Protected for both user and vendor */}
+				<Route
+					element={<PermissionGuard permissions={['STUDENT', 'VENDOR']} />}
+				>
+					<Route index element={<PaymentsPage />} />
+					<Route path='/products' element={<ViewProducts />} />
+				</Route>
 
+				{/* Protected for only vendor */}
 				<Route
 					path='catalogue'
-					element={<PermissionGuard permission='VENDOR' />}
+					element={<PermissionGuard permissions={['VENDOR']} />}
 				>
 					<Route path='add-product' element={<CreateProduct />} />
 				</Route>
 
-				{/* Role based example */}
-				<Route path='admin' element={<PermissionGuard permission='ADMIN' />}>
-					<Route path='add-student' element={<CreateAccount />} />
+				{/* Protected only for admin */}
+				<Route element={<PermissionGuard permissions={['ADMIN']} />}>
+						<Route path='admin/add-student' element={<CreateAccount />} />
 				</Route>
 			</Route>
 		</Route>,
