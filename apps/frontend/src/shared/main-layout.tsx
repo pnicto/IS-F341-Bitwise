@@ -10,6 +10,7 @@ const MainLayout = () => {
 				<NavLink to='/logout'>Logout</NavLink>
 				<NavLink to='/products'>Products</NavLink>
 				<NavLink to='/admin/add-student'>Create</NavLink>
+				<NavLink to='/catalogue/add-product'>NewProduct</NavLink>
 			</nav>
 			<Outlet />
 		</div>

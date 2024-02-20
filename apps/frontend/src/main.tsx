@@ -15,6 +15,7 @@ import CreateAccount from './features/admin/create-account.page'
 import App from './features/app'
 import Login, { loginLoader } from './features/auth/login.page'
 import Logout from './features/auth/logout.page'
+import CreateProduct from './features/products/create-product.page'
 import ViewProducts from './features/products/view-products.page'
 import ErrorBoundary from './shared/error-boundary'
 import MainLayout from './shared/main-layout'
@@ -41,6 +42,10 @@ const router = createBrowserRouter(
 			>
 				<Route index element={<App />} />
 				<Route path='/products' element={<ViewProducts />} />
+
+				<Route path='catalogue' element={<PermissionGuard permission='VENDOR' />}>
+					<Route path='add-product' element={<CreateProduct />} />
+				</Route>
 
 				{/* Role based example */}
 				<Route path='admin' element={<PermissionGuard permission='ADMIN' />}>
