@@ -38,7 +38,7 @@ const MainLayout = () => {
 					<Button onClick={() => logout.mutate()}>Logout</Button>
 				</nav>
 			)}
-			<main className='px-10 py-2 md:max-w-7xl md:mx-auto'>
+			<main className='px-10 py-4 lg:max-w-xl lg:mx-auto max-w-md mx-auto'>
 				<Outlet />
 			</main>
 		</>
