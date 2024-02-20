@@ -13,6 +13,7 @@ import {
 } from 'react-router-dom'
 import Login, { loginLoader } from './features/auth/login.page'
 import CreateAccount from './features/dashboard/admin/create-account.page'
+import PaymentsPage from './features/payments/payments.page'
 import ViewProducts from './features/products/view-products.page'
 import ErrorBoundary from './shared/error-boundary'
 import MainLayout from './shared/main-layout'
@@ -36,7 +37,7 @@ const router = createBrowserRouter(
 				loader={protectedLoader}
 				errorElement={<ErrorBoundary />}
 			>
-				<Route index element={<App />} />
+				<Route index element={<PaymentsPage />} />
 				<Route path='/products' element={<ViewProducts />} />
 
 				{/* Role based example */}
