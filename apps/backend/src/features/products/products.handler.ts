@@ -17,10 +17,12 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 	try {
 		const { name, description, price } =
 			validateRequest<Pick<Product, 'name' | 'description' | 'price'>>(req)
-		const product = await prisma.product.create({
+		await prisma.product.create({
 			data: { name, description, price },
 		})
-		return res.status(StatusCodes.CREATED).json({ product })
+		return res
+			.status(StatusCodes.CREATED)
+			.json({ message: 'Product successfully created' })
 	} catch (err) {
 		next(err)
 	}
