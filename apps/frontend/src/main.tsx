@@ -11,10 +11,10 @@ import {
 	createBrowserRouter,
 	createRoutesFromElements,
 } from 'react-router-dom'
+import CreateAccount from './features/admin/create-account.page'
 import App from './features/app'
 import Login, { loginLoader } from './features/auth/login.page'
 import Logout from './features/auth/logout.page'
-import CreateAccount from './features/dashboard/admin/create-account.page'
 import ViewProducts from './features/products/view-products.page'
 import ErrorBoundary from './shared/error-boundary'
 import MainLayout from './shared/main-layout'
