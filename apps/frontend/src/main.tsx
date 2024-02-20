@@ -43,7 +43,10 @@ const router = createBrowserRouter(
 				<Route index element={<App />} />
 				<Route path='/products' element={<ViewProducts />} />
 
-				<Route path='catalogue' element={<PermissionGuard permission='VENDOR' />}>
+				<Route
+					path='catalogue'
+					element={<PermissionGuard permission='VENDOR' />}
+				>
 					<Route path='add-product' element={<CreateProduct />} />
 				</Route>
 

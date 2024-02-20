@@ -7,12 +7,14 @@ export const authorize =
 	(...permittedRoles: Role[]) =>
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-            const user = getAuthorizedUser(req)
+			const user = getAuthorizedUser(req)
 
 			if (user.role && permittedRoles.includes(user.role)) {
 				next()
 			} else {
-                throw new Forbidden('You are not authorized to access this resource as you do not have the required role')
+				throw new Forbidden(
+					'You are not authorized to access this resource as you do not have the required role',
+				)
 			}
 		} catch (err) {
 			next(err)

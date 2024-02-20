@@ -10,7 +10,7 @@ export const adminRouter = express.Router()
 
 adminRouter.post(
 	'/create',
-    passportJWT,
+	passportJWT,
 	authorize(Role.ADMIN),
 	validateNewUser,
 	createAccount,
