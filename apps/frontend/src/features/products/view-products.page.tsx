@@ -8,7 +8,7 @@ const ViewProducts = () => {
 		queryKey: ['products'],
 		queryFn: () => {
 			return axios
-				.get<{ products: Product[] }>('http://localhost:5000/api/products')
+				.get<{ products: Product[] }>('/products')
 				.then((res) => res.data)
 		},
 	})

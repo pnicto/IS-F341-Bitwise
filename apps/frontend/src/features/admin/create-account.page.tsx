@@ -1,5 +1,6 @@
 import { Button, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
+import { notifications } from '@mantine/notifications'
 import { useMutation } from '@tanstack/react-query'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
@@ -19,12 +20,11 @@ const CreateAccount = () => {
 
 	const createAccount = useMutation({
 		mutationFn: (body: { email: string }) => {
-			return axios.post('/admin/create', body)
+			return axios.post<{ message: string }>('/admin/create', body)
 		},
 		onSuccess: ({ data }) => {
-			/* TODO: Navigate back to admin dashboard page*/
 			form.reset()
-			console.log(data)
+			notifications.show({ message: data.message, color: 'green' })
 		},
 		onError: (error) => {
 			handleAxiosErrors(error)
@@ -46,12 +46,11 @@ const CreateAccount = () => {
 						placeholder='Eg., john@john.com'
 						{...form.getInputProps('email')}
 					/>
-					<Button type='submit'>Create</Button>
+					<Button type='submit' loading={createAccount.isPending}>
+						Create
+					</Button>
 				</form>
 			</div>
-
-			{/* TODO: Move to mantine notifications */}
-			{createAccount.isSuccess && <div>Successfully added account</div>}
 		</main>
 	)
 }
