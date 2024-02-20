@@ -10,8 +10,16 @@ import { handleAxiosErrors } from '../../notifications/utils'
 
 export async function loginLoader() {
 	try {
-		await axios.get('/auth/me')
-		return redirect('/')
+		const response = await axios.get<{ user: Pick<User, 'role'> }>('/auth/me', {
+			headers: {
+				'Cache-Control': 'no-cache',
+				Pragma: 'no-cache',
+				Expires: '0',
+			},
+		})
+		return redirect(
+			response.data.user.role === 'ADMIN' ? '/admin/add-student' : '/',
+		)
 	} catch (err) {
 		return null
 	}
