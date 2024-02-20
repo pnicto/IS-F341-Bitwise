@@ -12,7 +12,7 @@ export const authorize =
 			if (user.role && permittedRoles.includes(user.role)) {
 				next()
 			} else {
-                throw new Forbidden('You are not authorized to access this resource')
+                throw new Forbidden('You are not authorized to access this resource as you do not have the required role')
 			}
 		} catch (err) {
 			next(err)
