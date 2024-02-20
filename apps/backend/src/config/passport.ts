@@ -1,15 +1,21 @@
 import { JwtPayload } from 'jsonwebtoken'
 import passport, { DoneCallback } from 'passport'
 import { Strategy as JwtStrategy } from 'passport-jwt'
+import { NotFound } from '../errors/CustomErrors'
 import { accessTokenExtractor } from '../utils/tokenExtractor'
 import { prisma } from './prisma'
 
-const JwtAuthCallback = async (jwt_payload: JwtPayload, done: DoneCallback) => {
+const jwtAuthCallback = async (payload: JwtPayload, done: DoneCallback) => {
 	try {
-		const user = await prisma.user.findUniqueOrThrow({
-			where: { id: jwt_payload.sub },
+		// here we are only selecting the id, email and role instead of exposing all the fields like password to the express `Request` object. We are starting with the least data that we need and we can add more fields as needed.
+		const user = await prisma.user.findUnique({
+			where: { id: payload.sub },
 			select: { id: true, email: true, role: true },
 		})
+
+		if (!user) {
+			throw new NotFound('User does not exist')
+		}
 
 		return done(null, user)
 	} catch (err) {
@@ -25,7 +31,7 @@ passport.use(
 			// FIXME: Add a proper check
 			secretOrKey: process.env.TOKEN_SECRET as string,
 		},
-		JwtAuthCallback,
+		jwtAuthCallback,
 	),
 )
 
