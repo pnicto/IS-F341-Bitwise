@@ -10,7 +10,7 @@ const jwtAuthCallback = async (payload: JwtPayload, done: DoneCallback) => {
 		// here we are only selecting the id, email and role instead of exposing all the fields like password to the express `Request` object. We are starting with the least data that we need and we can add more fields as needed.
 		const user = await prisma.user.findUnique({
 			where: { id: payload.sub },
-			select: { id: true, email: true, role: true },
+			select: { id: true, email: true, role: true, username: true },
 		})
 
 		if (!user) {

@@ -12,6 +12,7 @@ import { paymentRouter } from './features/payments/payment.route'
 import { productRouter } from './features/products/products.route'
 
 const app = express()
+const passportJWT = passport.authenticate('jwt', { session: false })
 
 // load env vars
 const PORT = process.env.PORT || 3333
@@ -58,7 +59,7 @@ app.get(root(''), async (_req, res) => {
 app.use(root('/products'), productRouter)
 app.use(root('/admin'), adminRouter)
 app.use(root('/auth'), authRouter)
-app.use(root('/pay'), paymentRouter)
+app.use(root('/pay'), passportJWT, paymentRouter)
 
 // Custom error handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
