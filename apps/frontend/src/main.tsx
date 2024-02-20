@@ -57,7 +57,7 @@ const router = createBrowserRouter(
 
 				{/* Protected only for admin */}
 				<Route element={<PermissionGuard permissions={['ADMIN']} />}>
-						<Route path='admin/add-student' element={<CreateAccount />} />
+					<Route path='admin/add-student' element={<CreateAccount />} />
 				</Route>
 			</Route>
 		</Route>,
