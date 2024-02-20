@@ -6,8 +6,8 @@ import morgan from 'morgan'
 import passport from 'passport'
 import { CustomError } from './errors/BaseCustomError'
 import { ValidationError } from './errors/CustomErrors'
-import { authRouter } from './features/auth/route'
-import { dashboardRouter } from './features/dashboard/route'
+import { adminRouter } from './features/admin/admin.route'
+import { authRouter } from './features/auth/auth.route'
 import { paymentRouter } from './features/payments/payment.route'
 import { productRouter } from './features/products/products.route'
 
@@ -57,7 +57,7 @@ app.get(root(''), async (_req, res) => {
 
 // routes
 app.use(root('/products'), productRouter)
-app.use(root('/dashboard'), dashboardRouter)
+app.use(root('/admin'), adminRouter)
 app.use(root('/auth'), authRouter)
 app.use(root('/pay'), passportJWT, paymentRouter)
 

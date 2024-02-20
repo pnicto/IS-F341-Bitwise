@@ -1,8 +1,8 @@
 import { Button, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useMutation } from '@tanstack/react-query'
-import axios from '../../../lib/axios'
-import { handleAxiosErrors } from '../../../notifications/utils'
+import axios from '../../lib/axios'
+import { handleAxiosErrors } from '../../notifications/utils'
 
 const CreateAccount = () => {
 	const form = useForm({
@@ -19,7 +19,7 @@ const CreateAccount = () => {
 
 	const createAccount = useMutation({
 		mutationFn: (body: { email: string }) => {
-			return axios.post('/dashboard/admin/create', body)
+			return axios.post('/admin/create', body)
 		},
 		onSuccess: ({ data }) => {
 			/* TODO: Navigate back to admin dashboard page*/

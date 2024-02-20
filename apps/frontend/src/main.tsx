@@ -11,9 +11,10 @@ import {
 	createBrowserRouter,
 	createRoutesFromElements,
 } from 'react-router-dom'
+import CreateAccount from './features/admin/create-account.page'
 import Login, { loginLoader } from './features/auth/login.page'
-import CreateAccount from './features/dashboard/admin/create-account.page'
 import PaymentsPage from './features/payments/payments.page'
+import CreateProduct from './features/products/create-product.page'
 import ViewProducts from './features/products/view-products.page'
 import ErrorBoundary from './shared/error-boundary'
 import MainLayout from './shared/main-layout'
@@ -39,6 +40,13 @@ const router = createBrowserRouter(
 			>
 				<Route index element={<PaymentsPage />} />
 				<Route path='/products' element={<ViewProducts />} />
+
+				<Route
+					path='catalogue'
+					element={<PermissionGuard permission='VENDOR' />}
+				>
+					<Route path='add-product' element={<CreateProduct />} />
+				</Route>
 
 				{/* Role based example */}
 				<Route path='admin' element={<PermissionGuard permission='ADMIN' />}>
