@@ -3,13 +3,13 @@ import crypto from 'crypto'
 import { RequestHandler } from 'express'
 import { body } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
-import { prisma } from '../../../config/prisma'
-import { validateRequest } from '../../../utils/validateRequest'
+import { prisma } from '../../config/prisma'
+import { validateRequest } from '../../utils/validateRequest'
 import {
 	extractUsernameFromEmail,
 	hashPassword,
 	sendLoginCredentials,
-} from './utils'
+} from './admin.utils'
 
 export const validateNewUser = [
 	body('email').trim().isEmail().withMessage('Invalid email'),
