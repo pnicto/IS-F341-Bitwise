@@ -32,36 +32,32 @@ const CreateProduct = () => {
 	})
 
 	return (
-		<main className='mx-auto max-w-xl p-24 text-center'>
-			<div>
-				<form
-					onSubmit={form.onSubmit((values) => {
-						createProduct.mutate(values)
-					})}
-					className='flex flex-col gap-5'
-				>
-					<TextInput
-						label='Name'
-						placeholder='Eg., Bucket'
-						{...form.getInputProps('name')}
-					/>
-					<Textarea
-						label='Description'
-						placeholder='Eg., A strong bucket to carry water.'
-						{...form.getInputProps('description')}
-					/>
-					<NumberInput
-						label='Price in INR'
-						placeholder='0'
-						allowNegative={false}
-						{...form.getInputProps('price')}
-					/>
-					<Button type='submit' loading={createProduct.isPending}>
-						Create
-					</Button>
-				</form>
-			</div>
-		</main>
+		<form
+			onSubmit={form.onSubmit((values) => {
+				createProduct.mutate(values)
+			})}
+			className='flex flex-col gap-5'
+		>
+			<TextInput
+				label='Name'
+				placeholder='Eg., Bucket'
+				{...form.getInputProps('name')}
+			/>
+			<Textarea
+				label='Description'
+				placeholder='Eg., A strong bucket to carry water.'
+				{...form.getInputProps('description')}
+			/>
+			<NumberInput
+				label='Price in INR'
+				placeholder='0'
+				allowNegative={false}
+				{...form.getInputProps('price')}
+			/>
+			<Button type='submit' loading={createProduct.isPending}>
+				Create
+			</Button>
+		</form>
 	)
 }
 

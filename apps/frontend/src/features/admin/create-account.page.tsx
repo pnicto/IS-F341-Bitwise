@@ -32,26 +32,22 @@ const CreateAccount = () => {
 	})
 
 	return (
-		<main className='mx-auto max-w-xl p-24 text-center'>
-			<div>
-				<form
-					onSubmit={form.onSubmit((values) => {
-						createAccount.mutate(values)
-					})}
-					className='flex flex-col gap-5'
-				>
-					<TextInput
-						label='Email'
-						description='Email address of the account to be created'
-						placeholder='Eg., john@john.com'
-						{...form.getInputProps('email')}
-					/>
-					<Button type='submit' loading={createAccount.isPending}>
-						Create
-					</Button>
-				</form>
-			</div>
-		</main>
+		<form
+			className='flex flex-col gap-5'
+			onSubmit={form.onSubmit((values) => {
+				createAccount.mutate(values)
+			})}
+		>
+			<TextInput
+				label='Email'
+				description='Email address of the account to be created'
+				placeholder='Eg., john@john.com'
+				{...form.getInputProps('email')}
+			/>
+			<Button type='submit' loading={createAccount.isPending}>
+				Create
+			</Button>
+		</form>
 	)
 }
 
