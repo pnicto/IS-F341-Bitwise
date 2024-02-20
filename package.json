@@ -8,6 +8,9 @@
 		"build": "nx run-many -t build"
 	},
 	"private": true,
+	"prisma": {
+		"seed": "ts-node prisma/seed.ts"
+	},
 	"dependencies": {
 		"@mantine/core": "^7.5.3",
 		"@mantine/form": "^7.5.2",
