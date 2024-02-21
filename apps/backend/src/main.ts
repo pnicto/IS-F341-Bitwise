@@ -10,6 +10,7 @@ import { adminRouter } from './features/admin/admin.route'
 import { authRouter } from './features/auth/auth.route'
 import { paymentRouter } from './features/payments/payment.route'
 import { productRouter } from './features/products/products.route'
+import { walletRouter } from './features/wallet/wallet.route'
 
 const app = express()
 const passportJWT = passport.authenticate('jwt', { session: false })
@@ -60,6 +61,7 @@ app.use(root('/products'), productRouter)
 app.use(root('/admin'), adminRouter)
 app.use(root('/auth'), authRouter)
 app.use(root('/pay'), passportJWT, paymentRouter)
+app.use(root('/wallet'), passportJWT, walletRouter)
 
 // Custom error handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
