@@ -1,4 +1,4 @@
-import { Button, TextInput } from '@mantine/core'
+import { Button, Select, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useMutation } from '@tanstack/react-query'
@@ -7,7 +7,7 @@ import { handleAxiosErrors } from '../../notifications/utils'
 
 const CreateAccount = () => {
 	const form = useForm({
-		initialValues: { email: '' },
+		initialValues: { email: '', role: 'Student', shopName: '' },
 		validate: {
 			email: (value) =>
 				value.length > 0
@@ -15,11 +15,17 @@ const CreateAccount = () => {
 						? null
 						: 'Invalid email'
 					: 'Email cannot be empty',
+			shopName: (value, values) =>
+				values.role === 'Vendor'
+					? value.length > 0
+						? null
+						: 'Shop name cannot be empty for vendor'
+					: null,
 		},
 	})
 
 	const createAccount = useMutation({
-		mutationFn: (body: { email: string }) => {
+		mutationFn: (body: { email: string; role: string }) => {
 			return axios.post<{ message: string }>('/admin/create', body)
 		},
 		onSuccess: ({ data }) => {
@@ -43,6 +49,19 @@ const CreateAccount = () => {
 				description='Email address of the account to be created'
 				placeholder='Eg., john@john.com'
 				{...form.getInputProps('email')}
+			/>
+			<Select
+				label='Role'
+				description='Role of the account to be created (Student/Vendor)'
+				data={['Student', 'Vendor']}
+				{...form.getInputProps('role')}
+			/>
+			<TextInput
+				label='Shop Name'
+				description='Name of the shop owned by the vendor'
+				placeholder='Eg., YumPlease'
+				className={`${form.values.role === 'Student' ? 'hidden' : 'block'}`}
+				{...form.getInputProps('shopName')}
 			/>
 			<Button type='submit' loading={createAccount.isPending}>
 				Create
