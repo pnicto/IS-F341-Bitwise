@@ -74,9 +74,10 @@ export const logout: RequestHandler = async (_req, res, next) => {
 }
 
 export const check: RequestHandler = async (req, res) => {
+	// TODO: Discuss if this endpoint should be used for getting user details or a separate endpoint should be created
 	const user = getAuthorizedUser(req)
 	res.status(StatusCodes.OK).json({
-		user: { role: user.role },
+		user: user,
 		msg: 'Logged in',
 	})
 }
