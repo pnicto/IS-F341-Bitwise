@@ -15,8 +15,7 @@ export const validateNewUser = [
 	body('email').trim().isEmail().withMessage('Invalid email'),
 	body('role')
 		.trim()
-		.toUpperCase()
-		.isIn(['STUDENT', 'VENDOR'])
+		.isIn([Role.STUDENT, Role.VENDOR])
 		.withMessage('Invalid role'),
 	body('shopName')
 		.if(body('role').equals(Role.VENDOR))

@@ -26,7 +26,7 @@ const CreateAccount = () => {
 	})
 
 	const createAccount = useMutation({
-		mutationFn: (body: { email: string; role: string }) => {
+		mutationFn: (body: { email: string; role: Role }) => {
 			return axios.post<{ message: string }>('/admin/create', body)
 		},
 		onSuccess: ({ data }) => {
