@@ -11,7 +11,7 @@ const users: Pick<User, 'email' | 'role' | 'balance'>[] = [
 	{ email: 'lane@email.com', role: 'VENDOR', balance: 1000 },
 ]
 async function main() {
-	for (const { email, role } of users) {
+	for (const { email, role, balance } of users) {
 		await prisma.user.upsert({
 			where: { email: email },
 			update: {},
@@ -20,6 +20,7 @@ async function main() {
 				role,
 				username: extractUsernameFromEmail(email),
 				password: await hashPassword('password'),
+				balance,
 			},
 		})
 	}
