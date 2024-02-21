@@ -16,6 +16,7 @@ import Login, { loginLoader } from './features/auth/login.page'
 import CreateProduct from './features/products/create-product.page'
 import ViewProducts from './features/products/view-products.page'
 import HomeWithPayments from './features/user/home-with-payments.page'
+import ManageWallet from './features/user/manage-wallet.page'
 import ErrorBoundary from './shared/error-boundary'
 import MainLayout from './shared/main-layout'
 import PermissionGuard from './shared/permission-guard'
@@ -45,6 +46,7 @@ const router = createBrowserRouter(
 				>
 					<Route index element={<HomeWithPayments />} />
 					<Route path='/products' element={<ViewProducts />} />
+					<Route path='/manage-wallet' element={<ManageWallet />} />
 				</Route>
 
 				{/* Protected for only vendor */}

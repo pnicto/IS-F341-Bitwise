@@ -67,6 +67,11 @@ const HomeWithPayments = () => {
 						</Anchor>
 					</Grid.Col>
 				)}
+				<Grid.Col span={4}>
+					<Anchor component={Link} to='/manage-wallet'>
+						Manage wallet
+					</Anchor>
+				</Grid.Col>
 			</Grid>
 		</>
 	)
