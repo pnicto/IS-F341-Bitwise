@@ -12,7 +12,7 @@ export const validateTopUp = [
 
 export const modifyWalletBalance: RequestHandler = async (req, res, next) => {
 	try {
-		// balance in this case is the amount that is to be added or removed
+		// a positive amount indicates a deposit (add) and a negative amount indicates a withdrawal (remove)
 		const { amount } = validateRequest<{ amount: number }>(req)
 		const currentUser = getAuthorizedUser(req)
 		const currentBalance = currentUser.balance
@@ -21,6 +21,7 @@ export const modifyWalletBalance: RequestHandler = async (req, res, next) => {
 			throw new BadRequest('Amount cannot be zero')
 		}
 
+		// if the user tries to withdraw an amount greater than their current wallet balance
 		if (amount < 0 && -1 * amount > currentBalance) {
 			throw new BadRequest('Insufficient balance')
 		}
@@ -29,7 +30,7 @@ export const modifyWalletBalance: RequestHandler = async (req, res, next) => {
 			data: { balance: { increment: amount } },
 		})
 		const returnMessage = amount < 0 ? 'Amount withdrawn' : 'Amount added'
-		return res.status(StatusCodes.CREATED).json({ message: returnMessage })
+		return res.status(StatusCodes.OK).json({ message: returnMessage })
 	} catch (err) {
 		next(err)
 	}
