@@ -20,6 +20,7 @@ model User {
   password             String
   mobile               String?
   role                 Role          @default(STUDENT)
+  shopName             String?
   balance              Int           @default(0)
   // TODO: Uncomment them once the endpoints are ready
   // Product             Products[]
