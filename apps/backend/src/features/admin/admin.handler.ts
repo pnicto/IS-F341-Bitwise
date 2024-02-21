@@ -1,4 +1,4 @@
-import { User } from '@prisma/client'
+import { Role, User } from '@prisma/client'
 import crypto from 'crypto'
 import { RequestHandler } from 'express'
 import { body } from 'express-validator'
@@ -17,13 +17,16 @@ export const validateNewUser = [
 		.trim()
 		.toUpperCase()
 		.isIn(['STUDENT', 'VENDOR'])
-		.withMessage('Ivalid role'),
-	body('shopName').trim().notEmpty(),
+		.withMessage('Invalid role'),
+	body('shopName')
+		.if(body('role').equals(Role.VENDOR))
+		.trim()
+		.notEmpty()
+		.withMessage('Invalid shop name'),
 ]
 export const createAccount: RequestHandler = async (req, res, next) => {
 	try {
-		const { email } = validateRequest<Pick<User, 'email'>>(req)
-		const { role } = validateRequest<Pick<User, 'role'>>(req)
+		const { email, role } = validateRequest<Pick<User, 'email' | 'role'>>(req)
 
 		const username = extractUsernameFromEmail(email)
 		const password = crypto.randomBytes(4).toString('hex')
