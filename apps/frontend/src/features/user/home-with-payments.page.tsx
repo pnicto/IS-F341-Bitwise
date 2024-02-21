@@ -8,7 +8,7 @@ import { Link, useRouteLoaderData } from 'react-router-dom'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 
-const PaymentsPage = () => {
+const HomeWithPayments = () => {
 	const {
 		user: { role },
 	} = useRouteLoaderData('protected-layout') as { user: User }
@@ -72,4 +72,4 @@ const PaymentsPage = () => {
 	)
 }
 
-export default PaymentsPage
+export default HomeWithPayments
