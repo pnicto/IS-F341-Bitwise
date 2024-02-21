@@ -13,6 +13,7 @@ This project is setup with [nx](https://nx.dev/) a new tool found in the wild.
   - [The terminal output is messed up](#the-terminal-output-is-messed-up)
   - [Deleting `.nx` folder](#deleting-nx-folder)
   - [The backend is too slow to update changes after save](#the-backend-is-too-slow-to-update-changes-after-save)
+  - [Seeding database](#seeding-database)
 - [Useful commands](#useful-commands)
 - [API Response formats](#api-response-formats)
 - [References](#references)
@@ -52,6 +53,12 @@ This project is setup with [nx](https://nx.dev/) a new tool found in the wild.
   docker compose up -d
   ```
 
+- Optionally to seed the db, run
+
+  ```bash
+  pnpm prisma db seed
+  ```
+
 - Once the db is up and running, you use nx to serve the project
 
   ```bash
@@ -88,6 +95,12 @@ Yes, you can delete that folder.
 ## The backend is too slow to update changes after save
 
 We are relying on webpack hope that answers.
+
+## Seeding database
+
+Data is seeded from `prisma/seed.ts` file. The sample lines of code in that file use `upsert()`, alternatively the entire db could be deleted and data can be inserted using `createMany()`.
+
+https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding
 
 # Useful commands
 
@@ -129,3 +142,4 @@ const errors = [
 - https://express-validator.github.io/docs/guides/validation-chain
 - https://reactrouter.com/en/main/route/loader
 - https://nx.dev/getting-started/intro
+- https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding
