@@ -1,8 +1,10 @@
 import { Button, NumberInput, TextInput, Textarea } from '@mantine/core'
 import { useForm } from '@mantine/form'
+import { notifications } from '@mantine/notifications'
 import { Product } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import axios from '../../lib/axios'
+import { handleAxiosErrors } from '../../notifications/utils'
 
 const CreateProduct = () => {
 	const form = useForm({
@@ -15,48 +17,47 @@ const CreateProduct = () => {
 	})
 
 	const createProduct = useMutation({
-		mutationFn: (newProduct: Product) => {
-			return axios.post('http://localhost:5000/api/products/new', newProduct)
+		mutationFn: (
+			newProduct: Pick<Product, 'name' | 'description' | 'price'>,
+		) => {
+			return axios.post<{ message: string }>('/products/new', newProduct)
 		},
 		onSuccess: ({ data }) => {
 			form.reset()
-			console.log(data)
+			notifications.show({ message: data.message, color: 'green' })
+		},
+		onError: (err) => {
+			handleAxiosErrors(err)
 		},
 	})
 
 	return (
-		<main className='mx-auto max-w-xl p-24 text-center'>
-			<div>
-				<form
-					onSubmit={form.onSubmit((values) => {
-						// FIXME: remove typecast
-						createProduct.mutate(values as Product)
-					})}
-					className='flex flex-col gap-5'
-				>
-					<TextInput
-						label='Name'
-						placeholder='Eg., Bucket'
-						{...form.getInputProps('name')}
-					/>
-					<Textarea
-						label='Description'
-						placeholder='Eg., A strong bucket to carry water.'
-						{...form.getInputProps('description')}
-					/>
-					<NumberInput
-						label='Price in INR'
-						placeholder='0'
-						allowNegative={false}
-						{...form.getInputProps('price')}
-					/>
-					<Button type='submit'>Create</Button>
-				</form>
-			</div>
-
-			{/* TODO: move to mantine notifications */}
-			{createProduct.isSuccess && <div>Successfully added product</div>}
-		</main>
+		<form
+			onSubmit={form.onSubmit((values) => {
+				createProduct.mutate(values)
+			})}
+			className='flex flex-col gap-5'
+		>
+			<TextInput
+				label='Name'
+				placeholder='Eg., Bucket'
+				{...form.getInputProps('name')}
+			/>
+			<Textarea
+				label='Description'
+				placeholder='Eg., A strong bucket to carry water.'
+				{...form.getInputProps('description')}
+			/>
+			<NumberInput
+				label='Price in INR'
+				placeholder='0'
+				allowNegative={false}
+				{...form.getInputProps('price')}
+			/>
+			<Button type='submit' loading={createProduct.isPending}>
+				Create
+			</Button>
+		</form>
 	)
 }
 

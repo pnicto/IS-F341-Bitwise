@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
 import { Unauthorized } from '../../errors/CustomErrors'
 import { generateAccessToken } from '../../utils/generateToken'
+import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 import { verifyPassword } from './auth.utils'
 
@@ -46,6 +47,7 @@ export const login: RequestHandler = async (req, res, next) => {
 			})
 			.json({
 				message: 'Logged in successfully',
+				user: { role: user.role },
 			})
 	} catch (err) {
 		next(err)
@@ -72,5 +74,9 @@ export const logout: RequestHandler = async (_req, res, next) => {
 }
 
 export const check: RequestHandler = async (req, res) => {
-	res.status(StatusCodes.OK).json({ user: req.user, msg: 'Logged in' })
+	const user = getAuthorizedUser(req)
+	res.status(StatusCodes.OK).json({
+		user: { role: user.role },
+		msg: 'Logged in',
+	})
 }
