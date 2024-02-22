@@ -22,8 +22,7 @@ model User {
   role                 Role          @default(STUDENT)
   shopName             String?
   balance              Int           @default(0)
-  // TODO: Uncomment them once the endpoints are ready
-  // Product             Products[]
+  Product              Product[]
   transactionsSend     Transaction[] @relation("sender")
   transactionsReceived Transaction[] @relation("receiver")
 }
@@ -33,9 +32,8 @@ model Product {
   name        String
   description String
   price       Int      @default(0)
-  // TODO: Uncomment them once the endpoints are ready
-  // vendor      User     @relation(fields: [vendorId], references: [id])
-  // vendorId    String   @db.ObjectId
+  vendor      User     @relation(fields: [vendorId], references: [id])
+  vendorId    String   @db.ObjectId
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
