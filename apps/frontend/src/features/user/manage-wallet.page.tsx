@@ -63,7 +63,6 @@ const ManageWallet = () => {
 				<NumberInput
 					label='Amount (INR)'
 					placeholder='40'
-					min={1}
 					leftSection={<IconCurrencyRupee />}
 					allowDecimal={false}
 					allowNegative={false}
