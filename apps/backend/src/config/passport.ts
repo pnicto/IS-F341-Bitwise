@@ -15,7 +15,7 @@ const jwtAuthCallback = async (payload: JwtPayload, done: DoneCallback) => {
 			throw new NotFound('User does not exist')
 		}
 
-		return done(null, user)
+		return done(null, { ...user, password: '' })
 	} catch (err) {
 		return done(err, false)
 	}
