@@ -27,7 +27,6 @@ const DATABASE_URL = process.env.DATABASE_URL
 // middleware
 app.use(cookieParser())
 
-// FIXME: deal with the typecast
 const frontendIsHTTPS = (process.env.FRONTEND_URL as string).includes(
 	'https://',
 )

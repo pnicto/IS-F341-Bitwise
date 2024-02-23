@@ -28,7 +28,6 @@ passport.use(
 	new JwtStrategy(
 		{
 			jwtFromRequest: accessTokenExtractor,
-			// FIXME: Add a proper check
 			secretOrKey: process.env.TOKEN_SECRET as string,
 		},
 		jwtAuthCallback,
