@@ -11,6 +11,7 @@ import { adminRouter } from './features/admin/admin.route'
 import { authRouter } from './features/auth/auth.route'
 import { paymentRouter } from './features/payments/payment.route'
 import { productRouter } from './features/products/products.route'
+import { shopRouter } from './features/shops/shops.route'
 import { userRouter } from './features/users/user.route'
 import { walletRouter } from './features/wallet/wallet.route'
 import { authorize } from './middleware/authorize'
@@ -66,6 +67,7 @@ app.use(root('/auth'), authRouter)
 app.use(root('/pay'), passportJWT, paymentRouter)
 app.use(root('/wallet'), passportJWT, walletRouter)
 app.use(root('/user'), passportJWT, userRouter)
+app.use(root('/shops'), passportJWT, shopRouter)
 
 // Custom error handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
