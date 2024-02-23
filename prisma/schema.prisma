@@ -20,7 +20,7 @@ model User {
   password             String
   mobile               String?
   role                 Role          @default(STUDENT)
-  shopName             String?
+  shopName             String?       @unique
   balance              Int           @default(0)
   Product              Product[]
   transactionsSend     Transaction[] @relation("sender")
