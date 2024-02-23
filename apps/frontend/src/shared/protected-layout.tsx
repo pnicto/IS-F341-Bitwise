@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom'
 import axios from '../lib/axios'
 
 export async function protectedLoader() {
-	const response = await axios.get('/auth/me', {
+	const response = await axios.get('/user/details', {
 		headers: {
 			'Cache-Control': 'no-cache',
 			Pragma: 'no-cache',
