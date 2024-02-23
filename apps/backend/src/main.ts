@@ -60,7 +60,7 @@ app.get(root(''), async (_req, res) => {
 })
 
 // routes
-app.use(root('/products'), productRouter)
+app.use(root('/products'), passportJWT, productRouter)
 app.use(root('/admin'), passportJWT, authorize(Role.ADMIN), adminRouter)
 app.use(root('/auth'), authRouter)
 app.use(root('/pay'), passportJWT, paymentRouter)
