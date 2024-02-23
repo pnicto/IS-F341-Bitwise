@@ -53,7 +53,11 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 			})
 		}
 
-		await sendLoginCredentials(user, password)
+		// send account creation emails only in production
+		if (process.env.NODE_ENV === 'production')
+			await sendLoginCredentials(user, password)
+		else console.log('DEV LOG: Emails will only be sent in production')
+
 		return res
 			.status(StatusCodes.CREATED)
 			.json({ message: 'User created successfully' })
