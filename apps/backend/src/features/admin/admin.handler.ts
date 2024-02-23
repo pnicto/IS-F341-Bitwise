@@ -4,6 +4,7 @@ import { RequestHandler } from 'express'
 import { body } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
+import { BadRequest } from '../../errors/CustomErrors'
 import { validateRequest } from '../../utils/validateRequest'
 import {
 	extractUsernameFromEmail,
@@ -39,13 +40,27 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 			})
 		} else {
 			const { shopName } = validateRequest<Pick<User, 'shopName'>>(req)
+
+			const existingUser = await prisma.user.findFirst({
+				where: { shopName },
+			})
+			if (existingUser) {
+				throw new BadRequest('Shop name already exists')
+			}
+
 			user = await prisma.user.create({
 				data: { username, email, password: hashedPassword, role, shopName },
 			})
 		}
 
-		// TODO: Check if throws errors as expected
-		await sendLoginCredentials(user, password)
+		// send account creation emails only in production
+		if (process.env.NODE_ENV === 'production') {
+			await sendLoginCredentials(user, password)
+		} else {
+			console.log('DEV LOG: Emails will only be sent in production')
+			console.log(`DEV LOG: User: ${email}, Password: ${password}`)
+		}
+
 		return res
 			.status(StatusCodes.CREATED)
 			.json({ message: 'User created successfully' })

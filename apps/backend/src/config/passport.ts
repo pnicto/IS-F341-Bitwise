@@ -15,7 +15,9 @@ const jwtAuthCallback = async (payload: JwtPayload, done: DoneCallback) => {
 			throw new NotFound('User does not exist')
 		}
 
-		return done(null, { ...user, password: '' })
+		// Remove password from user object when exposing in req.user
+		user.password = ''
+		return done(null, user)
 	} catch (err) {
 		return done(err, false)
 	}
@@ -26,7 +28,6 @@ passport.use(
 	new JwtStrategy(
 		{
 			jwtFromRequest: accessTokenExtractor,
-			// FIXME: Add a proper check
 			secretOrKey: process.env.TOKEN_SECRET as string,
 		},
 		jwtAuthCallback,

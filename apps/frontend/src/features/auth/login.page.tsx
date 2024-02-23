@@ -10,7 +10,7 @@ import { handleAxiosErrors } from '../../notifications/utils'
 
 export async function loginLoader() {
 	try {
-		const response = await axios.get<{ user: Pick<User, 'role'> }>('/auth/me', {
+		const response = await axios.get<{ user: User }>('/user/details', {
 			headers: {
 				'Cache-Control': 'no-cache',
 				Pragma: 'no-cache',

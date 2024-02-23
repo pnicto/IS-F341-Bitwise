@@ -6,7 +6,7 @@ type Props = { permissions: Role[] }
 
 type RouteLoaderData = {
 	msg: string
-	user: Pick<User, 'id' | 'email' | 'role'>
+	user: User
 }
 
 const PermissionGuard = ({ permissions }: Props) => {

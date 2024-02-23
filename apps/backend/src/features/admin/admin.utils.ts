@@ -2,14 +2,12 @@ import { User } from '@prisma/client'
 import bcrypt from 'bcrypt'
 import { transporter } from '../../config/mailer'
 
-// FIXME: the type cast
 const SENDER_EMAIL = process.env.GOOGLE_MAIL_USER as string
 
 export const extractUsernameFromEmail = (emailStr: string) => {
 	if (!emailStr) {
 		return ''
 	} else {
-		// FIXME: the type cast
 		return emailStr.replace(/\./g, '').match(/([^@]+)/)?.[1] as string
 	}
 }
