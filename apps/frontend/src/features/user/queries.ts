@@ -6,7 +6,7 @@ export const useUserQuery = () =>
 	useQuery({
 		queryKey: ['user'],
 		queryFn: async () => {
-			const response = await axios.get<{ user: User }>('/auth/me')
+			const response = await axios.get<{ user: User }>('/user/details')
 			return response.data
 		},
 	})
