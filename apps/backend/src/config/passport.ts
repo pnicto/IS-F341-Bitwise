@@ -15,6 +15,8 @@ const jwtAuthCallback = async (payload: JwtPayload, done: DoneCallback) => {
 			throw new NotFound('User does not exist')
 		}
 
+		// Remove password from user object when exposing in req.user
+		user.password = ''
 		return done(null, user)
 	} catch (err) {
 		return done(err, false)
