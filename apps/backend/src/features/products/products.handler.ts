@@ -1,8 +1,9 @@
 import { Product } from '@prisma/client'
 import { RequestHandler } from 'express'
-import { body } from 'express-validator'
+import { body, param } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
+import { NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 
@@ -33,6 +34,31 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 export const getAllProducts: RequestHandler = async (_req, res, next) => {
 	try {
 		const products = await prisma.product.findMany()
+		return res.status(StatusCodes.OK).json({ products })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const validateShopNameParam = [
+	param('shopName').trim().notEmpty().withMessage('Shop name is required'),
+]
+export const getAllProductsByShopName: RequestHandler = async (
+	req,
+	res,
+	next,
+) => {
+	try {
+		const { shopName } = validateRequest<{ shopName: string }>(req)
+
+		const vendor = await prisma.user.findUnique({ where: { shopName } })
+		if (!vendor) {
+			throw new NotFound('The shop does not exist')
+		}
+
+		const products = await prisma.product.findMany({
+			where: { vendorId: vendor.id },
+		})
 		return res.status(StatusCodes.OK).json({ products })
 	} catch (err) {
 		next(err)
