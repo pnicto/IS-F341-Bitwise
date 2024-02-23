@@ -5,13 +5,18 @@ import {
 } from '../apps/backend/src/features/admin/admin.utils'
 
 const prisma = new PrismaClient()
-const users: Pick<User, 'email' | 'role' | 'balance'>[] = [
-	{ email: 'john@email.com', role: 'ADMIN', balance: 0 },
-	{ email: 'tron@email.com', role: 'STUDENT', balance: 1000 },
-	{ email: 'lane@email.com', role: 'VENDOR', balance: 1000 },
+const users: Pick<User, 'email' | 'role' | 'balance' | 'shopName'>[] = [
+	{ email: 'john@email.com', role: 'ADMIN', balance: 0, shopName: null },
+	{ email: 'tron@email.com', role: 'STUDENT', balance: 1000, shopName: null },
+	{
+		email: 'lane@email.com',
+		role: 'VENDOR',
+		balance: 1000,
+		shopName: 'shoppy',
+	},
 ]
 async function main() {
-	for (const { email, role, balance } of users) {
+	for (const { email, role, balance, shopName } of users) {
 		await prisma.user.upsert({
 			where: { email: email },
 			update: {},
@@ -21,6 +26,7 @@ async function main() {
 				username: extractUsernameFromEmail(email),
 				password: await hashPassword('password'),
 				balance,
+				shopName,
 			},
 		})
 	}
