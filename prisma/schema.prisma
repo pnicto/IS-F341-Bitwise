@@ -38,6 +38,8 @@ model Product {
   vendorId    String   @db.ObjectId
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@unique([name, vendorId])
 }
 
 model Transaction {
