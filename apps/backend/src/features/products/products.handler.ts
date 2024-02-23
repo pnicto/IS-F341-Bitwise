@@ -51,7 +51,7 @@ export const getAllProductsByShopName: RequestHandler = async (
 	try {
 		const { shopName } = validateRequest<{ shopName: string }>(req)
 
-		const vendor = await prisma.user.findUnique({ where: { shopName } })
+		const vendor = await prisma.user.findFirst({ where: { shopName } })
 		if (!vendor) {
 			throw new NotFound('The shop does not exist')
 		}

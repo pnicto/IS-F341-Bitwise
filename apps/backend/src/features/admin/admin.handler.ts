@@ -4,6 +4,7 @@ import { RequestHandler } from 'express'
 import { body } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
+import { BadRequest } from '../../errors/CustomErrors'
 import { validateRequest } from '../../utils/validateRequest'
 import {
 	extractUsernameFromEmail,
@@ -39,6 +40,14 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 			})
 		} else {
 			const { shopName } = validateRequest<Pick<User, 'shopName'>>(req)
+
+			const existingUser = await prisma.user.findFirst({
+				where: { shopName },
+			})
+			if (existingUser) {
+				throw new BadRequest('Shop name already exists')
+			}
+
 			user = await prisma.user.create({
 				data: { username, email, password: hashedPassword, role, shopName },
 			})
