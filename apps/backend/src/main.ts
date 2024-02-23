@@ -1,4 +1,5 @@
 import { Role } from '@prisma/client'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express, { ErrorRequestHandler } from 'express'
@@ -80,6 +81,23 @@ const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
 		case err instanceof CustomError:
 			console.error('Custom Error at', req.url, err)
 			res.status(err.statusCode).json({ errors: err.serializeErrors() })
+			break
+		// TODO: Probably create a function which deals with this horrible nesting
+		case err instanceof PrismaClientKnownRequestError:
+			if (err.code === 'P2002') {
+				if (err.meta) {
+					res
+						.status(StatusCodes.BAD_REQUEST)
+						.json({ errors: [{ msg: err.meta.modelName + ' already exists' }] })
+				} else
+					res
+						.status(StatusCodes.BAD_REQUEST)
+						.json({ errors: [{ msg: 'Record already exists' }] })
+			} else {
+				res
+					.status(StatusCodes.INTERNAL_SERVER_ERROR)
+					.json({ errors: [{ msg: 'Database error' }] })
+			}
 			break
 		case err instanceof Error:
 			console.error('Known Error at', req.url, err)
