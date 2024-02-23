@@ -53,7 +53,6 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 			})
 		}
 
-		// TODO: Check if throws errors as expected
 		await sendLoginCredentials(user, password)
 		return res
 			.status(StatusCodes.CREATED)
