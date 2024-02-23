@@ -84,7 +84,7 @@ You have to install them in the project root using `pnpm`.
 ## Schemas
 
 The schemas for the entire project are defined in `prisma/schema.prisma`.
-**Every time you make changes to schemas make sure you run**. If you are getting some errors after running this commands it just means that the new schema changes are not straightforward to apply. In that case run the second command.
+**Every time you make changes to schemas make sure you run the generate and push commands**. If you are getting some errors after running this commands it just means that the new schema changes are not straightforward to apply. In that case run the second command.
 
 ```bash
 pnpm prisma db push
