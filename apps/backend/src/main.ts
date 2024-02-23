@@ -1,3 +1,4 @@
+import { Role } from '@prisma/client'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express, { ErrorRequestHandler } from 'express'
@@ -11,6 +12,7 @@ import { authRouter } from './features/auth/auth.route'
 import { paymentRouter } from './features/payments/payment.route'
 import { productRouter } from './features/products/products.route'
 import { walletRouter } from './features/wallet/wallet.route'
+import { authorize } from './middleware/authorize'
 
 const app = express()
 const passportJWT = passport.authenticate('jwt', { session: false })
@@ -58,7 +60,7 @@ app.get(root(''), async (_req, res) => {
 
 // routes
 app.use(root('/products'), productRouter)
-app.use(root('/admin'), adminRouter)
+app.use(root('/admin'), passportJWT, authorize(Role.ADMIN), adminRouter)
 app.use(root('/auth'), authRouter)
 app.use(root('/pay'), passportJWT, paymentRouter)
 app.use(root('/wallet'), passportJWT, walletRouter)
