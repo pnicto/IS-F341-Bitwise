@@ -89,7 +89,7 @@ export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
 			validateRequest<Pick<User, 'email' | 'role' | 'shopName'>[]>(req)
 		const userEmails: string[] = []
 		const users = []
-		const user_password = new Map()
+		const userPassword = new Map()
 		const skipped = []
 		for (let i = 0; i < req.body.length; i++) {
 			const { email, role, shopName } = userReq[i]
@@ -100,7 +100,7 @@ export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
 			userEmails.push(email)
 			const username = extractUsernameFromEmail(email)
 			const password = crypto.randomBytes(4).toString('hex')
-			user_password.set(email, password)
+			userPassword.set(email, password)
 			const hashedPassword = await hashPassword(password)
 			if (role === 'STUDENT') {
 				users.push({
@@ -129,13 +129,13 @@ export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
 		await prisma.user.createMany({ data: users })
 		if (process.env.NODE_ENV === 'production') {
 			for (const user of users) {
-				await sendLoginCredentials(user as User, user_password.get(user.email))
+				await sendLoginCredentials(user as User, userPassword.get(user.email))
 			}
 		} else {
 			console.log('DEV LOG: Emails will only be sent in production')
 			for (const user of users) {
 				console.log(
-					`DEV LOG: User: ${user.email}, Password: ${user_password.get(
+					`DEV LOG: User: ${user.email}, Password: ${userPassword.get(
 						user.email,
 					)}`,
 				)
