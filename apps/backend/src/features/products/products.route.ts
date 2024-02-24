@@ -5,8 +5,10 @@ import {
 	createProduct,
 	getAllProducts,
 	getAllProductsByShopName,
+	updateProduct,
 	validateNewProduct,
 	validateShopNameParam,
+	validateUpdatedProduct,
 } from './products.handler'
 
 export const productRouter = express.Router()
@@ -19,3 +21,4 @@ productRouter.post(
 )
 productRouter.get('/', getAllProducts)
 productRouter.get('/:shopName', validateShopNameParam, getAllProductsByShopName)
+productRouter.post('/update/:id', validateUpdatedProduct, updateProduct)
