@@ -14,7 +14,6 @@ import {
 import CreateAccount from './features/admin/create-account.page'
 import Login, { loginLoader } from './features/auth/login.page'
 import CreateProduct from './features/products/create-product.page'
-import ViewProducts from './features/products/view-products.page'
 import ProductList from './features/shops/products-list.page'
 import ShopList from './features/shops/shop-list.page'
 import HomeWithPayments from './features/user/home-with-payments.page'
@@ -47,7 +46,6 @@ const router = createBrowserRouter(
 					element={<PermissionGuard permissions={['STUDENT', 'VENDOR']} />}
 				>
 					<Route index element={<HomeWithPayments />} />
-					<Route path='/products' element={<ViewProducts />} />
 					<Route path='/manage-wallet' element={<ManageWallet />} />
 					<Route path='/shops/view' element={<ShopList />} />
 					<Route path='/:shopName/products' element={<ProductList />} />
