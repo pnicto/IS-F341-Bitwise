@@ -94,7 +94,7 @@ export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
 		for (let i = 0; i < req.body.length; i++) {
 			const { email, role, shopName } = userReq[i]
 			if (userEmails.includes(email)) {
-				skipped.push(`User with email ${email} already exists`)
+				skipped.push(`User with email ${email} already added in given request`)
 				continue
 			}
 			userEmails.push(email)
@@ -127,16 +127,13 @@ export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
 			}
 		}
 		await prisma.user.createMany({ data: users })
-		const usersCreated = await prisma.user.findMany({
-			where: { email: { in: userEmails } },
-		})
 		if (process.env.NODE_ENV === 'production') {
-			for (const user of usersCreated) {
-				await sendLoginCredentials(user, user_password.get(user.email))
+			for (const user of users) {
+				await sendLoginCredentials(user as User, user_password.get(user.email))
 			}
 		} else {
 			console.log('DEV LOG: Emails will only be sent in production')
-			for (const user of usersCreated) {
+			for (const user of users) {
 				console.log(
 					`DEV LOG: User: ${user.email}, Password: ${user_password.get(
 						user.email,
