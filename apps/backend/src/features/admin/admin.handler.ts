@@ -4,7 +4,7 @@ import { RequestHandler } from 'express'
 import { body } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
-import { BadRequest } from '../../errors/CustomErrors'
+import { BadRequest, NotFound } from '../../errors/CustomErrors'
 import { validateRequest } from '../../utils/validateRequest'
 import {
 	extractUsernameFromEmail,
@@ -64,6 +64,32 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 		return res
 			.status(StatusCodes.CREATED)
 			.json({ message: 'User created successfully' })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const validateUserEmailParam = [
+	body('email').trim().isEmail().withMessage('Invalid email'),
+]
+
+export const getUserDetails: RequestHandler = async (req, res, next) => {
+	try {
+		const { email } = validateRequest<Pick<User, 'email'>>(req)
+
+		const user = await prisma.user.findFirst({
+			where: { email },
+		})
+		if (!user) {
+			throw new NotFound('User does not exist')
+		}
+
+		// Remove password from user object when exposing
+		user.password = ''
+
+		return res.status(StatusCodes.OK).json({
+			user,
+		})
 	} catch (err) {
 		next(err)
 	}
