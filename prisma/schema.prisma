@@ -22,6 +22,7 @@ model User {
   role                 Role          @default(STUDENT)
   shopName             String?
   balance              Int           @default(0)
+  enabled              Boolean       @default(true)
   // TODO: Uncomment them once the endpoints are ready
   // Product             Products[]
   transactionsSend     Transaction[] @relation("sender")
