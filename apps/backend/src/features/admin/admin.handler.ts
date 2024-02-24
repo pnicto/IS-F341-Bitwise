@@ -83,7 +83,7 @@ export const validateBulkUsers = [
 		.withMessage('Invalid shop name'),
 ]
 
-export const createAccountsinBulk: RequestHandler = async (req, res, next) => {
+export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
 	try {
 		const userReq =
 			validateRequest<Pick<User, 'email' | 'role' | 'shopName'>[]>(req)
