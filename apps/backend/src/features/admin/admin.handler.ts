@@ -82,3 +82,73 @@ export const validateBulkUsers = [
 		.notEmpty()
 		.withMessage('Invalid shop name'),
 ]
+
+export const createAccountsinBulk: RequestHandler = async (req, res, next) => {
+	try {
+		const userReq =
+			validateRequest<Pick<User, 'email' | 'role' | 'shopName'>[]>(req)
+		const userEmails: string[] = []
+		const users = []
+		const user_password = new Map()
+		const skipped = []
+		for (let i = 0; i < req.body.length; i++) {
+			const { email, role, shopName } = userReq[i]
+			if (userEmails.includes(email)) {
+				skipped.push(`User with email ${email} already exists`)
+				continue
+			}
+			userEmails.push(email)
+			const username = extractUsernameFromEmail(email)
+			const password = crypto.randomBytes(4).toString('hex')
+			user_password.set(email, password)
+			const hashedPassword = await hashPassword(password)
+			if (role === 'STUDENT') {
+				users.push({
+					username,
+					email,
+					password: hashedPassword,
+					role,
+				})
+			} else {
+				const existingUser = await prisma.user.findFirst({
+					where: { shopName },
+				})
+				if (existingUser) {
+					skipped.push(`Shop name ${shopName} already exists`)
+					continue
+				}
+				users.push({
+					username,
+					email,
+					password: hashedPassword,
+					role,
+					shopName,
+				})
+			}
+		}
+		await prisma.user.createMany({ data: users })
+		const usersCreated = await prisma.user.findMany({
+			where: { email: { in: userEmails } },
+		})
+		if (process.env.NODE_ENV === 'production') {
+			for (const user of usersCreated) {
+				await sendLoginCredentials(user, user_password.get(user.email))
+			}
+		} else {
+			console.log('DEV LOG: Emails will only be sent in production')
+			for (const user of usersCreated) {
+				console.log(
+					`DEV LOG: User: ${user.email}, Password: ${user_password.get(
+						user.email,
+					)}`,
+				)
+			}
+		}
+
+		return res
+			.status(StatusCodes.CREATED)
+			.json({ message: 'Users created successfully', errors: skipped })
+	} catch (err) {
+		next(err)
+	}
+}
