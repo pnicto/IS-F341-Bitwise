@@ -68,3 +68,17 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 		next(err)
 	}
 }
+
+export const validateBulkUsers = [
+	body().isArray().withMessage('Invalid users'),
+	body('*.email').trim().isEmail().withMessage('Invalid email'),
+	body('*.role')
+		.trim()
+		.isIn([Role.STUDENT, Role.VENDOR])
+		.withMessage('Invalid role'),
+	body('*.shopName')
+		.if(body('*.role').equals(Role.VENDOR))
+		.trim()
+		.notEmpty()
+		.withMessage('Invalid shop name'),
+]
