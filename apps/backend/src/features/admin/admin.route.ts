@@ -11,7 +11,7 @@ import {
 export const adminRouter = express.Router()
 
 adminRouter.post('/create', validateNewUser, createAccount)
-adminRouter.get('/details', validateUserEmailBody, getUserDetails)
+adminRouter.get('/user/details', validateUserEmailBody, getUserDetails)
 adminRouter.post(
 	'/user/update-status',
 	validateUpdateUserBody,
