@@ -91,8 +91,7 @@ export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
 		const users = []
 		const user_password = new Map()
 		const skipped = []
-		for (let i = 0; i < req.body.length; i++) {
-			const { email, role, shopName } = userReq[i]
+		for (const { email, role, shopName } of userReq) {
 			if (userEmails.includes(email)) {
 				skipped.push(`User with email ${email} already exists`)
 				continue
