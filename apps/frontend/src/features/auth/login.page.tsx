@@ -17,9 +17,7 @@ export async function loginLoader() {
 				Expires: '0',
 			},
 		})
-		return redirect(
-			response.data.user.role === 'ADMIN' ? '/admin' : '/',
-		)
+		return redirect(response.data.user.role === 'ADMIN' ? '/admin' : '/')
 	} catch (err) {
 		return null
 	}

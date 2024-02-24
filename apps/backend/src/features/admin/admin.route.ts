@@ -1,11 +1,11 @@
 import express from 'express'
 import {
-    createAccount,
-    getUserDetails,
-    updateUserStatus,
-    validateNewUser,
-    validateUpdateUserBody,
-    validateUserEmailParam,
+	createAccount,
+	getUserDetails,
+	updateUserStatus,
+	validateNewUser,
+	validateUpdateUserBody,
+	validateUserEmailParam,
 } from './admin.handler'
 
 export const adminRouter = express.Router()
