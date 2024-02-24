@@ -1,9 +1,11 @@
 import { Button } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
+import { IconPlus } from '@tabler/icons-react'
 import { useMutation } from '@tanstack/react-query'
 import {
 	NavLink,
 	Outlet,
+	useLocation,
 	useNavigate,
 	useRouteLoaderData,
 } from 'react-router-dom'
@@ -12,6 +14,7 @@ import { handleAxiosErrors } from '../notifications/utils'
 
 const MainLayout = () => {
 	const data = useRouteLoaderData('protected-layout')
+	const currentRoute = useLocation()
 	const navigate = useNavigate()
 	const logout = useMutation({
 		mutationFn: () => {
@@ -34,7 +37,23 @@ const MainLayout = () => {
 			{data && (
 				<nav className='flex justify-between px-10 py-2 items-center'>
 					<NavLink to='/'>Home</NavLink>
-					<Button onClick={() => logout.mutate()}>Logout</Button>
+					<div className='flex gap-8 items-center'>
+						{currentRoute.pathname === '/catalogue' && (
+							<Button
+								color='green'
+								radius='xl'
+								size='compact-md'
+								onClick={(e) => {
+									e.preventDefault()
+								}}
+							>
+								<NavLink to='/catalogue/add-product'>
+									<IconPlus size={20} fill='green' />
+								</NavLink>
+							</Button>
+						)}
+						<Button onClick={() => logout.mutate()}>Logout</Button>
+					</div>
 				</nav>
 			)}
 			<main className='px-10 py-4 lg:max-w-xl lg:mx-auto max-w-md mx-auto'>

@@ -15,6 +15,7 @@ import CreateAccount from './features/admin/create-account.page'
 import CreateAccountsBulk from './features/admin/create-accounts-bulk.page'
 import Login, { loginLoader } from './features/auth/login.page'
 import CreateProduct from './features/products/create-product.page'
+import EditProducts from './features/products/edit-products-page'
 import ProductList from './features/shops/products-list.page'
 import ShopList from './features/shops/shop-list.page'
 import HomeWithPayments from './features/user/home-with-payments.page'
@@ -57,6 +58,7 @@ const router = createBrowserRouter(
 					path='catalogue'
 					element={<PermissionGuard permissions={['VENDOR']} />}
 				>
+					<Route path='' element={<EditProducts />} />
 					<Route path='add-product' element={<CreateProduct />} />
 				</Route>
 
