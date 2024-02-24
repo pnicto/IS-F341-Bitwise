@@ -69,7 +69,7 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 	}
 }
 
-export const validateUserEmailParam = [
+export const validateUserEmailBody = [
 	body('email').trim().isEmail().withMessage('Invalid email'),
 ]
 export const getUserDetails: RequestHandler = async (req, res, next) => {
@@ -94,7 +94,7 @@ export const getUserDetails: RequestHandler = async (req, res, next) => {
 	}
 }
 
-export const validateUpdateUserParams = [
+export const validateUpdateUserBody = [
 	body('email').trim().isEmail().withMessage('Invalid email'),
 	body('enabled').isBoolean().withMessage('Invalid status'),
 ]
