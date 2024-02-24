@@ -11,7 +11,7 @@ import {
 	createBrowserRouter,
 	createRoutesFromElements,
 } from 'react-router-dom'
-import CreateAccount from './features/admin/create-account.page'
+import HomeWithCreateAndUpdateAccount from './features/admin/home-with-create-account.page'
 import Login, { loginLoader } from './features/auth/login.page'
 import CreateProduct from './features/products/create-product.page'
 import ViewProducts from './features/products/view-products.page'
@@ -59,7 +59,7 @@ const router = createBrowserRouter(
 
 				{/* Protected only for admin */}
 				<Route element={<PermissionGuard permissions={['ADMIN']} />}>
-					<Route path='admin/add-student' element={<CreateAccount />} />
+					<Route path='admin/' element={<HomeWithCreateAndUpdateAccount />} />
 				</Route>
 			</Route>
 		</Route>,

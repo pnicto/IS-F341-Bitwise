@@ -6,7 +6,7 @@ import { useMutation } from '@tanstack/react-query'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 
-const CreateAccount = () => {
+const HomeWithCreateAndUpdateAccount = () => {
 	const form = useForm<{ email: string; role: Role; shopName: string }>({
 		initialValues: { email: '', role: Role.STUDENT, shopName: '' },
 		validate: {
@@ -75,4 +75,4 @@ const CreateAccount = () => {
 	)
 }
 
-export default CreateAccount
+export default HomeWithCreateAndUpdateAccount
