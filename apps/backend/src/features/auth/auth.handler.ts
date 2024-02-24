@@ -5,7 +5,6 @@ import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
 import { Forbidden, Unauthorized } from '../../errors/CustomErrors'
 import { generateAccessToken } from '../../utils/generateToken'
-import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 import { verifyPassword } from './auth.utils'
 
@@ -73,13 +72,4 @@ export const logout: RequestHandler = async (_req, res, next) => {
 	} catch (err) {
 		next(err)
 	}
-}
-
-export const check: RequestHandler = async (req, res) => {
-	// TODO: Discuss if this endpoint should be used for getting user details or a separate endpoint should be created
-	const user = getAuthorizedUser(req)
-	res.status(StatusCodes.OK).json({
-		user: user,
-		msg: 'Logged in',
-	})
 }

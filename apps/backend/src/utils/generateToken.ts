@@ -7,7 +7,6 @@ export const generateAccessToken = (user: User) => {
 		{
 			sub: user.id,
 		},
-		// FIXME: Add a proper check
 		process.env.TOKEN_SECRET as string,
 		{ expiresIn: '1d' },
 	)

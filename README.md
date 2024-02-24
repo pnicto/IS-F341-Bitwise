@@ -63,7 +63,8 @@ This project is setup with [nx](https://nx.dev/) a new tool found in the wild.
 
   ```bash
   # both frontend and backend
-  pnpm nx run-many -t serve -p frontend backend
+  pnpm nx run-many -t serve -p frontend backend # or
+  pnpm nx run-many -t serve
 
   # only the backend
   pnpm nx serve backend
@@ -82,7 +83,15 @@ You have to install them in the project root using `pnpm`.
 
 ## Schemas
 
-The schemas for the entire project are defined in `prisma/schema.prisma`
+The schemas for the entire project are defined in `prisma/schema.prisma`.
+**Every time you make changes to schemas make sure you run the generate and push commands**. If you are getting some errors after running this commands it just means that the new schema changes are not straightforward to apply. In that case run the second command.
+
+```bash
+pnpm prisma db push
+
+# this also clears the data
+pnpm prisma db push --force-reset
+```
 
 ## The terminal output is messed up
 
@@ -107,6 +116,13 @@ https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding
 ```bash
 # to open the mongodb shell where you can interact with the database
 docker exec -it bitwise-db-dev mongosh -u bitwise -p password --authenticationDatabase admin bitwise
+
+# use a GUI to view/edit the db
+pnpm prisma studio
+
+# delete the db data (you could also use pnpm prisma db push --force-reset)
+docker compose down -v # or
+docker volume rm bitwise_data # after removing the container
 ```
 
 # API Response formats

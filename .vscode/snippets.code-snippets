@@ -1,0 +1,15 @@
+{
+	"Express Typescript Handler": {
+		"prefix": "rts",
+		"body": [
+			"export const $1 :RequestHandler =async (req, res, next)=> {",
+			"try{",
+			"$0",
+			"} catch (err) {",
+			"next(err)",
+			"}",
+			"}"
+		],
+		"description": "Express Typescript Handler"
+	}
+}
