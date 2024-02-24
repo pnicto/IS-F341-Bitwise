@@ -96,7 +96,7 @@ export const getUserDetails: RequestHandler = async (req, res, next) => {
 
 export const validateUpdateUserBody = [
 	body('email').trim().isEmail().withMessage('Invalid email'),
-	body('enabled').isBoolean().withMessage('Invalid status'),
+	body('enabled').isBoolean().toBoolean().withMessage('Invalid status'),
 ]
 export const updateUserStatus: RequestHandler = async (req, res, next) => {
 	try {
@@ -116,14 +116,13 @@ export const updateUserStatus: RequestHandler = async (req, res, next) => {
 		await prisma.user.update({
 			where: { email },
 			data: {
-				enabled: enabled,
+				enabled,
 			},
 		})
 
-		const returnMessage =
-			enabled === true
-				? 'Account enabled successfully'
-				: 'Account disabled successfully'
+		const returnMessage = enabled
+			? 'Account enabled successfully'
+			: 'Account disabled successfully'
 		return res.status(StatusCodes.OK).json({ message: returnMessage })
 	} catch (err) {
 		next(err)
