@@ -72,7 +72,6 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 export const validateUserEmailParam = [
 	body('email').trim().isEmail().withMessage('Invalid email'),
 ]
-
 export const getUserDetails: RequestHandler = async (req, res, next) => {
 	try {
 		const { email } = validateRequest<Pick<User, 'email'>>(req)
@@ -90,6 +89,42 @@ export const getUserDetails: RequestHandler = async (req, res, next) => {
 		return res.status(StatusCodes.OK).json({
 			user,
 		})
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const validateUpdateUserParams = [
+	body('email').trim().isEmail().withMessage('Invalid email'),
+	body('enabled').isBoolean().withMessage('Invalid status'),
+]
+export const updateUserStatus: RequestHandler = async (req, res, next) => {
+	try {
+		const { email, enabled } =
+			validateRequest<Pick<User, 'email' | 'enabled'>>(req)
+
+		const user = await prisma.user.findFirst({
+			where: { email },
+		})
+		if (!user) {
+			throw new NotFound('User does not exist')
+		}
+		if (user.role === Role.ADMIN) {
+			throw new BadRequest('Cannot update status of admin account')
+		}
+
+		await prisma.user.update({
+			where: { email },
+			data: {
+				enabled: enabled,
+			},
+		})
+
+		const returnMessage =
+			enabled === true
+				? 'Account enabled successfully'
+				: 'Account disabled successfully'
+		return res.status(StatusCodes.OK).json({ message: returnMessage })
 	} catch (err) {
 		next(err)
 	}
