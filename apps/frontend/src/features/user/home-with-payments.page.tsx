@@ -56,6 +56,8 @@ const HomeWithPayments = () => {
 				/>
 				<Button type='submit'>Pay</Button>
 			</form>
+
+			{/* TODO: make this options list better */}
 			<Grid columns={8}>
 				{role === 'STUDENT' && (
 					<Grid.Col span={4}>Student specific stuff</Grid.Col>
@@ -70,6 +72,11 @@ const HomeWithPayments = () => {
 				<Grid.Col span={4}>
 					<Anchor component={Link} to='/manage-wallet'>
 						Manage wallet
+					</Anchor>
+				</Grid.Col>
+				<Grid.Col span={4}>
+					<Anchor component={Link} to='/shops/view'>
+						Shops
 					</Anchor>
 				</Grid.Col>
 			</Grid>
