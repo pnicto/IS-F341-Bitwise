@@ -5,13 +5,13 @@ import {
     updateUserStatus,
     validateNewUser,
     validateUpdateUserBody,
-    validateUserEmailBody,
+    validateUserEmailParam,
 } from './admin.handler'
 
 export const adminRouter = express.Router()
 
 adminRouter.post('/create', validateNewUser, createAccount)
-adminRouter.get('/user/details', validateUserEmailBody, getUserDetails)
+adminRouter.get('/:email/details', validateUserEmailParam, getUserDetails)
 adminRouter.post(
 	'/user/update-status',
 	validateUpdateUserBody,
