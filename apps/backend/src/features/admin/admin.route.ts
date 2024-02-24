@@ -1,6 +1,12 @@
 import express from 'express'
-import { createAccount, validateNewUser } from './admin.handler'
+import {
+	createAccount,
+	validateNewUser,
+	createAccountsinBulk,
+	validateBulkUsers,
+} from './admin.handler'
 
 export const adminRouter = express.Router()
 
 adminRouter.post('/create', validateNewUser, createAccount)
+adminRouter.post('/create/bulk', validateBulkUsers, createAccountsinBulk)
