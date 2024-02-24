@@ -13,7 +13,7 @@ import { handleAxiosErrors } from '../../notifications/utils'
 
 const fetchUserDetails = async (email: string) => {
 	return axios
-		.get<{ user: User }>(`/admin/${email}/details`)
+		.get<{ user: User }>(`/admin/details?email=${email}`)
 		.then((res) => res.data)
 }
 
@@ -175,6 +175,11 @@ const HomeWithCreateAndUpdateAccount = () => {
 							Disable User
 						</Button>
 					)}
+				</div>
+			)}
+			{userDetailsQueryResult.isError && (
+				<div className='text-center mt-2'>
+					<h1 className='text-2xl'>{userDetailsQueryResult.error.message}</h1>
 				</div>
 			)}
 		</div>

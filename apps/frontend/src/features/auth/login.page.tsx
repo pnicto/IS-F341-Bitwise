@@ -52,7 +52,7 @@ const Login = () => {
 		},
 		onSuccess: ({ data }) => {
 			if (data.user.role !== 'ADMIN') navigate('/', { replace: true })
-			else navigate('/admin/add-student', { replace: true })
+			else navigate('/admin', { replace: true })
 			notifications.show({ message: data.message, color: 'green' })
 		},
 		onError: (err) => {

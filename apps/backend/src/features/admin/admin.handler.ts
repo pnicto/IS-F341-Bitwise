@@ -1,7 +1,7 @@
 import { Role, User } from '@prisma/client'
 import crypto from 'crypto'
 import { RequestHandler } from 'express'
-import { body, param } from 'express-validator'
+import { body, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
 import { BadRequest, NotFound } from '../../errors/CustomErrors'
@@ -70,7 +70,7 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 }
 
 export const validateUserEmailParam = [
-	param('email').trim().isEmail().withMessage('Invalid email'),
+	query('email').trim().isEmail().withMessage('Invalid email'),
 ]
 export const getUserDetails: RequestHandler = async (req, res, next) => {
 	try {
