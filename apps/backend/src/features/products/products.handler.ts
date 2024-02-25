@@ -93,7 +93,7 @@ export const updateProduct: RequestHandler = async (req, res, next) => {
 
 		await prisma.product.update({
 			where: { id: id },
-			data: { name, description, price, vendorId: vendor.id },
+			data: { name, description, price },
 		})
 		return res
 			.status(StatusCodes.OK)
