@@ -82,6 +82,10 @@ const vendorCheck: RequestHandler = (req, res, next) => {
 export const validateBulkUsers = [
 	body().isArray().withMessage('Invalid users'),
 	body('*.email').trim().isEmail().withMessage('Invalid email'),
+	body('*.role')
+		.trim()
+		.isIn([Role.STUDENT, Role.VENDOR])
+		.withMessage('Invalid role'),
 	vendorCheck,
 ]
 
