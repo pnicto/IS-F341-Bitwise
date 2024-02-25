@@ -13,7 +13,6 @@ import { notifications } from '@mantine/notifications'
 import { Product } from '@prisma/client'
 import { IconEdit } from '@tabler/icons-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 import { useUserQuery } from '../user/queries'
@@ -34,11 +33,6 @@ const EditProducts = () => {
 		enabled: !!shopName,
 	})
 
-	// The product currently being edited
-	const [currentProduct, setCurrentProduct] = useState<
-		Product | null | undefined
-	>(null)
-
 	const updateProductForm = useForm({
 		initialValues: { id: '', name: '', description: '', price: 100 },
 		validate: {
@@ -48,25 +42,7 @@ const EditProducts = () => {
 		},
 	})
 
-	const [modalIsOpen, modalHandlers] = useDisclosure(false, {
-		onClose: () => setCurrentProduct(null),
-	})
-
-	// To show the values of the current product in the edit form
-	useEffect(() => {
-		if (
-			shopProductsQuery.data &&
-			currentProduct &&
-			updateProductForm.values.id !== currentProduct.id
-		) {
-			updateProductForm.setValues({
-				id: currentProduct.id,
-				name: currentProduct.name,
-				description: currentProduct.description,
-				price: currentProduct.price,
-			})
-		}
-	}, [shopProductsQuery.data, currentProduct, updateProductForm])
+	const [modalIsOpen, modalHandlers] = useDisclosure(false)
 
 	const queryClient = useQueryClient()
 
@@ -164,13 +140,13 @@ const EditProducts = () => {
 								<Table.Td>
 									<Button
 										variant='default'
-										disabled={currentProduct !== null}
 										onClick={() => {
-											setCurrentProduct(
-												shopProductsQuery.data.products.find(
-													(product) => product.id === id,
-												),
-											)
+											updateProductForm.setValues({
+												id,
+												name,
+												description,
+												price,
+											})
 											modalHandlers.open()
 										}}
 									>
