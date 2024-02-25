@@ -141,10 +141,14 @@ export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
 				)
 			}
 		}
+		const skippedErrors = []
+		for (const error of skipped) {
+			skippedErrors.push({ msg: error })
+		}
 
 		return res
 			.status(StatusCodes.CREATED)
-			.json({ message: 'Users created successfully', errors: skipped })
+			.json({ message: 'Users created successfully', errors: skippedErrors })
 	} catch (err) {
 		next(err)
 	}
