@@ -69,16 +69,6 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 	}
 }
 
-const vendorCheck: RequestHandler = (req, res, next) => {
-	req.body.forEach((user: User) => {
-		if (user.role === Role.VENDOR) {
-			if (!user.shopName || user.shopName.trim() === '')
-				throw new BadRequest('Invalid shop name')
-		}
-	})
-	next()
-}
-
 export const validateBulkUsers = [
 	body().isArray().withMessage('Invalid users'),
 	body('*.email').trim().isEmail().withMessage('Invalid email'),
@@ -86,7 +76,15 @@ export const validateBulkUsers = [
 		.trim()
 		.isIn([Role.STUDENT, Role.VENDOR])
 		.withMessage('Invalid role'),
-	vendorCheck,
+	body().custom((_value, { req }) => {
+		const users = req.body as Pick<User, 'email' | 'role' | 'shopName'>[]
+		for (const user of users) {
+			if (user.role === Role.VENDOR && !user.shopName) {
+				throw new Error('Missing shop name field in VENDOR type user(s)')
+			}
+		}
+		return true
+	}),
 ]
 
 export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
