@@ -69,18 +69,20 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 	}
 }
 
+const vendorCheck: RequestHandler = (req, res, next) => {
+	req.body.forEach((user: User) => {
+		if (user.role === Role.VENDOR) {
+			if (!user.shopName || user.shopName.trim() === '')
+				throw new BadRequest('Invalid shop name')
+		}
+	})
+	next()
+}
+
 export const validateBulkUsers = [
 	body().isArray().withMessage('Invalid users'),
 	body('*.email').trim().isEmail().withMessage('Invalid email'),
-	body('*.role')
-		.trim()
-		.isIn([Role.STUDENT, Role.VENDOR])
-		.withMessage('Invalid role'),
-	body('*.shopName')
-		.if(body('*.role').equals(Role.VENDOR))
-		.trim()
-		.notEmpty()
-		.withMessage('Invalid shop name'),
+	vendorCheck,
 ]
 
 export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
@@ -125,6 +127,9 @@ export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
 					shopName,
 				})
 			}
+		}
+		if (users.length === 0) {
+			throw new BadRequest('No valid users found')
 		}
 		await prisma.user.createMany({ data: users })
 		if (process.env.NODE_ENV === 'production') {
