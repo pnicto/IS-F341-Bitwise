@@ -12,6 +12,7 @@ import {
 	createRoutesFromElements,
 } from 'react-router-dom'
 import CreateAccount from './features/admin/create-account.page'
+import CreateAccountsBulk from './features/admin/create-accounts-bulk.page'
 import Login, { loginLoader } from './features/auth/login.page'
 import CreateProduct from './features/products/create-product.page'
 import ViewProducts from './features/products/view-products.page'
@@ -64,6 +65,7 @@ const router = createBrowserRouter(
 				{/* Protected only for admin */}
 				<Route element={<PermissionGuard permissions={['ADMIN']} />}>
 					<Route path='admin/add-student' element={<CreateAccount />} />
+					<Route path='admin/bulk' element={<CreateAccountsBulk />} />
 				</Route>
 			</Route>
 		</Route>,
