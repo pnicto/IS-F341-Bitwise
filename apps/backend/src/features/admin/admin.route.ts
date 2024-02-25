@@ -1,9 +1,9 @@
 import express from 'express'
 import {
 	createAccount,
-	validateNewUser,
 	createAccountsInBulk,
 	validateBulkUsers,
+	validateNewUser,
 } from './admin.handler'
 
 export const adminRouter = express.Router()
