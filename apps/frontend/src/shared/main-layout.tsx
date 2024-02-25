@@ -43,13 +43,10 @@ const MainLayout = () => {
 								color='green'
 								radius='xl'
 								size='compact-md'
-								onClick={(e) => {
-									e.preventDefault()
-								}}
+								component={NavLink}
+								to='/catalogue/add-product'
 							>
-								<NavLink to='/catalogue/add-product'>
-									<IconPlus size={20} fill='green' />
-								</NavLink>
+								<IconPlus size={20} fill='green' />
 							</Button>
 						)}
 						<Button onClick={() => logout.mutate()}>Logout</Button>
