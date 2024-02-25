@@ -6,7 +6,7 @@ import { prisma } from '../../config/prisma'
 import { Unauthorized } from '../../errors/CustomErrors'
 import { generateAccessToken } from '../../utils/generateToken'
 import { validateRequest } from '../../utils/validateRequest'
-import { verifyPassword } from './auth.utils'
+import { verifyPassword } from '../../utils/verifyPassword'
 
 export const validateLogin = [
 	body('email').trim().isEmail().withMessage('Invalid email'),
