@@ -89,7 +89,7 @@ const HomeWithCreateAndUpdateAccount = () => {
 	})
 
 	return (
-		<div className='flex flex-col gap-20'>
+		<div className='flex flex-col gap-10'>
 			<form
 				className='flex flex-col gap-5'
 				onSubmit={createForm.onSubmit((values) => {
@@ -139,44 +139,45 @@ const HomeWithCreateAndUpdateAccount = () => {
 					Search User
 				</Button>
 			</form>
+
+			{/* TODO: Replace this with a single component so we can have loading and errors in that component */}
 			{userDetailsQueryResult.data !== undefined && (
-				<div className='flex flex-col border-2'>
-					<div className='text-center mt-2'>
-						<h1 className='text-2xl font-bold'>
-							{userDetailsQueryResult.data.user.email}
-						</h1>
-						<p className='text-xl'>
-							Account is{' '}
-							{userDetailsQueryResult.data.user.enabled
-								? 'Enabled'
-								: 'Disabled'}
-						</p>
+				<div className='flex flex-col items-center gap-3'>
+					<h2 className='text-xl font-bold'>
+						User Details for {userDetailsQueryResult.data.user.email}
+					</h2>
+
+					<div className='grid grid-cols-2'>
+						<p>Email:</p>
+						<p>{userDetailsQueryResult.data.user.email}</p>
+						<p>Balance:</p>
+						<p>{userDetailsQueryResult.data.user.balance} ₹</p>
+						<p>Mobile:</p>
+						<p>{userDetailsQueryResult.data.user.mobile}</p>
+						<p>Role:</p>
+						<p>{userDetailsQueryResult.data.user.role}</p>
 					</div>
-					{userDetailsQueryResult.data.user.enabled === false ? (
-						<Button
-							onClick={() => {
-								updateAccount.mutate({
-									email: userDetailsQueryResult.data.user.email,
-									enabled: true,
-								})
-							}}
-						>
-							Enable User
-						</Button>
-					) : (
-						<Button
-							onClick={() => {
-								updateAccount.mutate({
-									email: userDetailsQueryResult.data.user.email,
-									enabled: false,
-								})
-							}}
-						>
-							Disable User
-						</Button>
-					)}
+					<p className={`text-xl`}>
+						Account is{' '}
+						{userDetailsQueryResult.data.user.enabled ? 'Enabled' : 'Disabled'}
+					</p>
+
+					<Button
+						onClick={() => {
+							updateAccount.mutate({
+								email: userDetailsQueryResult.data.user.email,
+								enabled: !userDetailsQueryResult.data.user.enabled,
+							})
+						}}
+					>
+						{userDetailsQueryResult.data.user.enabled
+							? 'Disable User'
+							: 'Enable User'}
+					</Button>
 				</div>
 			)}
+
+			{/* TODO: Replace with a better error message */}
 			{userDetailsQueryResult.isError && (
 				<div className='text-center mt-2'>
 					<h1 className='text-2xl'>{userDetailsQueryResult.error.message}</h1>
