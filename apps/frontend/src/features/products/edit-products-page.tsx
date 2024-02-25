@@ -11,7 +11,7 @@ import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { Product } from '@prisma/client'
-import { IconEdit } from '@tabler/icons-react'
+import { IconEdit, IconTrash } from '@tabler/icons-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
@@ -63,6 +63,19 @@ const EditProducts = () => {
 			queryClient.invalidateQueries({ queryKey: ['shopProducts', shopName] })
 			updateProductForm.reset()
 			modalHandlers.close()
+			notifications.show({ message: data.message, color: 'green' })
+		},
+		onError: (err) => {
+			handleAxiosErrors(err)
+		},
+	})
+
+	const deleteProduct = useMutation({
+		mutationFn: (product: Pick<Product, 'id'>) => {
+			return axios.post<{ message: string }>(`/products/delete/${product.id}`)
+		},
+		onSuccess: ({ data }) => {
+			queryClient.invalidateQueries({ queryKey: ['shopProducts', shopName] })
 			notifications.show({ message: data.message, color: 'green' })
 		},
 		onError: (err) => {
@@ -137,7 +150,7 @@ const EditProducts = () => {
 								<Table.Td>{name}</Table.Td>
 								<Table.Td>{description}</Table.Td>
 								<Table.Td>{price} ₹</Table.Td>
-								<Table.Td>
+								<Table.Td className='flex flex-col gap-2'>
 									<Button
 										variant='default'
 										onClick={() => {
@@ -151,6 +164,15 @@ const EditProducts = () => {
 										}}
 									>
 										<IconEdit />
+									</Button>
+									<Button
+										variant='default'
+										onClick={() => {
+											// TODO: Add a modal for confirmation once we have a default one to use everywhere
+											deleteProduct.mutate({ id })
+										}}
+									>
+										<IconTrash />
 									</Button>
 								</Table.Td>
 							</Table.Tr>
