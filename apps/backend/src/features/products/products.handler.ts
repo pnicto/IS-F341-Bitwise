@@ -102,3 +102,31 @@ export const updateProduct: RequestHandler = async (req, res, next) => {
 		next(err)
 	}
 }
+
+export const validateDeletedProduct = [
+	param('id').trim().notEmpty().withMessage('Product ID is required'),
+]
+export const deleteProduct: RequestHandler = async (req, res, next) => {
+	try {
+		const { id } = validateRequest<Pick<Product, 'id'>>(req)
+		const vendor = getAuthorizedUser(req)
+
+		const product = await prisma.product.findUnique({ where: { id: id } })
+
+		if (!product) {
+			throw new NotFound('The product does not exist')
+		}
+		if (product.vendorId !== vendor.id) {
+			throw new Forbidden('The user does not own this product')
+		}
+
+		await prisma.product.delete({
+			where: { id: id },
+		})
+		return res
+			.status(StatusCodes.OK)
+			.json({ message: 'Product successfully deleted' })
+	} catch (err) {
+		next(err)
+	}
+}
