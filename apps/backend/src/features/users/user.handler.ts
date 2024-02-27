@@ -63,8 +63,6 @@ export const editUserDetails: RequestHandler = async (req, res, next) => {
 				)
 			}
 
-			console.log(oldPassword, user.password)
-
 			const validPassword = await verifyPassword(oldPassword, user.password)
 
 			if (!validPassword) {
