@@ -64,7 +64,7 @@ const router = createBrowserRouter(
 
 				{/* Protected only for admin */}
 				<Route element={<PermissionGuard permissions={['ADMIN']} />}>
-					<Route path='admin/add-student' element={<CreateAccount />} />
+					<Route path='admin/add-account' element={<CreateAccount />} />
 					<Route path='admin/bulk' element={<CreateAccountsBulk />} />
 				</Route>
 			</Route>
