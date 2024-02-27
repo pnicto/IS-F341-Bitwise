@@ -8,6 +8,13 @@ import { validateRequest } from '../../utils/validateRequest'
 import { verifyPassword } from '../../utils/verifyPassword'
 import { hashPassword } from '../admin/admin.utils'
 
+export const getUserDetails: RequestHandler = async (req, res) => {
+	const user = getAuthorizedUser(req)
+	res.status(StatusCodes.OK).json({
+		user,
+	})
+}
+
 export const validateNewDetails = [
 	body('mobile')
 		.isInt()
@@ -16,14 +23,6 @@ export const validateNewDetails = [
 	body('oldPassword').optional({ checkFalsy: true }),
 	body('newPassword').optional({ checkFalsy: true }),
 ]
-
-export const getUserDetails: RequestHandler = async (req, res) => {
-	const user = getAuthorizedUser(req)
-	res.status(StatusCodes.OK).json({
-		user,
-	})
-}
-
 export const editUserDetails: RequestHandler = async (req, res, next) => {
 	try {
 		const { mobile, oldPassword, newPassword } = validateRequest<{
