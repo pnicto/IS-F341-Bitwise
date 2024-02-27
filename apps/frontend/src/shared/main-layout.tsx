@@ -1,4 +1,4 @@
-import { Button } from '@mantine/core'
+import { Anchor, Button } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { IconPlus } from '@tabler/icons-react'
 import { useMutation } from '@tanstack/react-query'
@@ -48,6 +48,11 @@ const MainLayout = () => {
 							>
 								<IconPlus size={20} fill='green' />
 							</Button>
+						)}
+						{currentRoute.pathname === '/admin/add-account' && (
+							<Anchor component={NavLink} to='/admin/bulk-add-account'>
+								Create Accounts in Bulk
+							</Anchor>
 						)}
 						<Button onClick={() => logout.mutate()}>Logout</Button>
 					</div>
