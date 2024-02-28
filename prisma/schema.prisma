@@ -22,6 +22,7 @@ model User {
   role                 Role          @default(STUDENT)
   shopName             String?
   balance              Int           @default(0)
+  enabled              Boolean       @default(true)
   Product              Product[]
   transactionsSend     Transaction[] @relation("sender")
   transactionsReceived Transaction[] @relation("receiver")

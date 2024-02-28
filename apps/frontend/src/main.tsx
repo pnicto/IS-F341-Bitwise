@@ -11,13 +11,14 @@ import {
 	createBrowserRouter,
 	createRoutesFromElements,
 } from 'react-router-dom'
-import CreateAccount from './features/admin/create-account.page'
+import HomeWithCreateAndUpdateAccount from './features/admin/home-with-create-account.page'
 import CreateAccountsBulk from './features/admin/create-accounts-bulk.page'
 import Login, { loginLoader } from './features/auth/login.page'
 import CreateProduct from './features/products/create-product.page'
 import EditProducts from './features/products/edit-products-page'
 import ProductList from './features/shops/products-list.page'
 import ShopList from './features/shops/shop-list.page'
+import EditProfile from './features/user/edit-profile'
 import HomeWithPayments from './features/user/home-with-payments.page'
 import ManageWallet from './features/user/manage-wallet.page'
 import ErrorBoundary from './shared/error-boundary'
@@ -51,6 +52,7 @@ const router = createBrowserRouter(
 					<Route path='/manage-wallet' element={<ManageWallet />} />
 					<Route path='/shops/view' element={<ShopList />} />
 					<Route path='/:shopName/products' element={<ProductList />} />
+					<Route path='/edit-profile' element={<EditProfile />} />
 				</Route>
 
 				{/* Protected for only vendor */}
@@ -64,7 +66,7 @@ const router = createBrowserRouter(
 
 				{/* Protected only for admin */}
 				<Route element={<PermissionGuard permissions={['ADMIN']} />}>
-					<Route path='admin/add-account' element={<CreateAccount />} />
+					<Route path='admin/' element={<HomeWithCreateAndUpdateAccount />} />
 					<Route
 						path='admin/bulk-add-account'
 						element={<CreateAccountsBulk />}

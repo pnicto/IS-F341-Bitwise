@@ -17,9 +17,7 @@ export async function loginLoader() {
 				Expires: '0',
 			},
 		})
-		return redirect(
-			response.data.user.role === 'ADMIN' ? '/admin/add-account' : '/',
-		)
+		return redirect(response.data.user.role === 'ADMIN' ? '/admin' : '/')
 	} catch (err) {
 		return null
 	}
@@ -54,7 +52,7 @@ const Login = () => {
 		},
 		onSuccess: ({ data }) => {
 			if (data.user.role !== 'ADMIN') navigate('/', { replace: true })
-			else navigate('/admin/add-account', { replace: true })
+			else navigate('/admin', { replace: true })
 			notifications.show({ message: data.message, color: 'green' })
 		},
 		onError: (err) => {

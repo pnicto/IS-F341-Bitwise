@@ -1,7 +1,7 @@
 import { JwtPayload } from 'jsonwebtoken'
 import passport, { DoneCallback } from 'passport'
 import { Strategy as JwtStrategy } from 'passport-jwt'
-import { NotFound } from '../errors/CustomErrors'
+import { Forbidden, NotFound } from '../errors/CustomErrors'
 import { accessTokenExtractor } from '../utils/tokenExtractor'
 import { prisma } from './prisma'
 
@@ -13,6 +13,9 @@ const jwtAuthCallback = async (payload: JwtPayload, done: DoneCallback) => {
 
 		if (!user) {
 			throw new NotFound('User does not exist')
+		}
+		if (!user.enabled) {
+			throw new Forbidden('User account is disabled')
 		}
 
 		// Remove password from user object when exposing in req.user

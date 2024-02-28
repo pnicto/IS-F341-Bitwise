@@ -29,6 +29,9 @@ export const transact: RequestHandler = async (req, res, next) => {
 		if (!receiver) {
 			throw new BadRequest('Receiver not found')
 		}
+		if (!receiver.enabled) {
+			throw new BadRequest('Receiver account is disabled')
+		}
 		if (sender.balance < amount) {
 			throw new BadRequest('Insufficient balance')
 		}
