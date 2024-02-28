@@ -49,7 +49,7 @@ const MainLayout = () => {
 								<IconPlus size={20} fill='green' />
 							</Button>
 						)}
-						{currentRoute.pathname === '/admin/add-account' && (
+						{currentRoute.pathname === '/admin/' && (
 							<Anchor component={NavLink} to='/admin/bulk-add-account'>
 								Create Accounts in Bulk
 							</Anchor>
