@@ -5,12 +5,9 @@ import { body, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
 import { BadRequest, NotFound } from '../../errors/CustomErrors'
+import { hashPassword } from '../../utils/password'
 import { validateRequest } from '../../utils/validateRequest'
-import {
-	extractUsernameFromEmail,
-	hashPassword,
-	sendLoginCredentials,
-} from './admin.utils'
+import { extractUsernameFromEmail, sendLoginCredentials } from './admin.utils'
 
 export const validateNewUser = [
 	body('email').trim().isEmail().withMessage('Invalid email'),

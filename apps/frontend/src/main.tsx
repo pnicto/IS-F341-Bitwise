@@ -17,6 +17,7 @@ import CreateProduct from './features/products/create-product.page'
 import EditProducts from './features/products/edit-products-page'
 import ProductList from './features/shops/products-list.page'
 import ShopList from './features/shops/shop-list.page'
+import EditProfile from './features/user/edit-profile'
 import HomeWithPayments from './features/user/home-with-payments.page'
 import ManageWallet from './features/user/manage-wallet.page'
 import ErrorBoundary from './shared/error-boundary'
@@ -50,6 +51,7 @@ const router = createBrowserRouter(
 					<Route path='/manage-wallet' element={<ManageWallet />} />
 					<Route path='/shops/view' element={<ShopList />} />
 					<Route path='/:shopName/products' element={<ProductList />} />
+					<Route path='/edit-profile' element={<EditProfile />} />
 				</Route>
 
 				{/* Protected for only vendor */}

@@ -1,5 +1,4 @@
 import { User } from '@prisma/client'
-import bcrypt from 'bcrypt'
 import { transporter } from '../../config/mailer'
 
 const SENDER_EMAIL = process.env.GOOGLE_MAIL_USER as string
@@ -10,12 +9,6 @@ export const extractUsernameFromEmail = (emailStr: string) => {
 	} else {
 		return emailStr.replace(/\./g, '').match(/([^@]+)/)?.[1] as string
 	}
-}
-
-export const hashPassword = async (password: string) => {
-	const salt = await bcrypt.genSalt(10)
-
-	return await bcrypt.hash(password, salt)
 }
 
 export const sendLoginCredentials = async (
