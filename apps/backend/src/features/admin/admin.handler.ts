@@ -133,7 +133,7 @@ export const validateBulkUsers = [
 		.trim()
 		.isIn([Role.STUDENT, Role.VENDOR])
 		.withMessage('Invalid role'),
-	body().custom((_value, { req }) => {
+	body('*.shopName').custom((_value, { req }) => {
 		const users = req.body as Pick<User, 'email' | 'role' | 'shopName'>[]
 		for (const user of users) {
 			if (user.role === Role.VENDOR && !user.shopName) {
