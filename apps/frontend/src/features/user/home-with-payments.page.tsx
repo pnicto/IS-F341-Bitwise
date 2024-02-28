@@ -63,11 +63,18 @@ const HomeWithPayments = () => {
 					<Grid.Col span={4}>Student specific stuff</Grid.Col>
 				)}
 				{role === 'VENDOR' && (
-					<Grid.Col span={4}>
-						<Anchor component={Link} to='/catalogue/add-product'>
-							Create Product
-						</Anchor>
-					</Grid.Col>
+					<>
+						<Grid.Col span={4}>
+							<Anchor component={Link} to='/catalogue'>
+								View Products
+							</Anchor>
+						</Grid.Col>
+						<Grid.Col span={4}>
+							<Anchor component={Link} to='/catalogue/add-product'>
+								Create Product
+							</Anchor>
+						</Grid.Col>
+					</>
 				)}
 				<Grid.Col span={4}>
 					<Anchor component={Link} to='/manage-wallet'>

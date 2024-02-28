@@ -3,7 +3,7 @@ import { RequestHandler } from 'express'
 import { body, param } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
-import { NotFound } from '../../errors/CustomErrors'
+import { Forbidden, NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 
@@ -60,6 +60,72 @@ export const getAllProductsByShopName: RequestHandler = async (
 			where: { vendorId: vendor.id },
 		})
 		return res.status(StatusCodes.OK).json({ products })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const validateUpdatedProduct = [
+	param('id').trim().notEmpty().withMessage('Product ID is required'),
+	body('name').trim().notEmpty().withMessage('Product name is required'),
+	body('description')
+		.trim()
+		.notEmpty()
+		.withMessage('Product description is required'),
+	body('price').isInt({ min: 1 }).toInt().withMessage('Price must be a number'),
+]
+export const updateProduct: RequestHandler = async (req, res, next) => {
+	try {
+		const { name, description, price, id } =
+			validateRequest<Pick<Product, 'name' | 'description' | 'price' | 'id'>>(
+				req,
+			)
+		const vendor = getAuthorizedUser(req)
+
+		const product = await prisma.product.findUnique({ where: { id: id } })
+
+		if (!product) {
+			throw new NotFound('The product does not exist')
+		}
+		if (product.vendorId !== vendor.id) {
+			throw new Forbidden('The user does not own this product')
+		}
+
+		await prisma.product.update({
+			where: { id: id },
+			data: { name, description, price },
+		})
+		return res
+			.status(StatusCodes.OK)
+			.json({ message: 'Product successfully updated' })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const validateDeletedProduct = [
+	param('id').trim().notEmpty().withMessage('Product ID is required'),
+]
+export const deleteProduct: RequestHandler = async (req, res, next) => {
+	try {
+		const { id } = validateRequest<Pick<Product, 'id'>>(req)
+		const vendor = getAuthorizedUser(req)
+
+		const product = await prisma.product.findUnique({ where: { id: id } })
+
+		if (!product) {
+			throw new NotFound('The product does not exist')
+		}
+		if (product.vendorId !== vendor.id) {
+			throw new Forbidden('The user does not own this product')
+		}
+
+		await prisma.product.delete({
+			where: { id: id },
+		})
+		return res
+			.status(StatusCodes.OK)
+			.json({ message: 'Product successfully deleted' })
 	} catch (err) {
 		next(err)
 	}
