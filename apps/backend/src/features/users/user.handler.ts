@@ -4,9 +4,8 @@ import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
 import { BadRequest, NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
+import { hashPassword, verifyPassword } from '../../utils/password'
 import { validateRequest } from '../../utils/validateRequest'
-import { verifyPassword } from '../../utils/verifyPassword'
-import { hashPassword } from '../admin/admin.utils'
 
 export const getUserDetails: RequestHandler = async (req, res) => {
 	const user = getAuthorizedUser(req)
