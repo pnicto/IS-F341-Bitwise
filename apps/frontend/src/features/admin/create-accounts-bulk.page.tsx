@@ -32,7 +32,7 @@ const CreateAccountsBulk = () => {
 				const csvData = e.target.result as string
 				const results = CsvParser.parse<NewAccount>(csvData, {
 					header: true,
-					skipEmptyLines: true,
+					skipEmptyLines: 'greedy',
 					// if preview is true, only parse 10 rows else parse all the data
 					preview: preview ? 10 : 0,
 				})
