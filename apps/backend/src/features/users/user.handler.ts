@@ -16,7 +16,10 @@ export const getUserDetails: RequestHandler = async (req, res) => {
 }
 
 export const validateNewDetails = [
-	body('mobile').isMobilePhone('en-IN').optional(),
+	body('mobile')
+		.isMobilePhone('en-IN')
+		.optional()
+		.withMessage('Invalid mobile number'),
 	body('oldPassword').custom((value, { req }) => {
 		if (req.body.newPassword && !value) {
 			throw new Error('Old password is required when changing password')
