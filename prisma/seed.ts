@@ -1,8 +1,6 @@
 import { PrismaClient, User } from '@prisma/client'
-import {
-	extractUsernameFromEmail,
-	hashPassword,
-} from '../apps/backend/src/features/admin/admin.utils'
+import { extractUsernameFromEmail } from '../apps/backend/src/features/admin/admin.utils'
+import { hashPassword } from '../apps/backend/src/utils/password'
 
 const prisma = new PrismaClient()
 const users: Pick<User, 'email' | 'role' | 'balance' | 'shopName'>[] = [

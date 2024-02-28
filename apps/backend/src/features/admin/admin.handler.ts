@@ -125,3 +125,95 @@ export const updateUserStatus: RequestHandler = async (req, res, next) => {
 		next(err)
 	}
 }
+
+export const validateBulkUsers = [
+	body().isArray().withMessage('Invalid users'),
+	body('*.email').trim().isEmail().withMessage('Invalid email'),
+	body('*.role')
+		.trim()
+		.isIn([Role.STUDENT, Role.VENDOR])
+		.withMessage('Invalid role'),
+	body('*.shopName').custom((_value, { req }) => {
+		const users = req.body as Pick<User, 'email' | 'role' | 'shopName'>[]
+		for (const user of users) {
+			if (user.role === Role.VENDOR && !user.shopName) {
+				throw new Error('Missing shop name field in VENDOR type user(s)')
+			}
+		}
+		return true
+	}),
+]
+
+export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
+	try {
+		const userReq =
+			validateRequest<Pick<User, 'email' | 'role' | 'shopName'>[]>(req)
+		const userEmails: string[] = []
+		const users = []
+		const userPassword = new Map()
+		const skipped = []
+		for (let i = 0; i < req.body.length; i++) {
+			const { email, role, shopName } = userReq[i]
+			if (userEmails.includes(email)) {
+				skipped.push(`User with email ${email} already added in given request`)
+				continue
+			}
+			userEmails.push(email)
+			const username = extractUsernameFromEmail(email)
+			const password = crypto.randomBytes(4).toString('hex')
+			userPassword.set(email, password)
+			const hashedPassword = await hashPassword(password)
+			if (role === 'STUDENT') {
+				users.push({
+					username,
+					email,
+					password: hashedPassword,
+					role,
+				})
+			} else {
+				const existingUser = await prisma.user.findFirst({
+					where: { shopName },
+				})
+				if (existingUser) {
+					skipped.push(`Shop name ${shopName} already exists`)
+					continue
+				}
+				users.push({
+					username,
+					email,
+					password: hashedPassword,
+					role,
+					shopName,
+				})
+			}
+		}
+		if (users.length === 0) {
+			throw new BadRequest('No valid users found')
+		}
+		await prisma.user.createMany({ data: users })
+		if (process.env.NODE_ENV === 'production') {
+			for (const user of users) {
+				await sendLoginCredentials(user as User, userPassword.get(user.email))
+			}
+		} else {
+			console.log('DEV LOG: Emails will only be sent in production')
+			for (const user of users) {
+				console.log(
+					`DEV LOG: User: ${user.email}, Password: ${userPassword.get(
+						user.email,
+					)}`,
+				)
+			}
+		}
+		const skippedErrors = []
+		for (const error of skipped) {
+			skippedErrors.push({ msg: error })
+		}
+
+		return res
+			.status(StatusCodes.CREATED)
+			.json({ message: 'Users created successfully', errors: skippedErrors })
+	} catch (err) {
+		next(err)
+	}
+}
