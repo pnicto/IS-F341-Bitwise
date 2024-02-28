@@ -1,5 +1,6 @@
 import { PrismaClient, User } from '@prisma/client'
 import { extractUsernameFromEmail } from '../apps/backend/src/features/admin/admin.utils'
+import { hashPassword } from '../apps/backend/src/utils/password'
 
 const prisma = new PrismaClient()
 const users: Pick<User, 'email' | 'role' | 'balance' | 'shopName'>[] = [
@@ -38,6 +39,3 @@ main()
 		await prisma.$disconnect()
 		process.exit(1)
 	})
-function hashPassword(arg0: string): any {
-	throw new Error('Function not implemented.')
-}
