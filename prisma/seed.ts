@@ -63,7 +63,7 @@ async function main() {
 	for (let i = 0; i < 50; i++) {
 		const email = faker.internet.email()
 		users.push({
-			email: faker.internet.email(),
+			email: email,
 			role: 'STUDENT',
 			username: extractUsernameFromEmail(email),
 			password: await hashPassword('password'),
@@ -76,7 +76,7 @@ async function main() {
 	for (let i = 0; i < 10; i++) {
 		const email = faker.internet.email()
 		users.push({
-			email: faker.internet.email(),
+			email: email,
 			role: 'VENDOR',
 			username: extractUsernameFromEmail(email),
 			password: await hashPassword('password'),
