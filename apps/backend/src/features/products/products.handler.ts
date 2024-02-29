@@ -1,4 +1,4 @@
-import { Product } from '@prisma/client'
+import { Category, Product } from '@prisma/client'
 import { RequestHandler } from 'express'
 import { body, param } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
@@ -14,14 +14,20 @@ export const validateNewProduct = [
 		.notEmpty()
 		.withMessage('Product description is required'),
 	body('price').isInt({ min: 1 }).toInt().withMessage('Price must be a number'),
+	body('category')
+		.trim()
+		.isIn(Object.values(Category))
+		.withMessage('Invalid category'),
 ]
 export const createProduct: RequestHandler = async (req, res, next) => {
 	try {
-		const { name, description, price } =
-			validateRequest<Pick<Product, 'name' | 'description' | 'price'>>(req)
+		const { name, description, price, category } =
+			validateRequest<
+				Pick<Product, 'name' | 'description' | 'price' | 'category'>
+			>(req)
 		const vendor = getAuthorizedUser(req)
 		await prisma.product.create({
-			data: { name, description, price, vendorId: vendor.id },
+			data: { name, description, price, category, vendorId: vendor.id },
 		})
 		return res
 			.status(StatusCodes.CREATED)
@@ -73,13 +79,17 @@ export const validateUpdatedProduct = [
 		.notEmpty()
 		.withMessage('Product description is required'),
 	body('price').isInt({ min: 1 }).toInt().withMessage('Price must be a number'),
+	body('category')
+		.trim()
+		.isIn(Object.values(Category))
+		.withMessage('Invalid category'),
 ]
 export const updateProduct: RequestHandler = async (req, res, next) => {
 	try {
-		const { name, description, price, id } =
-			validateRequest<Pick<Product, 'name' | 'description' | 'price' | 'id'>>(
-				req,
-			)
+		const { name, description, price, category, id } =
+			validateRequest<
+				Pick<Product, 'name' | 'description' | 'price' | 'category' | 'id'>
+			>(req)
 		const vendor = getAuthorizedUser(req)
 
 		const product = await prisma.product.findUnique({ where: { id: id } })
@@ -93,7 +103,7 @@ export const updateProduct: RequestHandler = async (req, res, next) => {
 
 		await prisma.product.update({
 			where: { id: id },
-			data: { name, description, price },
+			data: { name, description, price, category },
 		})
 		return res
 			.status(StatusCodes.OK)

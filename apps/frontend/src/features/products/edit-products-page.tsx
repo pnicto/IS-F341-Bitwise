@@ -1,8 +1,10 @@
 import {
+	Badge,
 	Button,
 	Loader,
 	Modal,
 	NumberInput,
+	Select,
 	Table,
 	TextInput,
 	Textarea,
@@ -10,7 +12,7 @@ import {
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { Product } from '@prisma/client'
+import { Category, Product } from '@prisma/client'
 import { IconEdit, IconTrash } from '@tabler/icons-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from '../../lib/axios'
@@ -21,6 +23,12 @@ const EditProducts = () => {
 	const userQuery = useUserQuery()
 
 	const shopName = userQuery.data?.user.shopName
+	const categories = Object.values(Category).map((category) => {
+		return {
+			value: category,
+			label: category[0] + category.slice(1).toLowerCase(),
+		}
+	})
 
 	const shopProductsQuery = useQuery({
 		queryKey: ['shopProducts', shopName],
@@ -33,8 +41,20 @@ const EditProducts = () => {
 		enabled: !!shopName,
 	})
 
-	const updateProductForm = useForm({
-		initialValues: { id: '', name: '', description: '', price: 100 },
+	const updateProductForm = useForm<{
+		id: string
+		name: string
+		description: string
+		price: number
+		category: Category
+	}>({
+		initialValues: {
+			id: '',
+			name: '',
+			description: '',
+			price: 100,
+			category: Category.FOOD,
+		},
 		validate: {
 			name: (value) => (value.length > 0 ? null : 'Name cannot be empty'),
 			description: (value) =>
@@ -48,7 +68,10 @@ const EditProducts = () => {
 
 	const updateProduct = useMutation({
 		mutationFn: (
-			newProduct: Pick<Product, 'id' | 'name' | 'description' | 'price'>,
+			newProduct: Pick<
+				Product,
+				'id' | 'name' | 'description' | 'price' | 'category'
+			>,
 		) => {
 			return axios.post<{ message: string }>(
 				`/products/update/${newProduct.id}`,
@@ -121,6 +144,11 @@ const EditProducts = () => {
 						placeholder='Eg., A strong bucket to carry water.'
 						{...updateProductForm.getInputProps('description')}
 					/>
+					<Select
+						label='Category'
+						data={categories}
+						{...updateProductForm.getInputProps('category')}
+					/>
 					<NumberInput
 						label='Price in INR'
 						placeholder='0'
@@ -140,16 +168,20 @@ const EditProducts = () => {
 						<Table.Th className='!text-center'>Name</Table.Th>
 						<Table.Th className='!text-center'>Description</Table.Th>
 						<Table.Th className='!text-center'>Price</Table.Th>
+						<Table.Th className='!text-center'>Category</Table.Th>
 					</Table.Tr>
 				</Table.Thead>
 
 				{shopProductsQuery.data.products.map(
-					({ id, name, description, price }) => {
+					({ id, name, description, price, category }) => {
 						return (
 							<Table.Tr key={id}>
 								<Table.Td>{name}</Table.Td>
 								<Table.Td>{description}</Table.Td>
 								<Table.Td>{price} ₹</Table.Td>
+								<Table.Td>
+									<Badge variant='light'>{category}</Badge>
+								</Table.Td>
 								<Table.Td className='flex flex-col gap-2'>
 									<Button
 										variant='default'
@@ -159,6 +191,7 @@ const EditProducts = () => {
 												name,
 												description,
 												price,
+												category,
 											})
 											modalHandlers.open()
 										}}
