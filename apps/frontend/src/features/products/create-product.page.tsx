@@ -1,14 +1,24 @@
-import { Button, NumberInput, TextInput, Textarea } from '@mantine/core'
+import { Button, NumberInput, Select, TextInput, Textarea } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
-import { Product } from '@prisma/client'
+import { Category, Product } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 
 const CreateProduct = () => {
-	const form = useForm({
-		initialValues: { name: '', description: '', price: 100 },
+	const form = useForm<{
+		name: string
+		description: string
+		price: number
+		category: Category
+	}>({
+		initialValues: {
+			name: '',
+			description: '',
+			price: 100,
+			category: Category.FOOD,
+		},
 		validate: {
 			name: (value) => (value.length > 0 ? null : 'Name cannot be empty'),
 			description: (value) =>
@@ -18,7 +28,7 @@ const CreateProduct = () => {
 
 	const createProduct = useMutation({
 		mutationFn: (
-			newProduct: Pick<Product, 'name' | 'description' | 'price'>,
+			newProduct: Pick<Product, 'name' | 'description' | 'price' | 'category'>,
 		) => {
 			return axios.post<{ message: string }>('/products/new', newProduct)
 		},
@@ -47,6 +57,21 @@ const CreateProduct = () => {
 				label='Description'
 				placeholder='Eg., A strong bucket to carry water.'
 				{...form.getInputProps('description')}
+			/>
+			<Select
+				label='Category'
+				data={[
+					{ value: Category.FOOD, label: 'Food' },
+					{ value: Category.BOOKS, label: 'Books' },
+					{ value: Category.CLOTHING, label: 'Clothing' },
+					{ value: Category.COSMETICS, label: 'Cosmetics' },
+					{ value: Category.ELECTRONICS, label: 'Electronics' },
+					{ value: Category.HEALTH, label: 'Health' },
+					{ value: Category.HOUSEHOLD, label: 'Household' },
+					{ value: Category.OFFICE, label: 'Office' },
+					{ value: Category.MISC, label: 'Misc' },
+				]}
+				{...form.getInputProps('category')}
 			/>
 			<NumberInput
 				label='Price in INR'
