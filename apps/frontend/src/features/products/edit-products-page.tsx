@@ -1,4 +1,5 @@
 import {
+	Badge,
 	Button,
 	Loader,
 	Modal,
@@ -171,6 +172,7 @@ const EditProducts = () => {
 						<Table.Th className='!text-center'>Name</Table.Th>
 						<Table.Th className='!text-center'>Description</Table.Th>
 						<Table.Th className='!text-center'>Price</Table.Th>
+						<Table.Th className='!text-center'>Category</Table.Th>
 					</Table.Tr>
 				</Table.Thead>
 
@@ -181,7 +183,9 @@ const EditProducts = () => {
 								<Table.Td>{name}</Table.Td>
 								<Table.Td>{description}</Table.Td>
 								<Table.Td>{price} ₹</Table.Td>
-								<Table.Td>{category}</Table.Td>
+								<Table.Td>
+									<Badge variant='light'>{category}</Badge>
+								</Table.Td>
 								<Table.Td className='flex flex-col gap-2'>
 									<Button
 										variant='default'
