@@ -32,20 +32,22 @@ const ProductList = () => {
 				</Table.Tr>
 			</Table.Thead>
 
-			{shopProductsQuery.data.products.map(
-				({ id, name, description, price, category }) => {
-					return (
-						<Table.Tr key={id}>
-							<Table.Td>{name}</Table.Td>
-							<Table.Td>{description}</Table.Td>
-							<Table.Td>{price} ₹</Table.Td>
-							<Table.Td>
-								<Badge variant='light'>{category}</Badge>
-							</Table.Td>
-						</Table.Tr>
-					)
-				},
-			)}
+			<Table.Tbody>
+				{shopProductsQuery.data.products.map(
+					({ id, name, description, price, category }) => {
+						return (
+							<Table.Tr key={id}>
+								<Table.Td>{name}</Table.Td>
+								<Table.Td>{description}</Table.Td>
+								<Table.Td>{price} ₹</Table.Td>
+								<Table.Td>
+									<Badge variant='light'>{category}</Badge>
+								</Table.Td>
+							</Table.Tr>
+						)
+					},
+				)}
+			</Table.Tbody>
 		</Table>
 	)
 }
