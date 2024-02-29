@@ -75,11 +75,7 @@ const EditProducts = () => {
 		) => {
 			return axios.post<{ message: string }>(
 				`/products/update/${newProduct.id}`,
-				{
-					name: newProduct.name,
-					description: newProduct.description,
-					price: newProduct.price,
-				},
+				newProduct,
 			)
 		},
 		onSuccess: ({ data }) => {
