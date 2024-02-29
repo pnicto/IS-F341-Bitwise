@@ -12,12 +12,6 @@ import { hashPassword } from '../apps/backend/src/utils/password'
 faker.seed(23)
 const prisma = new PrismaClient()
 
-const CATEGORIES = Object.values(Category)
-
-function getRandomElement<T>(arr: T[]): T {
-	return arr[Math.floor(Math.random() * arr.length)]
-}
-
 async function main() {
 	await prisma.transaction.deleteMany({})
 	await prisma.product.deleteMany({})
@@ -109,7 +103,7 @@ async function main() {
 				price: parseInt(faker.commerce.price({ min: 10, max: 1000, dec: 0 })),
 				vendorId: v['id'],
 				createdAt: productDate,
-				category: getRandomElement(CATEGORIES),
+				category: faker.helpers.enumValue(Category),
 				updatedAt: productDate,
 			})
 		}
