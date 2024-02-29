@@ -3,10 +3,11 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'bitwise-little-cherry-2849'
+app = 'bitwise-backend'
 primary_region = 'sin'
 
 [build]
+dockerfile = 'backend.Dockerfile'
 
 [http_service]
 internal_port = 5000

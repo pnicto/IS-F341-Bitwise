@@ -1,12 +1,29 @@
 /// <reference types='vitest' />
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin'
+import react from '@vitejs/plugin-react'
+import { createRequire } from 'module'
+import path from 'path'
+import { defineConfig } from 'vite'
+
+const { resolve } = createRequire(import.meta.url)
+
+const prismaClient = `prisma${path.sep}client`
+const prismaClientIndexBrowser = resolve(
+	'@prisma/client/index-browser',
+).replace(`@${prismaClient}`, `.${prismaClient}`)
 
 export default defineConfig({
 	root: __dirname,
 	cacheDir: '../../node_modules/.vite/apps/frontend',
 
+	resolve: {
+		alias: {
+			'.prisma/client/index-browser': path.relative(
+				__dirname,
+				prismaClientIndexBrowser,
+			),
+		},
+	},
 	server: {
 		port: 4200,
 		host: 'localhost',
