@@ -1,0 +1,19 @@
+name: Fly Deploy
+
+on:
+  workflow_dispatch:
+
+env:
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency: deploy-group
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: frontend
+        run: flyctl deploy -c fly.frontend.toml --remote-only --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }}
+      - name: backend
+        run: flyctl deploy -c fly.backend.toml
