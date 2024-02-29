@@ -20,17 +20,17 @@ import { useUserQuery } from '../user/queries'
 const EditProducts = () => {
 	const userQuery = useUserQuery()
 
-	const shopName = userQuery.data?.user.shopName
+	const vendorId = userQuery.data?.user.id
 
 	const shopProductsQuery = useQuery({
-		queryKey: ['shopProducts', shopName],
+		queryKey: ['shopProducts', vendorId],
 		queryFn: async () => {
-			const response = await axios.get<{ products: Product[] }>(
-				`/products/${shopName}`,
-			)
+			const response = await axios.get<{ products: Product[] }>('/products', {
+				params: { vendorId },
+			})
 			return response.data
 		},
-		enabled: !!shopName,
+		enabled: !!vendorId,
 	})
 
 	const updateProductForm = useForm({
@@ -60,7 +60,7 @@ const EditProducts = () => {
 			)
 		},
 		onSuccess: ({ data }) => {
-			queryClient.invalidateQueries({ queryKey: ['shopProducts', shopName] })
+			queryClient.invalidateQueries({ queryKey: ['shopProducts', vendorId] })
 			updateProductForm.reset()
 			modalHandlers.close()
 			notifications.show({ message: data.message, color: 'green' })
@@ -75,7 +75,7 @@ const EditProducts = () => {
 			return axios.post<{ message: string }>(`/products/delete/${product.id}`)
 		},
 		onSuccess: ({ data }) => {
-			queryClient.invalidateQueries({ queryKey: ['shopProducts', shopName] })
+			queryClient.invalidateQueries({ queryKey: ['shopProducts', vendorId] })
 			notifications.show({ message: data.message, color: 'green' })
 		},
 		onError: (err) => {

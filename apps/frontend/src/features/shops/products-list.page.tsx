@@ -9,9 +9,9 @@ const ProductList = () => {
 	const shopProductsQuery = useQuery({
 		queryKey: ['shopProducts', shopName],
 		queryFn: async () => {
-			const response = await axios.get<{ products: Product[] }>(
-				`/products/${shopName}`,
-			)
+			const response = await axios.get<{ products: Product[] }>('/products/', {
+				params: { shopName },
+			})
 			return response.data
 		},
 	})
