@@ -1,4 +1,4 @@
-import { Table } from '@mantine/core'
+import { Badge, Table } from '@mantine/core'
 import { Product } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
@@ -28,20 +28,26 @@ const ProductList = () => {
 					<Table.Th className='!text-center'>Name</Table.Th>
 					<Table.Th className='!text-center'>Description</Table.Th>
 					<Table.Th className='!text-center'>Price</Table.Th>
+					<Table.Th className='!text-center'>Category</Table.Th>
 				</Table.Tr>
 			</Table.Thead>
 
-			{shopProductsQuery.data.products.map(
-				({ id, name, description, price }) => {
-					return (
-						<Table.Tr key={id}>
-							<Table.Td>{name}</Table.Td>
-							<Table.Td>{description}</Table.Td>
-							<Table.Td>{price} ₹</Table.Td>
-						</Table.Tr>
-					)
-				},
-			)}
+			<Table.Tbody>
+				{shopProductsQuery.data.products.map(
+					({ id, name, description, price, category }) => {
+						return (
+							<Table.Tr key={id}>
+								<Table.Td>{name}</Table.Td>
+								<Table.Td>{description}</Table.Td>
+								<Table.Td>{price} ₹</Table.Td>
+								<Table.Td>
+									<Badge variant='light'>{category}</Badge>
+								</Table.Td>
+							</Table.Tr>
+						)
+					},
+				)}
+			</Table.Tbody>
 		</Table>
 	)
 }

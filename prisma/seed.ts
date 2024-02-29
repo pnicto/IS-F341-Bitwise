@@ -1,9 +1,7 @@
 import { fakerEN_IN as faker } from '@faker-js/faker'
 import { PrismaClient, Product, Transaction, User } from '@prisma/client'
-import {
-	extractUsernameFromEmail,
-	hashPassword,
-} from '../apps/backend/src/features/admin/admin.utils'
+import { extractUsernameFromEmail } from '../apps/backend/src/features/admin/admin.utils'
+import { hashPassword } from '../apps/backend/src/utils/password'
 
 faker.seed(23)
 const prisma = new PrismaClient()
