@@ -172,46 +172,48 @@ const EditProducts = () => {
 					</Table.Tr>
 				</Table.Thead>
 
-				{shopProductsQuery.data.products.map(
-					({ id, name, description, price, category }) => {
-						return (
-							<Table.Tr key={id}>
-								<Table.Td>{name}</Table.Td>
-								<Table.Td>{description}</Table.Td>
-								<Table.Td>{price} ₹</Table.Td>
-								<Table.Td>
-									<Badge variant='light'>{category}</Badge>
-								</Table.Td>
-								<Table.Td className='flex flex-col gap-2'>
-									<Button
-										variant='default'
-										onClick={() => {
-											updateProductForm.setValues({
-												id,
-												name,
-												description,
-												price,
-												category,
-											})
-											modalHandlers.open()
-										}}
-									>
-										<IconEdit />
-									</Button>
-									<Button
-										variant='default'
-										onClick={() => {
-											// TODO: Add a modal for confirmation once we have a default one to use everywhere
-											deleteProduct.mutate({ id })
-										}}
-									>
-										<IconTrash />
-									</Button>
-								</Table.Td>
-							</Table.Tr>
-						)
-					},
-				)}
+				<Table.Tbody>
+					{shopProductsQuery.data.products.map(
+						({ id, name, description, price, category }) => {
+							return (
+								<Table.Tr key={id}>
+									<Table.Td>{name}</Table.Td>
+									<Table.Td>{description}</Table.Td>
+									<Table.Td>{price} ₹</Table.Td>
+									<Table.Td>
+										<Badge variant='light'>{category}</Badge>
+									</Table.Td>
+									<Table.Td className='flex flex-col gap-2'>
+										<Button
+											variant='default'
+											onClick={() => {
+												updateProductForm.setValues({
+													id,
+													name,
+													description,
+													price,
+													category,
+												})
+												modalHandlers.open()
+											}}
+										>
+											<IconEdit />
+										</Button>
+										<Button
+											variant='default'
+											onClick={() => {
+												// TODO: Add a modal for confirmation once we have a default one to use everywhere
+												deleteProduct.mutate({ id })
+											}}
+										>
+											<IconTrash />
+										</Button>
+									</Table.Td>
+								</Table.Tr>
+							)
+						},
+					)}
+				</Table.Tbody>
 			</Table>
 		</>
 	)
