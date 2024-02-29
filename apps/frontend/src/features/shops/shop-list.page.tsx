@@ -25,6 +25,16 @@ const ShopList = () => {
 			verticalSpacing={{ base: 'md' }}
 			className='md:min-w-80'
 		>
+			<Card
+				key='buy&sell'
+				shadow='md'
+				withBorder
+				className='text-center'
+				component={Link}
+				to={'/buy&sell/products'}
+			>
+				Buy&Sell
+			</Card>
 			{shopsQuery.data.shops.map(({ shopName }) => (
 				<Card
 					key={shopName}
