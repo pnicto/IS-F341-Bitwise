@@ -1,5 +1,5 @@
 import { fakerEN_IN as faker } from '@faker-js/faker'
-import { PrismaClient, Product, User } from '@prisma/client'
+import { PrismaClient, Product, Transaction, User } from '@prisma/client'
 import {
 	extractUsernameFromEmail,
 	hashPassword,
@@ -12,6 +12,7 @@ async function main() {
 	await prisma.transaction.deleteMany({})
 	await prisma.product.deleteMany({})
 	await prisma.user.deleteMany({})
+
 	const users: Pick<
 		User,
 		'email' | 'mobile' | 'role' | 'balance' | 'shopName'
@@ -134,6 +135,31 @@ async function main() {
 			},
 		})
 	}
+
+	const transactions: Pick<
+		Transaction,
+		'senderUsername' | 'receiverUsername' | 'amount' | 'createdAt' | 'status'
+	>[] = []
+	const students = await prisma.user.findMany({ where: { role: 'STUDENT' } })
+	for (let i = 0; i < 50; i++) {
+		const v = faker.helpers.arrayElement(vendors)
+		const v_products = await prisma.product.findMany({
+			where: { vendorId: v['id'] },
+		})
+		const product = faker.helpers.arrayElement(v_products)
+		transactions.push({
+			senderUsername: faker.helpers.arrayElement(students)['username'],
+			receiverUsername: v['username'],
+			amount: product['price'],
+			createdAt: faker.date.between({
+				from: product['updatedAt'],
+				to: '2024-02-29T00:00:00.000Z',
+			}),
+			status: faker.datatype.boolean({ probability: 0.8 }),
+		})
+	}
+
+	await prisma.transaction.createMany({ data: transactions })
 }
 
 main()
