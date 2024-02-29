@@ -16,8 +16,6 @@ export const validateNewProduct = [
 	body('price').isInt({ min: 1 }).toInt().withMessage('Price must be a number'),
 	body('category')
 		.trim()
-		.notEmpty()
-		.withMessage('Product category is required')
 		.isIn([
 			Category.BOOKS,
 			Category.CLOTHING,
@@ -93,8 +91,6 @@ export const validateUpdatedProduct = [
 	body('price').isInt({ min: 1 }).toInt().withMessage('Price must be a number'),
 	body('category')
 		.trim()
-		.notEmpty()
-		.withMessage('Product category is required')
 		.isIn([
 			Category.BOOKS,
 			Category.CLOTHING,
