@@ -9,6 +9,9 @@ faker.seed(23)
 const prisma = new PrismaClient()
 
 async function main() {
+	await prisma.transaction.deleteMany({})
+	await prisma.product.deleteMany({})
+	await prisma.user.deleteMany({})
 	const users: Pick<
 		User,
 		'email' | 'mobile' | 'role' | 'balance' | 'shopName'
