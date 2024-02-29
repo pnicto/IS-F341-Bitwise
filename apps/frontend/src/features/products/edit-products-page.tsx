@@ -23,6 +23,12 @@ const EditProducts = () => {
 	const userQuery = useUserQuery()
 
 	const shopName = userQuery.data?.user.shopName
+	const categories = Object.values(Category).map((category) => {
+		return {
+			value: category,
+			label: category[0] + category.slice(1).toLowerCase(),
+		}
+	})
 
 	const shopProductsQuery = useQuery({
 		queryKey: ['shopProducts', shopName],
@@ -140,17 +146,7 @@ const EditProducts = () => {
 					/>
 					<Select
 						label='Category'
-						data={[
-							{ value: Category.FOOD, label: 'Food' },
-							{ value: Category.BOOKS, label: 'Books' },
-							{ value: Category.CLOTHING, label: 'Clothing' },
-							{ value: Category.COSMETICS, label: 'Cosmetics' },
-							{ value: Category.ELECTRONICS, label: 'Electronics' },
-							{ value: Category.HEALTH, label: 'Health' },
-							{ value: Category.HOUSEHOLD, label: 'Household' },
-							{ value: Category.OFFICE, label: 'Office' },
-							{ value: Category.MISC, label: 'Misc' },
-						]}
+						data={categories}
 						{...updateProductForm.getInputProps('category')}
 					/>
 					<NumberInput
