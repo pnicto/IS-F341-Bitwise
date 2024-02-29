@@ -15,11 +15,19 @@ async function main() {
 
 	const users: Pick<
 		User,
-		'email' | 'mobile' | 'role' | 'balance' | 'shopName'
+		| 'email'
+		| 'username'
+		| 'password'
+		| 'mobile'
+		| 'role'
+		| 'balance'
+		| 'shopName'
 	>[] = [
 		{
 			email: 'john@email.com',
 			role: 'ADMIN',
+			username: extractUsernameFromEmail('john@email.com'),
+			password: await hashPassword('password'),
 			balance: 0,
 			shopName: null,
 			mobile: null,
@@ -27,6 +35,8 @@ async function main() {
 		{
 			email: 'tron@email.com',
 			role: 'STUDENT',
+			username: extractUsernameFromEmail('tron@email.com'),
+			password: await hashPassword('password'),
 			balance: 1000,
 			shopName: null,
 			mobile: null,
@@ -34,6 +44,8 @@ async function main() {
 		{
 			email: 'lane@email.com',
 			role: 'VENDOR',
+			username: extractUsernameFromEmail('lane@email.com'),
+			password: await hashPassword('password'),
 			balance: 1000,
 			shopName: 'shoppy',
 			mobile: null,
@@ -41,9 +53,12 @@ async function main() {
 	]
 
 	for (let i = 0; i < 10; i++) {
+		const email = faker.internet.email()
 		users.push({
-			email: faker.internet.email(),
+			email: email,
 			role: 'STUDENT',
+			username: extractUsernameFromEmail(email),
+			password: await hashPassword('password'),
 			balance: faker.number.int({ min: 100, max: 10000 }),
 			shopName: null,
 			mobile: null,
@@ -51,9 +66,12 @@ async function main() {
 	}
 
 	for (let i = 0; i < 50; i++) {
+		const email = faker.internet.email()
 		users.push({
 			email: faker.internet.email(),
 			role: 'STUDENT',
+			username: extractUsernameFromEmail(email),
+			password: await hashPassword('password'),
 			balance: faker.number.int({ min: 100, max: 10000 }),
 			shopName: null,
 			mobile: faker.phone.number().replace(/-/g, '').slice(3),
@@ -61,30 +79,19 @@ async function main() {
 	}
 
 	for (let i = 0; i < 10; i++) {
+		const email = faker.internet.email()
 		users.push({
 			email: faker.internet.email(),
 			role: 'VENDOR',
+			username: extractUsernameFromEmail(email),
+			password: await hashPassword('password'),
 			balance: faker.number.int({ min: 1000, max: 10000 }),
 			shopName: null,
 			mobile: faker.phone.number().replace(/-/g, '').slice(3),
 		})
 	}
 
-	for (const { email, role, balance, shopName, mobile } of users) {
-		await prisma.user.upsert({
-			where: { email: email },
-			update: {},
-			create: {
-				email,
-				role,
-				username: extractUsernameFromEmail(email),
-				password: await hashPassword('password'),
-				balance,
-				shopName,
-				mobile,
-			},
-		})
-	}
+	await prisma.user.createMany({ data: users })
 
 	const products: Pick<
 		Product,
@@ -109,32 +116,7 @@ async function main() {
 		}
 	}
 
-	for (const {
-		name,
-		description,
-		price,
-		vendorId,
-		createdAt,
-		updatedAt,
-	} of products) {
-		await prisma.product.upsert({
-			where: {
-				name_vendorId: {
-					name: name,
-					vendorId: vendorId,
-				},
-			},
-			update: {},
-			create: {
-				name,
-				description,
-				price,
-				vendorId,
-				createdAt,
-				updatedAt,
-			},
-		})
-	}
+	await prisma.product.createMany({ data: products })
 
 	const transactions: Pick<
 		Transaction,
