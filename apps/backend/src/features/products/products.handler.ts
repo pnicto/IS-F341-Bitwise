@@ -16,17 +16,7 @@ export const validateNewProduct = [
 	body('price').isInt({ min: 1 }).toInt().withMessage('Price must be a number'),
 	body('category')
 		.trim()
-		.isIn([
-			Category.BOOKS,
-			Category.CLOTHING,
-			Category.COSMETICS,
-			Category.ELECTRONICS,
-			Category.FOOD,
-			Category.HEALTH,
-			Category.HOUSEHOLD,
-			Category.MISC,
-			Category.OFFICE,
-		])
+		.isIn(Object.values(Category))
 		.withMessage('Invalid category'),
 ]
 export const createProduct: RequestHandler = async (req, res, next) => {
@@ -91,17 +81,7 @@ export const validateUpdatedProduct = [
 	body('price').isInt({ min: 1 }).toInt().withMessage('Price must be a number'),
 	body('category')
 		.trim()
-		.isIn([
-			Category.BOOKS,
-			Category.CLOTHING,
-			Category.COSMETICS,
-			Category.ELECTRONICS,
-			Category.FOOD,
-			Category.HEALTH,
-			Category.HOUSEHOLD,
-			Category.MISC,
-			Category.OFFICE,
-		])
+		.isIn(Object.values(Category))
 		.withMessage('Invalid category'),
 ]
 export const updateProduct: RequestHandler = async (req, res, next) => {
