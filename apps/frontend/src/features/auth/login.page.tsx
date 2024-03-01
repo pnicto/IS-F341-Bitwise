@@ -86,6 +86,7 @@ const Login = () => {
 				<TextInput
 					label='Email'
 					placeholder='Enter your email'
+					type='email'
 					{...form.getInputProps('email')}
 				/>
 				<PasswordInput
