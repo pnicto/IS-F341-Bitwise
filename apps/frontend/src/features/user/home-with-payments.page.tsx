@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react'
-import { Button, Card, Grid, NumberInput, TextInput } from '@mantine/core'
+import { Button, Card, NumberInput, SimpleGrid, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { Transaction } from '@prisma/client'
@@ -36,18 +36,16 @@ const navigationOptions: RouteOption[] = [
 
 const GridItem = ({ icon, label, path }: RouteOption) => {
 	return (
-		<Grid.Col span={4}>
-			<Card
-				shadow='md'
-				withBorder
-				component={Link}
-				to={path}
-				className='flex flex-col items-center gap-3 justify-center'
-			>
-				<span className='text-3xl'>{icon}</span>
-				<h2>{label}</h2>
-			</Card>
-		</Grid.Col>
+		<Card
+			shadow='md'
+			withBorder
+			component={Link}
+			to={path}
+			className='flex flex-col items-center gap-3 justify-center'
+		>
+			<span className='text-3xl'>{icon}</span>
+			<h2>{label}</h2>
+		</Card>
 	)
 }
 
@@ -100,9 +98,17 @@ const HomeWithPayments = () => {
 				<Button type='submit'>Pay</Button>
 			</form>
 
-			<Grid columns={8} className='py-8'>
+			<SimpleGrid
+				cols={{
+					base: 2,
+					md: 3,
+				}}
+				spacing='xl'
+				verticalSpacing='md'
+				className='max-w-3xl mx-auto pt-5'
+			>
 				{renderGridItems()}
-			</Grid>
+			</SimpleGrid>
 		</>
 	)
 }

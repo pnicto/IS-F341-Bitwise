@@ -20,10 +20,13 @@ const ShopList = () => {
 
 	return (
 		<SimpleGrid
-			cols={{ base: 1, sm: 2 }}
-			spacing={{ base: 10, sm: 'xl' }}
-			verticalSpacing={{ base: 'md' }}
-			className='md:min-w-80'
+			cols={{
+				base: 1,
+				sm: 2,
+				md: 3,
+			}}
+			spacing='xl'
+			verticalSpacing='md'
 		>
 			<Card
 				key='buy&sell'

@@ -161,7 +161,10 @@ const EditProducts = () => {
 				cols={{
 					base: 1,
 					sm: 2,
+					md: 3,
 				}}
+				spacing='xl'
+				verticalSpacing='md'
 			>
 				{shopProductsQuery.data.products.map((product) => (
 					<ProductCard
