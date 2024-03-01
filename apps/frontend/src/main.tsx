@@ -11,8 +11,8 @@ import {
 	createBrowserRouter,
 	createRoutesFromElements,
 } from 'react-router-dom'
-import HomeWithCreateAndUpdateAccount from './features/admin/home-with-create-account.page'
 import CreateAccountsBulk from './features/admin/create-accounts-bulk.page'
+import HomeWithCreateAndUpdateAccount from './features/admin/home-with-create-account.page'
 import Login, { loginLoader } from './features/auth/login.page'
 import CreateProduct from './features/products/create-product.page'
 import EditProducts from './features/products/edit-products-page'
@@ -53,15 +53,10 @@ const router = createBrowserRouter(
 					<Route path='/shops/view' element={<ShopList />} />
 					<Route path='/:shopName/products' element={<ProductList />} />
 					<Route path='/edit-profile' element={<EditProfile />} />
-				</Route>
-
-				{/* Protected for only vendor */}
-				<Route
-					path='catalogue'
-					element={<PermissionGuard permissions={['VENDOR']} />}
-				>
-					<Route path='' element={<EditProducts />} />
-					<Route path='add-product' element={<CreateProduct />} />
+					<Route path='catalogue'>
+						<Route index element={<EditProducts />} />
+						<Route path='add-product' element={<CreateProduct />} />
+					</Route>
 				</Route>
 
 				{/* Protected only for admin */}

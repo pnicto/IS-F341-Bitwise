@@ -41,8 +41,8 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 			const existingUser = await prisma.user.findFirst({
 				where: { shopName },
 			})
-			if (existingUser) {
-				throw new BadRequest('Shop name already exists')
+			if (existingUser || shopName?.toLowerCase() === 'buy&sell') {
+				throw new BadRequest(`Shop name ${shopName} already exists`)
 			}
 
 			user = await prisma.user.create({
@@ -174,7 +174,7 @@ export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
 				const existingUser = await prisma.user.findFirst({
 					where: { shopName },
 				})
-				if (existingUser) {
+				if (existingUser || shopName?.toLowerCase() === 'buy&sell') {
 					skipped.push(`Shop name ${shopName} already exists`)
 					continue
 				}

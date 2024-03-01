@@ -1,11 +1,10 @@
 import {
-	Badge,
 	Button,
 	Loader,
 	Modal,
 	NumberInput,
 	Select,
-	Table,
+	SimpleGrid,
 	TextInput,
 	Textarea,
 } from '@mantine/core'
@@ -17,12 +16,13 @@ import { IconEdit, IconTrash } from '@tabler/icons-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
+import ProductCard from '../../shared/product-card'
 import { useUserQuery } from '../user/queries'
 
 const EditProducts = () => {
 	const userQuery = useUserQuery()
 
-	const shopName = userQuery.data?.user.shopName
+	const vendorId = userQuery.data?.user.id
 	const categories = Object.values(Category).map((category) => {
 		return {
 			value: category,
@@ -31,14 +31,14 @@ const EditProducts = () => {
 	})
 
 	const shopProductsQuery = useQuery({
-		queryKey: ['shopProducts', shopName],
+		queryKey: ['shopProducts', vendorId],
 		queryFn: async () => {
-			const response = await axios.get<{ products: Product[] }>(
-				`/products/${shopName}`,
-			)
+			const response = await axios.get<{ products: Product[] }>('/products', {
+				params: { vendorId },
+			})
 			return response.data
 		},
-		enabled: !!shopName,
+		enabled: !!vendorId,
 	})
 
 	const updateProductForm = useForm<{
@@ -79,7 +79,7 @@ const EditProducts = () => {
 			)
 		},
 		onSuccess: ({ data }) => {
-			queryClient.invalidateQueries({ queryKey: ['shopProducts', shopName] })
+			queryClient.invalidateQueries({ queryKey: ['shopProducts', vendorId] })
 			updateProductForm.reset()
 			modalHandlers.close()
 			notifications.show({ message: data.message, color: 'green' })
@@ -94,7 +94,7 @@ const EditProducts = () => {
 			return axios.post<{ message: string }>(`/products/delete/${product.id}`)
 		},
 		onSuccess: ({ data }) => {
-			queryClient.invalidateQueries({ queryKey: ['shopProducts', shopName] })
+			queryClient.invalidateQueries({ queryKey: ['shopProducts', vendorId] })
 			notifications.show({ message: data.message, color: 'green' })
 		},
 		onError: (err) => {
@@ -157,60 +157,44 @@ const EditProducts = () => {
 				</form>
 			</Modal>
 
-			<Table className='text-center !text-xl' withColumnBorders>
-				<Table.Thead>
-					{/* ! and repetition here is due to mantine styles taking more priority than tailwind styles */}
-					<Table.Tr>
-						<Table.Th className='!text-center'>Name</Table.Th>
-						<Table.Th className='!text-center'>Description</Table.Th>
-						<Table.Th className='!text-center'>Price</Table.Th>
-						<Table.Th className='!text-center'>Category</Table.Th>
-					</Table.Tr>
-				</Table.Thead>
-
-				<Table.Tbody>
-					{shopProductsQuery.data.products.map(
-						({ id, name, description, price, category }) => {
-							return (
-								<Table.Tr key={id}>
-									<Table.Td>{name}</Table.Td>
-									<Table.Td>{description}</Table.Td>
-									<Table.Td>{price} ₹</Table.Td>
-									<Table.Td>
-										<Badge variant='light'>{category}</Badge>
-									</Table.Td>
-									<Table.Td className='flex flex-col gap-2'>
-										<Button
-											variant='default'
-											onClick={() => {
-												updateProductForm.setValues({
-													id,
-													name,
-													description,
-													price,
-													category,
-												})
-												modalHandlers.open()
-											}}
-										>
-											<IconEdit />
-										</Button>
-										<Button
-											variant='default'
-											onClick={() => {
-												// TODO: Add a modal for confirmation once we have a default one to use everywhere
-												deleteProduct.mutate({ id })
-											}}
-										>
-											<IconTrash />
-										</Button>
-									</Table.Td>
-								</Table.Tr>
-							)
-						},
-					)}
-				</Table.Tbody>
-			</Table>
+			<SimpleGrid
+				cols={{
+					base: 1,
+					sm: 2,
+				}}
+			>
+				{shopProductsQuery.data.products.map((product) => (
+					<ProductCard
+						key={product.id}
+						{...product}
+						allowEdit
+						editComponent={
+							<Button
+								variant='default'
+								onClick={() => {
+									updateProductForm.setValues({
+										...product,
+									})
+									modalHandlers.open()
+								}}
+							>
+								<IconEdit />
+							</Button>
+						}
+						deleteComponent={
+							<Button
+								variant='default'
+								onClick={() => {
+									// TODO: Add a modal for confirmation once we have a default one to use everywhere
+									deleteProduct.mutate({ id: product.id })
+								}}
+							>
+								<IconTrash color='red' />
+							</Button>
+						}
+					/>
+				))}
+			</SimpleGrid>
 		</>
 	)
 }

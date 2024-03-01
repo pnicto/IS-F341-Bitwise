@@ -4,12 +4,11 @@ import { authorize } from '../../middleware/authorize'
 import {
 	createProduct,
 	deleteProduct,
-	getAllProducts,
-	getAllProductsByShopName,
+	getProducts,
 	updateProduct,
 	validateDeletedProduct,
 	validateNewProduct,
-	validateShopNameParam,
+	validateProductQuery,
 	validateUpdatedProduct,
 } from './products.handler'
 
@@ -17,11 +16,10 @@ export const productRouter = express.Router()
 
 productRouter.post(
 	'/new',
-	authorize(Role.VENDOR),
+	authorize(Role.VENDOR, Role.STUDENT),
 	validateNewProduct,
 	createProduct,
 )
-productRouter.get('/', getAllProducts)
-productRouter.get('/:shopName', validateShopNameParam, getAllProductsByShopName)
 productRouter.post('/update/:id', validateUpdatedProduct, updateProduct)
 productRouter.post('/delete/:id', validateDeletedProduct, deleteProduct)
+productRouter.get('/', validateProductQuery, getProducts)

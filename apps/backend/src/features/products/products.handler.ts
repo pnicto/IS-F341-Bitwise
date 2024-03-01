@@ -1,6 +1,6 @@
-import { Category, Product } from '@prisma/client'
+import { Category, Product, Role } from '@prisma/client'
 import { RequestHandler } from 'express'
-import { body, param } from 'express-validator'
+import { body, param, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
 import { Forbidden, NotFound } from '../../errors/CustomErrors'
@@ -37,34 +37,48 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 	}
 }
 
-export const getAllProducts: RequestHandler = async (_req, res, next) => {
-	try {
-		const products = await prisma.product.findMany()
-		return res.status(StatusCodes.OK).json({ products })
-	} catch (err) {
-		next(err)
-	}
-}
-
-export const validateShopNameParam = [
-	param('shopName').trim().notEmpty().withMessage('Shop name is required'),
+export const validateProductQuery = [
+	query('shopName').trim().notEmpty().optional(),
+	query('vendorId').trim().notEmpty().optional(),
 ]
-export const getAllProductsByShopName: RequestHandler = async (
-	req,
-	res,
-	next,
-) => {
+export const getProducts: RequestHandler = async (req, res, next) => {
 	try {
-		const { shopName } = validateRequest<{ shopName: string }>(req)
+		const { shopName, vendorId } = validateRequest<{
+			shopName: string | undefined
+			vendorId: string | undefined
+		}>(req)
 
-		const vendor = await prisma.user.findFirst({ where: { shopName } })
-		if (!vendor) {
-			throw new NotFound('The shop does not exist')
+		let products
+
+		if (!(vendorId || shopName)) {
+			products = await prisma.product.findMany()
 		}
 
-		const products = await prisma.product.findMany({
-			where: { vendorId: vendor.id },
-		})
+		if (vendorId) {
+			const vendor = await prisma.user.findFirst({ where: { id: vendorId } })
+			if (!vendor) {
+				throw new NotFound('The user does not exist')
+			}
+
+			products = await prisma.product.findMany({
+				where: { vendorId: vendor.id },
+			})
+		} else if (shopName === 'buy&sell') {
+			// for 'buy and sell' products, include the student details so the frontend can display them
+			products = await prisma.product.findMany({
+				where: { vendor: { role: Role.STUDENT } },
+				include: { vendor: true },
+			})
+		} else {
+			const vendor = await prisma.user.findFirst({ where: { shopName } })
+			if (!vendor) {
+				throw new NotFound('The shop does not exist')
+			}
+
+			products = await prisma.product.findMany({
+				where: { vendorId: vendor.id },
+			})
+		}
 		return res.status(StatusCodes.OK).json({ products })
 	} catch (err) {
 		next(err)
