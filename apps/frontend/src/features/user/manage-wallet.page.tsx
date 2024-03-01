@@ -51,7 +51,7 @@ const ManageWallet = () => {
 	return (
 		<>
 			<div className='text-center mt-36'>
-				<h1 className='text-3xl font-bold'>Current Balance</h1>
+				<h1>Current Balance</h1>
 				<p className='text-2xl'>₹ {userQuery.data.user.balance}</p>
 			</div>
 			<form

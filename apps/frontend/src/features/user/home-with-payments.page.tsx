@@ -37,8 +37,6 @@ const navigationOptions: RouteOption[] = [
 const GridItem = ({ icon, label, path }: RouteOption) => {
 	return (
 		<Card
-			shadow='md'
-			withBorder
 			component={Link}
 			to={path}
 			className='flex flex-col items-center gap-3 justify-center'

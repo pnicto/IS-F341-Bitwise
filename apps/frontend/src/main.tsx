@@ -75,7 +75,19 @@ const router = createBrowserRouter(
 root.render(
 	<StrictMode>
 		<QueryClientProvider client={queryClient}>
-			<MantineProvider>
+			<MantineProvider
+				theme={{
+					defaultRadius: 'md',
+					components: {
+						Card: {
+							defaultProps: {
+								shadow: 'lg',
+								withBorder: true,
+							},
+						},
+					},
+				}}
+			>
 				<Notifications />
 				<RouterProvider router={router} />
 			</MantineProvider>

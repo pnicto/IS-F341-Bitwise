@@ -19,38 +19,39 @@ const ShopList = () => {
 	if (shopsQuery.isError) return <div>Error fetching data</div>
 
 	return (
-		<SimpleGrid
-			cols={{
-				base: 1,
-				sm: 2,
-				md: 3,
-			}}
-			spacing='xl'
-			verticalSpacing='md'
-		>
-			<Card
-				key='buy&sell'
-				shadow='md'
-				withBorder
-				className='text-center'
-				component={Link}
-				to={'/buy&sell/products'}
+		<>
+			<h1 className='font-bold text-4xl text-center pb-8'>Available Shops</h1>
+			<SimpleGrid
+				cols={{
+					base: 1,
+					sm: 2,
+				}}
+				spacing='xl'
+				verticalSpacing='md'
+				className='mx-auto max-w-xl'
 			>
-				Buy&Sell
-			</Card>
-			{shopsQuery.data.shops.map(({ shopName }) => (
 				<Card
-					key={shopName}
-					shadow='md'
-					withBorder
-					className='text-center'
+					key='buy&sell'
+					className='text-center text-2xl'
+					padding='lg'
 					component={Link}
-					to={`/${shopName}/products`}
+					to={'/buy&sell/products'}
 				>
-					{shopName}
+					<p className='break-words'>Buy & Sell</p>
 				</Card>
-			))}
-		</SimpleGrid>
+				{shopsQuery.data.shops.map(({ shopName }) => (
+					<Card
+						key={shopName}
+						className='text-center text-2xl'
+						padding='lg'
+						component={Link}
+						to={`/${shopName}/products`}
+					>
+						<p className='break-words'>{shopName}</p>
+					</Card>
+				))}
+			</SimpleGrid>
+		</>
 	)
 }
 

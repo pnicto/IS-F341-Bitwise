@@ -8,11 +8,18 @@ body {
 }
 
 @layer base {
+	body {
+		@apply !bg-gray-100;
+	}
 	form {
 		@apply flex flex-col gap-5 max-w-md mx-auto pb-5;
 
 		button {
 			@apply self-center;
 		}
+	}
+
+	h1 {
+		@apply text-4xl font-bold py-4 text-center;
 	}
 }
