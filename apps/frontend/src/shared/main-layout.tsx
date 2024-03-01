@@ -58,7 +58,7 @@ const MainLayout = () => {
 					</div>
 				</nav>
 			)}
-			<main className='px-10 py-4 lg:max-w-xl lg:mx-auto max-w-md mx-auto'>
+			<main className='px-10 py-4 mx-auto sm:px-32 md:px-40 :max-w-7xl'>
 				<Outlet />
 			</main>
 		</>
