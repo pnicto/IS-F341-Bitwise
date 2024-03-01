@@ -64,8 +64,10 @@ export const getProducts: RequestHandler = async (req, res, next) => {
 				where: { vendorId: vendor.id },
 			})
 		} else if (shopName === 'buy&sell') {
+			// for 'buy and sell' products, include the student details so the frontend can display them
 			products = await prisma.product.findMany({
 				where: { vendor: { role: Role.STUDENT } },
+				include: { vendor: true },
 			})
 		} else {
 			const vendor = await prisma.user.findFirst({ where: { shopName } })
