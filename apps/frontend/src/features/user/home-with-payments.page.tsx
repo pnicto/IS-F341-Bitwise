@@ -2,11 +2,11 @@ import { Icon } from '@iconify/react'
 import { Button, Card, Grid, NumberInput, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
-import { Role, Transaction, User } from '@prisma/client'
+import { Transaction } from '@prisma/client'
 import { IconCurrencyRupee } from '@tabler/icons-react'
 import { useMutation } from '@tanstack/react-query'
 import React from 'react'
-import { Link, useRouteLoaderData } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 
@@ -16,7 +16,7 @@ type RouteOption = {
 	path: string
 }
 
-const commonOptions: RouteOption[] = [
+const navigationOptions: RouteOption[] = [
 	{
 		icon: <Icon icon='lucide:wallet' />,
 		label: 'Wallet',
@@ -27,12 +27,6 @@ const commonOptions: RouteOption[] = [
 		label: 'Shops',
 		path: '/shops/view',
 	},
-]
-
-const studentOptions: RouteOption[] = [...commonOptions]
-
-const vendorOptions: RouteOption[] = [
-	...commonOptions,
 	{
 		icon: <Icon icon='lucide:warehouse' />,
 		label: 'Catalogue',
@@ -57,16 +51,13 @@ const GridItem = ({ icon, label, path }: RouteOption) => {
 	)
 }
 
-// this is with the assumption that ADMIN role can never reach this page
-function renderGridItems(role: Role) {
-	const options = role === 'STUDENT' ? studentOptions : vendorOptions
-	return options.map((option) => <GridItem key={option.label} {...option} />)
+function renderGridItems() {
+	return navigationOptions.map((option) => (
+		<GridItem key={option.label} {...option} />
+	))
 }
 
 const HomeWithPayments = () => {
-	const {
-		user: { role },
-	} = useRouteLoaderData('protected-layout') as { user: User }
 	const form = useForm({
 		initialValues: { receiverUsername: '', amount: 1 },
 		validate: {
@@ -113,7 +104,7 @@ const HomeWithPayments = () => {
 			</form>
 
 			<Grid columns={8} className='py-8'>
-				{renderGridItems(role)}
+				{renderGridItems()}
 			</Grid>
 		</>
 	)
