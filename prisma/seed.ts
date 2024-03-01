@@ -12,6 +12,19 @@ import { hashPassword } from '../apps/backend/src/utils/password'
 faker.seed(23)
 const prisma = new PrismaClient()
 
+const SHOP_NAMES = [
+	'The Shop',
+	'Quick Mart',
+	'Elite Goods',
+	'Swift Sales',
+	'Smart Mart',
+	'Swift Shop',
+	'Value Store',
+	'Main Street Mart',
+	'Prime Goods',
+	'Rapid Retail',
+] as const
+
 async function main() {
 	await prisma.transaction.deleteMany({})
 	console.log('Transactions deleted')
@@ -84,7 +97,7 @@ async function main() {
 			username: extractUsernameFromEmail(email),
 			password: await hashPassword('password'),
 			balance: faker.number.int({ min: 1000, max: 10000 }),
-			shopName: null,
+			shopName: SHOP_NAMES[i],
 			mobile: faker.phone.number().replace(/-/g, '').slice(3),
 		})
 	}
@@ -114,6 +127,7 @@ async function main() {
 	}
 
 	await prisma.product.createMany({ data: products })
+	console.log('Seeded products')
 
 	const transactions: Omit<Transaction, 'id'>[] = []
 	const students = await prisma.user.findMany({ where: { role: 'STUDENT' } })
