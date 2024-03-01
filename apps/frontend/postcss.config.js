@@ -17,6 +17,7 @@ module.exports = {
 				'mantine-breakpoint-xl': '88em',
 			},
 		},
+		'tailwindcss/nesting': 'postcss-nesting',
 		tailwindcss: {
 			config: join(__dirname, 'tailwind.config.js'),
 		},
