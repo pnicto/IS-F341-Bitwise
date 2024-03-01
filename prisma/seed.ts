@@ -14,8 +14,11 @@ const prisma = new PrismaClient()
 
 async function main() {
 	await prisma.transaction.deleteMany({})
+	console.log('Transactions deleted')
 	await prisma.product.deleteMany({})
+	console.log('Products deleted')
 	await prisma.user.deleteMany({})
+	console.log('Users deleted')
 
 	const users: Omit<User, 'id' | 'enabled'>[] = [
 		{
@@ -87,6 +90,7 @@ async function main() {
 	}
 
 	await prisma.user.createMany({ data: users })
+	console.log('Seeded users')
 
 	const products: Omit<Product, 'id'>[] = []
 
@@ -132,6 +136,7 @@ async function main() {
 	}
 
 	await prisma.transaction.createMany({ data: transactions })
+	console.log('Seeded transactions')
 }
 
 main()
