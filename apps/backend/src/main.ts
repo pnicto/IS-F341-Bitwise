@@ -27,19 +27,13 @@ const DATABASE_URL = process.env.DATABASE_URL
 // middleware
 app.use(cookieParser())
 
-const frontendIsHTTPS = (process.env.FRONTEND_URL as string).includes(
-	'https://',
-)
 app.use(
 	cors({
 		credentials: true,
-		origin: [
-			process.env.FRONTEND_URL as string,
-			(process.env.FRONTEND_URL as string).replace(
-				frontendIsHTTPS ? 'https://' : 'http://',
-				frontendIsHTTPS ? 'https://www.' : 'http://www.',
-			),
-		],
+		origin:
+			process.env.NODE_ENV === 'production'
+				? 'https://bitwise.fly.dev'
+				: 'http://localhost:4200',
 	}),
 )
 app.use(morgan('dev'))

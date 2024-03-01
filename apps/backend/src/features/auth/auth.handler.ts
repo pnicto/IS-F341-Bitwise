@@ -39,12 +39,8 @@ export const login: RequestHandler = async (req, res, next) => {
 			.cookie('jwt', accessToken, {
 				maxAge: 24 * 60 * 60 * 1000,
 				httpOnly: true,
-				domain: (process.env.FRONTEND_URL as string)
-					.replace('https://', '')
-					.replace('http://', '')
-					.split(':')[0],
 				secure: true,
-				sameSite: 'lax',
+				sameSite: 'none',
 			})
 			.json({
 				message: 'Logged in successfully',
@@ -61,12 +57,8 @@ export const logout: RequestHandler = async (_req, res, next) => {
 			.status(StatusCodes.OK)
 			.clearCookie('jwt', {
 				httpOnly: true,
-				domain: (process.env.FRONTEND_URL as string)
-					.replace('https://', '')
-					.replace('http://', '')
-					.split(':')[0],
 				secure: true,
-				sameSite: 'lax',
+				sameSite: 'none',
 			})
 			.send({ message: 'Logged out successfully', redirect: '/login' })
 	} catch (err) {

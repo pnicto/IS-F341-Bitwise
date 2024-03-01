@@ -1,7 +1,7 @@
+import { Icon } from '@iconify/react'
 import { Button, FileInput, Table } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { User } from '@prisma/client'
-import { IconX } from '@tabler/icons-react'
 import { useMutation } from '@tanstack/react-query'
 import CsvParser from 'papaparse'
 import { useState } from 'react'
@@ -83,7 +83,7 @@ const CreateAccountsBulk = () => {
 					value={csvFile}
 					onChange={setCsvFile}
 					accept='.csv'
-					rightSection={<IconX onClick={() => resetInput()} />}
+					rightSection={<Icon icon='lucide:x' onClick={() => resetInput()} />}
 				/>
 				<Button
 					disabled={!csvFile}
