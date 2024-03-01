@@ -55,7 +55,6 @@ const ManageWallet = () => {
 				<p className='text-2xl'>₹ {userQuery.data.user.balance}</p>
 			</div>
 			<form
-				className='flex flex-col gap-5'
 				onSubmit={form.onSubmit(({ amount }) => {
 					updateWallet.mutate({ amount: amount * transactionSign })
 				})}

@@ -53,7 +53,6 @@ const CreateProduct = () => {
 			onSubmit={form.onSubmit((values) => {
 				createProduct.mutate(values)
 			})}
-			className='flex flex-col gap-5'
 		>
 			<TextInput
 				label='Name'

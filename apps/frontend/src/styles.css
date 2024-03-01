@@ -6,3 +6,13 @@
 body {
 	min-height: 100vh;
 }
+
+@layer base {
+	form {
+		@apply flex flex-col gap-5 max-w-md mx-auto pb-5;
+
+		button {
+			@apply self-center;
+		}
+	}
+}

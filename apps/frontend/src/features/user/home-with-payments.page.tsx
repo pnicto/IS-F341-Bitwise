@@ -83,10 +83,7 @@ const HomeWithPayments = () => {
 	})
 	return (
 		<>
-			<form
-				className='flex flex-col gap-5'
-				onSubmit={form.onSubmit((values) => payUser.mutate(values))}
-			>
+			<form onSubmit={form.onSubmit((values) => payUser.mutate(values))}>
 				<TextInput
 					label='Recipient Username'
 					placeholder='john43'
