@@ -9,7 +9,7 @@ body {
 
 @layer base {
 	body {
-		@apply !bg-gray-100;
+		@apply !bg-gray-50;
 	}
 	form {
 		@apply flex flex-col gap-5 max-w-md mx-auto pb-5;
