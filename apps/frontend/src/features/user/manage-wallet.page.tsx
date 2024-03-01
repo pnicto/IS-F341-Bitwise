@@ -25,8 +25,8 @@ const ManageWallet = () => {
 		mutationFn: (body: Pick<Transaction, 'amount'>) => {
 			return axios.post<{ message: string }>('/wallet/update', body)
 		},
-		onSuccess: ({ data }) => {
-			queryClient.invalidateQueries({ queryKey: ['user'] })
+		onSuccess: async ({ data }) => {
+			await queryClient.invalidateQueries({ queryKey: ['user'] })
 			form.reset()
 			notifications.show({ message: data.message, color: 'green' })
 		},
@@ -68,10 +68,18 @@ const ManageWallet = () => {
 					{...form.getInputProps('amount')}
 				/>
 				<Group justify='center'>
-					<Button type='submit' onClick={() => setTransactionSign(-1)}>
+					<Button
+						type='submit'
+						onClick={() => setTransactionSign(-1)}
+						disabled={updateWallet.isPending}
+					>
 						Withdraw
 					</Button>
-					<Button type='submit' onClick={() => setTransactionSign(1)}>
+					<Button
+						type='submit'
+						onClick={() => setTransactionSign(1)}
+						disabled={updateWallet.isPending}
+					>
 						Deposit
 					</Button>
 				</Group>
