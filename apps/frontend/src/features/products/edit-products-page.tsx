@@ -29,12 +29,6 @@ const EditProducts = () => {
 			label: category[0] + category.slice(1).toLowerCase(),
 		}
 	})
-	const categories = Object.values(Category).map((category) => {
-		return {
-			value: category,
-			label: category[0] + category.slice(1).toLowerCase(),
-		}
-	})
 
 	const shopProductsQuery = useQuery({
 		queryKey: ['shopProducts', vendorId],
