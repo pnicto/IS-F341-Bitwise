@@ -1,4 +1,4 @@
-import { Card, MantineProvider } from '@mantine/core'
+import { Card, MantineProvider, NumberInput } from '@mantine/core'
 import '@mantine/core/styles.css'
 import { Notifications } from '@mantine/notifications'
 import '@mantine/notifications/styles.css'
@@ -84,7 +84,13 @@ root.render(
 								shadow: 'lg',
 								withBorder: true,
 							},
-						},
+						}),
+						NumberInput: NumberInput.extend({
+							defaultProps: {
+								allowNegative: false,
+								allowDecimal: false,
+							},
+						}),
 					},
 				}}
 			>
