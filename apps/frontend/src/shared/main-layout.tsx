@@ -37,7 +37,9 @@ const MainLayout = () => {
 		<>
 			{data && (
 				<nav className='flex justify-between px-10 py-2 items-center'>
-					<NavLink to='/'>Home</NavLink>
+					<Anchor component={NavLink} to='/'>
+						Home
+					</Anchor>
 					<div className='flex gap-8 items-center'>
 						{currentRoute.pathname === '/catalogue' && (
 							<Button
