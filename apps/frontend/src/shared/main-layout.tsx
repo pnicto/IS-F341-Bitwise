@@ -38,6 +38,7 @@ const MainLayout = () => {
 	return (
 		<>
 			{data && (
+				<nav className='flex justify-between py-2 items-center pl-10 pr-6'>
 					<Anchor
 						component={NavLink}
 						to={data.user.role === 'ADMIN' ? '/admin' : '/'}
@@ -58,12 +59,13 @@ const MainLayout = () => {
 						)}
 						{currentRoute.pathname === '/admin' && (
 							<Anchor component={NavLink} to='/admin/bulk-add-account'>
-								Create Accounts in Bulk
+								Bulk Add Users
 							</Anchor>
 						)}
-						<Menu offset={-5}>
+
+						<Menu>
 							<Menu.Target>
-								<Button variant='transparent'>
+								<Button variant='light'>
 									<Icon icon='lucide:more-horizontal' className='text-2xl' />
 								</Button>
 							</Menu.Target>
@@ -84,7 +86,7 @@ const MainLayout = () => {
 					</div>
 				</nav>
 			)}
-			<main className='px-10 py-4 mx-auto sm:px-32 md:px-40 :max-w-7xl'>
+			<main className='px-10 py-4 mx-auto sm:px-32 md:px-40 max-w-7xl'>
 				<Outlet />
 			</main>
 		</>
