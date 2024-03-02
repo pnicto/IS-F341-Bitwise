@@ -1,6 +1,7 @@
 import { Icon } from '@iconify/react'
 import { Anchor, Button, Menu } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
+import { User } from '@prisma/client'
 import { IconPlus } from '@tabler/icons-react'
 import { useMutation } from '@tanstack/react-query'
 import {
@@ -14,7 +15,8 @@ import axios from '../lib/axios'
 import { handleAxiosErrors } from '../notifications/utils'
 
 const MainLayout = () => {
-	const data = useRouteLoaderData('protected-layout')
+	const data = useRouteLoaderData('protected-layout') as { user: User }
+
 	const currentRoute = useLocation()
 	const navigate = useNavigate()
 	const logout = useMutation({
@@ -36,8 +38,10 @@ const MainLayout = () => {
 	return (
 		<>
 			{data && (
-				<nav className='flex justify-between px-10 py-2 items-center'>
-					<Anchor component={NavLink} to='/'>
+					<Anchor
+						component={NavLink}
+						to={data.user.role === 'ADMIN' ? '/admin' : '/'}
+					>
 						Home
 					</Anchor>
 					<div className='flex gap-8 items-center'>
