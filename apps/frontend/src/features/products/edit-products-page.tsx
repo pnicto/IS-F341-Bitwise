@@ -148,7 +148,7 @@ const EditProducts = () => {
 					/>
 					<NumberInput
 						label='Price in INR'
-						placeholder='0'
+						placeholder='40'
 						{...updateProductForm.getInputProps('price')}
 					/>
 					<Button type='submit' loading={updateProduct.isPending}>

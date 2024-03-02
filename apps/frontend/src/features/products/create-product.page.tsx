@@ -72,7 +72,7 @@ const CreateProduct = () => {
 			/>
 			<NumberInput
 				label='Price in INR'
-				placeholder='0'
+				placeholder='40'
 				{...form.getInputProps('price')}
 			/>
 			<Button type='submit' loading={createProduct.isPending}>
