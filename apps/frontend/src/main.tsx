@@ -1,4 +1,4 @@
-import { MantineProvider } from '@mantine/core'
+import { Card, MantineProvider } from '@mantine/core'
 import '@mantine/core/styles.css'
 import { Notifications } from '@mantine/notifications'
 import '@mantine/notifications/styles.css'
@@ -79,7 +79,7 @@ root.render(
 				theme={{
 					defaultRadius: 'md',
 					components: {
-						Card: {
+						Card: Card.extend({
 							defaultProps: {
 								shadow: 'lg',
 								withBorder: true,
