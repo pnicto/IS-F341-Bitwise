@@ -1,4 +1,4 @@
-import { MantineProvider } from '@mantine/core'
+import { Card, MantineProvider, NumberInput } from '@mantine/core'
 import '@mantine/core/styles.css'
 import { Notifications } from '@mantine/notifications'
 import '@mantine/notifications/styles.css'
@@ -75,7 +75,25 @@ const router = createBrowserRouter(
 root.render(
 	<StrictMode>
 		<QueryClientProvider client={queryClient}>
-			<MantineProvider>
+			<MantineProvider
+				theme={{
+					defaultRadius: 'md',
+					components: {
+						Card: Card.extend({
+							defaultProps: {
+								shadow: 'lg',
+								withBorder: true,
+							},
+						}),
+						NumberInput: NumberInput.extend({
+							defaultProps: {
+								allowNegative: false,
+								allowDecimal: false,
+							},
+						}),
+					},
+				}}
+			>
 				<Notifications />
 				<RouterProvider router={router} />
 			</MantineProvider>

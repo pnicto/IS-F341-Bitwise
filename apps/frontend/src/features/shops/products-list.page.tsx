@@ -23,20 +23,26 @@ const ProductList = () => {
 	if (shopProductsQuery.isError) return <div>Error fetching data</div>
 
 	return (
-		<SimpleGrid
-			cols={{
-				base: 1,
-				sm: 2,
-			}}
-		>
-			{shopProductsQuery.data.products.map((product) => (
-				<ProductCard
-					key={product.id}
-					{...product}
-					showVendorDetails={location.pathname.startsWith('/buy&sell')}
-				/>
-			))}
-		</SimpleGrid>
+		<>
+			<h1 className='pb-8'>List of products at {shopName}</h1>
+			<SimpleGrid
+				cols={{
+					base: 1,
+					sm: 2,
+					md: 3,
+				}}
+				spacing='xl'
+				verticalSpacing='md'
+			>
+				{shopProductsQuery.data.products.map((product) => (
+					<ProductCard
+						key={product.id}
+						{...product}
+						showVendorDetails={location.pathname.startsWith('/buy&sell')}
+					/>
+				))}
+			</SimpleGrid>
+		</>
 	)
 }
 

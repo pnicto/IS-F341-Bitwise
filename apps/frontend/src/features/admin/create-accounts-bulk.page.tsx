@@ -70,7 +70,6 @@ const CreateAccountsBulk = () => {
 				Bulk User Creation
 			</h1>
 			<form
-				className='flex flex-col gap-5 items-center mb-5'
 				onSubmit={(e) => {
 					e.preventDefault()
 					parseCsv(csvFile, false, createAccountInBulk.mutate)

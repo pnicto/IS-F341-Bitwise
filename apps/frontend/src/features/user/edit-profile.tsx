@@ -51,7 +51,6 @@ const EditProfile = () => {
 
 	return (
 		<form
-			className='flex flex-col gap-5'
 			onSubmit={editForm.onSubmit((values) => {
 				editUser.mutate(values)
 			})}

@@ -24,7 +24,7 @@ const ProductCard = ({
 }: Props) => {
 	return (
 		// TODO: show image
-		<Card shadow='md' withBorder>
+		<Card>
 			<Stack>
 				{/* TODO: is a grid really needed here? */}
 				<Grid columns={10}>

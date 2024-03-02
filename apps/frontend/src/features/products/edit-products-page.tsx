@@ -59,6 +59,7 @@ const EditProducts = () => {
 			name: (value) => (value.length > 0 ? null : 'Name cannot be empty'),
 			description: (value) =>
 				value.length > 0 ? null : 'Description cannot be empty',
+			price: (value) => (value > 0 ? null : 'Invalid price'),
 		},
 	})
 
@@ -147,8 +148,7 @@ const EditProducts = () => {
 					/>
 					<NumberInput
 						label='Price in INR'
-						placeholder='0'
-						allowNegative={false}
+						placeholder='40'
 						{...updateProductForm.getInputProps('price')}
 					/>
 					<Button type='submit' loading={updateProduct.isPending}>
@@ -161,7 +161,10 @@ const EditProducts = () => {
 				cols={{
 					base: 1,
 					sm: 2,
+					md: 3,
 				}}
+				spacing='xl'
+				verticalSpacing='md'
 			>
 				{shopProductsQuery.data.products.map((product) => (
 					<ProductCard

@@ -79,7 +79,6 @@ const Login = () => {
 				</span>
 			</div>
 			<form
-				className='flex flex-col gap-5'
 				onSubmit={form.onSubmit((values) => {
 					login.mutate(values)
 				})}
@@ -87,6 +86,7 @@ const Login = () => {
 				<TextInput
 					label='Email'
 					placeholder='Enter your email'
+					type='email'
 					{...form.getInputProps('email')}
 				/>
 				<PasswordInput

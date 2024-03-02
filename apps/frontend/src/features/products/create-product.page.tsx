@@ -30,6 +30,7 @@ const CreateProduct = () => {
 			name: (value) => (value.length > 0 ? null : 'Name cannot be empty'),
 			description: (value) =>
 				value.length > 0 ? null : 'Description cannot be empty',
+			price: (value) => (value > 0 ? null : 'Invalid price'),
 		},
 	})
 
@@ -53,7 +54,6 @@ const CreateProduct = () => {
 			onSubmit={form.onSubmit((values) => {
 				createProduct.mutate(values)
 			})}
-			className='flex flex-col gap-5'
 		>
 			<TextInput
 				label='Name'
@@ -72,8 +72,7 @@ const CreateProduct = () => {
 			/>
 			<NumberInput
 				label='Price in INR'
-				placeholder='0'
-				allowNegative={false}
+				placeholder='40'
 				{...form.getInputProps('price')}
 			/>
 			<Button type='submit' loading={createProduct.isPending}>

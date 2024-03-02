@@ -1,5 +1,7 @@
-import { Anchor, Button } from '@mantine/core'
+import { Icon } from '@iconify/react'
+import { Anchor, Button, Menu } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
+import { User } from '@prisma/client'
 import { IconPlus } from '@tabler/icons-react'
 import { useMutation } from '@tanstack/react-query'
 import {
@@ -13,7 +15,8 @@ import axios from '../lib/axios'
 import { handleAxiosErrors } from '../notifications/utils'
 
 const MainLayout = () => {
-	const data = useRouteLoaderData('protected-layout')
+	const data = useRouteLoaderData('protected-layout') as { user: User }
+
 	const currentRoute = useLocation()
 	const navigate = useNavigate()
 	const logout = useMutation({
@@ -35,8 +38,13 @@ const MainLayout = () => {
 	return (
 		<>
 			{data && (
-				<nav className='flex justify-between px-10 py-2 items-center'>
-					<NavLink to='/'>Home</NavLink>
+				<nav className='flex justify-between py-2 items-center pl-10 pr-6'>
+					<Anchor
+						component={NavLink}
+						to={data.user.role === 'ADMIN' ? '/admin' : '/'}
+					>
+						Home
+					</Anchor>
 					<div className='flex gap-8 items-center'>
 						{currentRoute.pathname === '/catalogue' && (
 							<Button
@@ -49,16 +57,36 @@ const MainLayout = () => {
 								<IconPlus size={20} fill='green' />
 							</Button>
 						)}
-						{currentRoute.pathname === '/admin/' && (
+						{currentRoute.pathname === '/admin' && (
 							<Anchor component={NavLink} to='/admin/bulk-add-account'>
-								Create Accounts in Bulk
+								Bulk Add Users
 							</Anchor>
 						)}
-						<Button onClick={() => logout.mutate()}>Logout</Button>
+
+						<Menu>
+							<Menu.Target>
+								<Button variant='light'>
+									<Icon icon='lucide:more-horizontal' className='text-2xl' />
+								</Button>
+							</Menu.Target>
+							<Menu.Dropdown>
+								<Menu.Item component={NavLink} to='/edit-profile'>
+									Edit Profile
+								</Menu.Item>
+								<Menu.Item
+									leftSection={<Icon icon='lucide:log-out' />}
+									component='button'
+									onClick={() => logout.mutate()}
+									color='red'
+								>
+									Logout
+								</Menu.Item>
+							</Menu.Dropdown>
+						</Menu>
 					</div>
 				</nav>
 			)}
-			<main className='px-10 py-4 lg:max-w-xl lg:mx-auto max-w-md mx-auto'>
+			<main className='px-10 py-4 mx-auto sm:px-32 md:px-40 max-w-7xl'>
 				<Outlet />
 			</main>
 		</>

@@ -25,8 +25,8 @@ const ManageWallet = () => {
 		mutationFn: (body: Pick<Transaction, 'amount'>) => {
 			return axios.post<{ message: string }>('/wallet/update', body)
 		},
-		onSuccess: ({ data }) => {
-			queryClient.invalidateQueries({ queryKey: ['user'] })
+		onSuccess: async ({ data }) => {
+			await queryClient.invalidateQueries({ queryKey: ['user'] })
 			form.reset()
 			notifications.show({ message: data.message, color: 'green' })
 		},
@@ -51,11 +51,10 @@ const ManageWallet = () => {
 	return (
 		<>
 			<div className='text-center mt-36'>
-				<h1 className='text-3xl font-bold'>Current Balance</h1>
+				<h1>Current Balance</h1>
 				<p className='text-2xl'>₹ {userQuery.data.user.balance}</p>
 			</div>
 			<form
-				className='flex flex-col gap-5'
 				onSubmit={form.onSubmit(({ amount }) => {
 					updateWallet.mutate({ amount: amount * transactionSign })
 				})}
@@ -64,15 +63,21 @@ const ManageWallet = () => {
 					label='Amount (INR)'
 					placeholder='40'
 					leftSection={<IconCurrencyRupee />}
-					allowDecimal={false}
-					allowNegative={false}
 					{...form.getInputProps('amount')}
 				/>
 				<Group justify='center'>
-					<Button type='submit' onClick={() => setTransactionSign(-1)}>
+					<Button
+						type='submit'
+						onClick={() => setTransactionSign(-1)}
+						disabled={updateWallet.isPending}
+					>
 						Withdraw
 					</Button>
-					<Button type='submit' onClick={() => setTransactionSign(1)}>
+					<Button
+						type='submit'
+						onClick={() => setTransactionSign(1)}
+						disabled={updateWallet.isPending}
+					>
 						Deposit
 					</Button>
 				</Group>

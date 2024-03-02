@@ -89,9 +89,8 @@ const HomeWithCreateAndUpdateAccount = () => {
 	})
 
 	return (
-		<div className='flex flex-col gap-10'>
+		<>
 			<form
-				className='flex flex-col gap-5'
 				onSubmit={createForm.onSubmit((values) => {
 					createAccount.mutate(values)
 				})}
@@ -124,7 +123,7 @@ const HomeWithCreateAndUpdateAccount = () => {
 				</Button>
 			</form>
 			<form
-				className='flex flex-col gap-5'
+				className=''
 				onSubmit={getDetailsForm.onSubmit(() => {
 					userDetailsQueryResult.refetch()
 				})}
@@ -183,7 +182,7 @@ const HomeWithCreateAndUpdateAccount = () => {
 					<h1 className='text-2xl'>{userDetailsQueryResult.error.message}</h1>
 				</div>
 			)}
-		</div>
+		</>
 	)
 }
 
