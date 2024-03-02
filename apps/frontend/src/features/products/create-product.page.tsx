@@ -30,6 +30,7 @@ const CreateProduct = () => {
 			name: (value) => (value.length > 0 ? null : 'Name cannot be empty'),
 			description: (value) =>
 				value.length > 0 ? null : 'Description cannot be empty',
+			price: (value) => (value > 0 ? null : 'Invalid price'),
 		},
 	})
 
@@ -72,7 +73,6 @@ const CreateProduct = () => {
 			<NumberInput
 				label='Price in INR'
 				placeholder='0'
-				allowNegative={false}
 				{...form.getInputProps('price')}
 			/>
 			<Button type='submit' loading={createProduct.isPending}>

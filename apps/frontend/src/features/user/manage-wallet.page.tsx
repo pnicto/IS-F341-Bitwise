@@ -63,8 +63,6 @@ const ManageWallet = () => {
 					label='Amount (INR)'
 					placeholder='40'
 					leftSection={<IconCurrencyRupee />}
-					allowDecimal={false}
-					allowNegative={false}
 					{...form.getInputProps('amount')}
 				/>
 				<Group justify='center'>

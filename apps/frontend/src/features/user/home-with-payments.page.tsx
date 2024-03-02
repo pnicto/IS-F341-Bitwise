@@ -88,9 +88,7 @@ const HomeWithPayments = () => {
 				<NumberInput
 					label='Amount to send (INR)'
 					placeholder='40'
-					min={1}
 					leftSection={<IconCurrencyRupee />}
-					allowDecimal={false}
 					{...form.getInputProps('amount')}
 				/>
 				<Button type='submit'>Pay</Button>
