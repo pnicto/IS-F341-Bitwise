@@ -1,4 +1,5 @@
-import { Anchor, Button } from '@mantine/core'
+import { Icon } from '@iconify/react'
+import { Anchor, Button, Menu } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { IconPlus } from '@tabler/icons-react'
 import { useMutation } from '@tanstack/react-query'
@@ -54,7 +55,26 @@ const MainLayout = () => {
 								Create Accounts in Bulk
 							</Anchor>
 						)}
-						<Button onClick={() => logout.mutate()}>Logout</Button>
+						<Menu offset={-5}>
+							<Menu.Target>
+								<Button variant='transparent'>
+									<Icon icon='lucide:more-horizontal' className='text-2xl' />
+								</Button>
+							</Menu.Target>
+							<Menu.Dropdown>
+								<Menu.Item component={NavLink} to='/edit-profile'>
+									Edit Profile
+								</Menu.Item>
+								<Menu.Item
+									leftSection={<Icon icon='lucide:log-out' />}
+									component='button'
+									onClick={() => logout.mutate()}
+									color='red'
+								>
+									Logout
+								</Menu.Item>
+							</Menu.Dropdown>
+						</Menu>
 					</div>
 				</nav>
 			)}
