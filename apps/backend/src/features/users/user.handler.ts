@@ -1,3 +1,4 @@
+import { User } from '@prisma/client'
 import { RequestHandler } from 'express'
 import { body } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
@@ -72,6 +73,34 @@ export const editUserDetails: RequestHandler = async (req, res, next) => {
 		})
 
 		return res.status(StatusCodes.OK).json({ message: 'Details updated' })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const validateUpdateUserStatus = [
+	body('enabled').isBoolean().toBoolean().withMessage('Invalid status'),
+]
+
+export const updateUserStatus: RequestHandler = async (req, res, next) => {
+	try {
+		const { enabled } = validateRequest<Pick<User, 'enabled'>>(req)
+		const authorizedUser = getAuthorizedUser(req)
+		const userDetails = await prisma.user.findUnique({
+			where: { id: authorizedUser.id },
+		})
+		if (!userDetails) throw new NotFound('User not found')
+		if (enabled)
+			throw new BadRequest('Users cannot re-enable their own accounts')
+		await prisma.user.update({
+			where: { id: authorizedUser.id },
+			data: {
+				enabled,
+			},
+		})
+
+		const returnMessage = 'Account disabled successfully'
+		return res.status(StatusCodes.OK).json({ message: returnMessage })
 	} catch (err) {
 		next(err)
 	}
