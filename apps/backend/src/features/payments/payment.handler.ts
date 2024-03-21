@@ -1,4 +1,4 @@
-import { Transaction } from '@prisma/client'
+import { PaymentRequest, Transaction } from '@prisma/client'
 import { RequestHandler } from 'express'
 import { body } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
@@ -17,6 +17,18 @@ export const validateTransaction = [
 		.toInt()
 		.withMessage('Amount must be a number'),
 ]
+
+export const validatePaymentRequest = [
+	body('requesteeUsername')
+		.trim()
+		.notEmpty()
+		.withMessage('To account is required'),
+	body('amount')
+		.isInt({ min: 1 })
+		.toInt()
+		.withMessage('Amount must be a number'),
+]
+
 export const transact: RequestHandler = async (req, res, next) => {
 	try {
 		const { receiverUsername, amount } =
@@ -55,6 +67,37 @@ export const transact: RequestHandler = async (req, res, next) => {
 		return res
 			.status(StatusCodes.CREATED)
 			.json({ message: 'Transaction successful' })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const requestPayment: RequestHandler = async (req, res, next) => {
+	try {
+		const { requesteeUsername, amount } =
+			validateRequest<Pick<PaymentRequest, 'requesteeUsername' | 'amount'>>(req)
+		const requester = getAuthorizedUser(req)
+
+		const requestee = await prisma.user.findUnique({
+			where: { username: requesteeUsername },
+		})
+		if (!requestee) {
+			throw new BadRequest('Requestee not found')
+		}
+		if (!requestee.enabled) {
+			throw new BadRequest('Requestee account is disabled')
+		}
+
+		await prisma.paymentRequest.create({
+			data: {
+				requesterUsername: requester.username,
+				requesteeUsername,
+				amount,
+			},
+		})
+		return res
+			.status(StatusCodes.CREATED)
+			.json({ message: 'Payment request created successfully' })
 	} catch (err) {
 		next(err)
 	}
