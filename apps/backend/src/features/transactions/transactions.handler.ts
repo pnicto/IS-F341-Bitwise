@@ -43,31 +43,23 @@ export const viewTransactionHistory: RequestHandler = async (
 
 		const debitHistory = debitTransactions.map((transaction) => {
 			return {
-				amount: transaction.amount,
-				senderUsername: transaction.senderUsername,
-				receiverUsername: transaction.receiverUsername,
-				createdAt: transaction.createdAt,
+				...transaction,
 				type: 'DEBIT',
 			}
 		})
 
 		const creditHistory = creditTransactions.map((transaction) => {
 			return {
-				amount: transaction.amount,
-				senderUsername: transaction.senderUsername,
-				receiverUsername: transaction.receiverUsername,
-				createdAt: transaction.createdAt,
+				...transaction,
 				type: 'CREDIT',
 			}
 		})
 
 		const walletHistory = walletTransactions.map((transaction) => {
 			return {
-				amount: transaction.amount,
+				...transaction,
 				senderUsername: '-',
 				receiverUsername: '-',
-				createdAt: transaction.createdAt,
-				type: transaction.type,
 			}
 		})
 
