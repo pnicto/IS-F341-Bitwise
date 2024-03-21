@@ -28,7 +28,7 @@ enum Category {
 
 enum TransactionType {
   DEPOSIT
-  WITHDRAW
+  WITHDRAWAL
 }
 
 model User {
@@ -80,4 +80,5 @@ model WalletTransactionHistory {
   userId String          @db.ObjectId
   amount Int
   type   TransactionType @default(DEPOSIT)
+  createdAt DateTime     @default(now())
 }

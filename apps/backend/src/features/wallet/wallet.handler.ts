@@ -33,9 +33,9 @@ export const modifyWalletBalance: RequestHandler = async (req, res, next) => {
 				}),
 				prisma.walletTransactionHistory.create({
 					data: {
-						amount: amount,
+						amount: -amount,
 						userId: currentUser.id,
-						type: 'WITHDRAW',
+						type: 'WITHDRAWAL',
 					},
 				}),
 			])
