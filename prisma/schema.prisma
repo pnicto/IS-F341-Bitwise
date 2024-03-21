@@ -25,19 +25,27 @@ enum Category {
   MISC
 }
 
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
 model User {
-  id                   String        @id @default(auto()) @map("_id") @db.ObjectId
-  username             String        @unique
-  email                String        @unique
+  id                   String           @id @default(auto()) @map("_id") @db.ObjectId
+  username             String           @unique
+  email                String           @unique
   password             String
   mobile               String?
-  role                 Role          @default(STUDENT)
+  role                 Role             @default(STUDENT)
   shopName             String?
-  balance              Int           @default(0)
-  enabled              Boolean       @default(true)
+  balance              Int              @default(0)
+  enabled              Boolean          @default(true)
   Product              Product[]
-  transactionsSend     Transaction[] @relation("sender")
-  transactionsReceived Transaction[] @relation("receiver")
+  transactionsSend     Transaction[]    @relation("sender")
+  transactionsReceived Transaction[]    @relation("receiver")
+  paymentRequested     PaymentRequest[] @relation("requester")
+  paymentRequests      PaymentRequest[] @relation("requestee")
 
   @@index([shopName])
 }
@@ -65,4 +73,15 @@ model Transaction {
   amount           Int
   createdAt        DateTime @default(now())
   status           Boolean  @default(true)
+}
+
+model PaymentRequest {
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  requester         User          @relation("requester", fields: [requesterUsername], references: [username])
+  requesterUsername String
+  requestee         User          @relation("requestee", fields: [requesteeUsername], references: [username])
+  requesteeUsername String
+  amount            Int
+  createdAt         DateTime      @default(now())
+  status            PaymentStatus @default(PENDING)
 }
