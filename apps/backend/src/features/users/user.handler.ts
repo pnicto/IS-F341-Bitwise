@@ -99,8 +99,9 @@ export const updateUserStatus: RequestHandler = async (req, res, next) => {
 			},
 		})
 
-		const returnMessage = 'Account disabled successfully'
-		return res.status(StatusCodes.OK).json({ message: returnMessage })
+		return res
+			.status(StatusCodes.OK)
+			.json({ message: 'Account disabled successfully' })
 	} catch (err) {
 		next(err)
 	}
