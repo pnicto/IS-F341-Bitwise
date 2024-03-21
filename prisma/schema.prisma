@@ -25,6 +25,7 @@ enum Category {
   MISC
 }
 
+
 enum TransactionType {
   DEPOSIT
   WITHDRAW
