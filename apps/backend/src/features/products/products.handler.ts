@@ -85,6 +85,43 @@ export const getProducts: RequestHandler = async (req, res, next) => {
 	}
 }
 
+export const validateFilteredProductSearch = [
+	query('searchString').trim().notEmpty().optional(),
+	query('category').trim().notEmpty(),
+]
+
+export const filterProductsByCategory: RequestHandler = async (
+	req,
+	res,
+	next,
+) => {
+	try {
+		const { searchString, category } = validateRequest<{
+			searchString: string | undefined
+			category: Product['category']
+		}>(req)
+		let products
+		if (!searchString) {
+			products = await prisma.product.findMany({
+				where: { category: category },
+			})
+		} else {
+			products = await prisma.product.findMany({
+				where: {
+					name: {
+						contains: searchString,
+						mode: 'insensitive',
+					},
+					category: category,
+				},
+			})
+		}
+		return res.status(StatusCodes.OK).json({ products })
+	} catch (err) {
+		next(err)
+	}
+}
+
 export const validateUpdatedProduct = [
 	param('id').trim().notEmpty().withMessage('Product ID is required'),
 	body('name').trim().notEmpty().withMessage('Product name is required'),

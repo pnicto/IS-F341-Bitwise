@@ -4,9 +4,11 @@ import { authorize } from '../../middleware/authorize'
 import {
 	createProduct,
 	deleteProduct,
+	filterProductsByCategory,
 	getProducts,
 	updateProduct,
 	validateDeletedProduct,
+	validateFilteredProductSearch,
 	validateNewProduct,
 	validateProductQuery,
 	validateUpdatedProduct,
@@ -23,3 +25,8 @@ productRouter.post(
 productRouter.post('/update/:id', validateUpdatedProduct, updateProduct)
 productRouter.post('/delete/:id', validateDeletedProduct, deleteProduct)
 productRouter.get('/', validateProductQuery, getProducts)
+productRouter.get(
+	'/filterSearch',
+	validateFilteredProductSearch,
+	filterProductsByCategory,
+)
