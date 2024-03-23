@@ -1,15 +1,20 @@
 import express from 'express'
 import {
 	createNewTag,
+	deleteTag,
+	editTag,
 	editUserDetails,
 	getTags,
 	getUserDetails,
 	validateNewDetails,
-	validateNewTag,
+	validateTag,
+	validateUpdateTag,
 } from './user.handler'
 
 export const userRouter = express.Router()
 userRouter.get('/details', getUserDetails)
 userRouter.post('/details/edit', validateNewDetails, editUserDetails)
 userRouter.get('/tags/', getTags)
-userRouter.post('/tags/create', validateNewTag, createNewTag)
+userRouter.post('/tags/create', validateTag, createNewTag)
+userRouter.post('/tags/edit', validateUpdateTag, editTag)
+userRouter.post('/tags/delete', validateTag, deleteTag)
