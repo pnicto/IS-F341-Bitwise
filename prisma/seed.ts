@@ -118,7 +118,6 @@ async function main() {
 	console.log('Seeded users')
 
 	await prisma.category.createMany({ data: categories })
-	const categoryIds = await prisma.category.findMany({select: {id: true}})
 
 	const products: Omit<Product, 'id'>[] = []
 
@@ -135,7 +134,7 @@ async function main() {
 				price: parseInt(faker.commerce.price({ min: 10, max: 1000, dec: 0 })),
 				vendorId: v['id'],
 				createdAt: productDate,
-				categoryId: faker.helpers.arrayElement(categoryIds).id,
+				categoryName: faker.helpers.arrayElement(CATEGORY_NAMES),
 				updatedAt: productDate,
 			})
 		}

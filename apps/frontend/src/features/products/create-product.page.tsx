@@ -28,15 +28,13 @@ const CreateProduct = () => {
 		name: string
 		description: string
 		price: number
-		categoryId: string
+		categoryName: string
 	}>({
 		initialValues: {
 			name: '',
 			description: '',
 			price: 100,
-			categoryId: categoriesQuery.data
-				? categoriesQuery.data.categories[0].id
-				: '',
+			categoryName: '',
 		},
 		validate: {
 			name: (value) => (value.length > 0 ? null : 'Name cannot be empty'),
@@ -50,7 +48,7 @@ const CreateProduct = () => {
 		mutationFn: (
 			newProduct: Pick<
 				Product,
-				'name' | 'description' | 'price' | 'categoryId'
+				'name' | 'description' | 'price' | 'categoryName'
 			>,
 		) => {
 			return axios.post<{ message: string }>('/products/new', newProduct)
@@ -96,13 +94,16 @@ const CreateProduct = () => {
 			/>
 			<Select
 				label='Category'
-				data={categoriesQuery.data.categories.map((category) => {
-					return {
-						value: category.id,
-						label: category.name,
-					}
-				})}
-				{...form.getInputProps('categoryId')}
+				data={[
+					{ value: '', label: '(None)' },
+					...categoriesQuery.data.categories.map((category) => {
+						return {
+							value: category.name,
+							label: category.name,
+						}
+					}),
+				]}
+				{...form.getInputProps('categoryName')}
 			/>
 			<NumberInput
 				label='Price in INR'

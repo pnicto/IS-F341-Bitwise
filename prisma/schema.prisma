@@ -14,9 +14,8 @@ enum Role {
 }
 
 model Category {
-  id      String    @id @default(auto()) @map("_id") @db.ObjectId
-  name    String    @unique
-  Product Product[]
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @unique
 }
 
 model User {
@@ -37,16 +36,15 @@ model User {
 }
 
 model Product {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String
-  price       Int      @default(0)
-  category    Category @relation(fields: [categoryId], references: [id])
-  categoryId  String   @db.ObjectId
-  vendor      User     @relation(fields: [vendorId], references: [id])
-  vendorId    String   @db.ObjectId
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  description  String
+  price        Int      @default(0)
+  categoryName String?
+  vendor       User     @relation(fields: [vendorId], references: [id])
+  vendorId     String   @db.ObjectId
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@unique([name, vendorId])
 }

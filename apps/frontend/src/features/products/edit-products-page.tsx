@@ -50,16 +50,14 @@ const EditProducts = () => {
 		name: string
 		description: string
 		price: number
-		categoryId: string
+		categoryName: string
 	}>({
 		initialValues: {
 			id: '',
 			name: '',
 			description: '',
 			price: 100,
-			categoryId: categoriesQuery.data
-				? categoriesQuery.data.categories[0].id
-				: '',
+			categoryName: '',
 		},
 		validate: {
 			name: (value) => (value.length > 0 ? null : 'Name cannot be empty'),
@@ -77,7 +75,7 @@ const EditProducts = () => {
 		mutationFn: (
 			newProduct: Pick<
 				Product,
-				'id' | 'name' | 'description' | 'price' | 'categoryId'
+				'id' | 'name' | 'description' | 'price' | 'categoryName'
 			>,
 		) => {
 			return axios.post<{ message: string }>(
@@ -158,13 +156,16 @@ const EditProducts = () => {
 					/>
 					<Select
 						label='Category'
-						data={categoriesQuery.data.categories.map((category) => {
-							return {
-								value: category.id,
-								label: category.name,
-							}
-						})}
-						{...updateProductForm.getInputProps('categoryId')}
+						data={[
+							{ value: '', label: '(None)' },
+							...categoriesQuery.data.categories.map((category) => {
+								return {
+									value: category.name,
+									label: category.name,
+								}
+							}),
+						]}
+						{...updateProductForm.getInputProps('categoryName')}
 					/>
 					<NumberInput
 						label='Price in INR'
@@ -190,11 +191,6 @@ const EditProducts = () => {
 					<ProductCard
 						key={product.id}
 						{...product}
-						category={
-							categoriesQuery.data.categories.find(
-								(category) => category.id === product.categoryId,
-							)?.name || ''
-						}
 						allowEdit
 						editComponent={
 							<Button
@@ -202,6 +198,7 @@ const EditProducts = () => {
 								onClick={() => {
 									updateProductForm.setValues({
 										...product,
+										categoryName: product.categoryName ?? '',
 									})
 									modalHandlers.open()
 								}}
