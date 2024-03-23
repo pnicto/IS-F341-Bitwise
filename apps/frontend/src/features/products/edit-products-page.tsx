@@ -1,3 +1,4 @@
+import { Icon } from '@iconify/react'
 import {
 	Button,
 	Loader,
@@ -12,7 +13,6 @@ import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { Category, Product } from '@prisma/client'
-import { IconEdit, IconTrash } from '@tabler/icons-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
@@ -181,7 +181,7 @@ const EditProducts = () => {
 									modalHandlers.open()
 								}}
 							>
-								<IconEdit />
+								<Icon icon='lucide:edit' className='font-bold text-2xl' />
 							</Button>
 						}
 						deleteComponent={
@@ -192,7 +192,10 @@ const EditProducts = () => {
 									deleteProduct.mutate({ id: product.id })
 								}}
 							>
-								<IconTrash color='red' />
+								<Icon
+									icon='lucide:trash-2'
+									className='text-red-500 text-2xl font-bold'
+								/>
 							</Button>
 						}
 					/>

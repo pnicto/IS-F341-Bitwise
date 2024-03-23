@@ -11,7 +11,6 @@ import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { User } from '@prisma/client'
-import { IconPlus } from '@tabler/icons-react'
 import { useMutation } from '@tanstack/react-query'
 import {
 	NavLink,
@@ -89,7 +88,7 @@ const MainLayout = () => {
 								component={NavLink}
 								to='/catalogue/add-product'
 							>
-								<IconPlus size={20} fill='green' />
+								<Icon icon='lucide:plus' className='text-2xl' />
 							</Button>
 						)}
 						{currentRoute.pathname === '/admin' && (
