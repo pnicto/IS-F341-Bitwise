@@ -77,7 +77,7 @@ export const editUserDetails: RequestHandler = async (req, res, next) => {
 	}
 }
 
-export const updateUserStatus: RequestHandler = async (req, res, next) => {
+export const disableAccount: RequestHandler = async (req, res, next) => {
 	try {
 		const authorizedUser = getAuthorizedUser(req)
 		const userDetails = await prisma.user.findUnique({
