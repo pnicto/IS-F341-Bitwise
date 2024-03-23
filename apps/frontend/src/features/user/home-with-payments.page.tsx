@@ -32,6 +32,11 @@ const navigationOptions: RouteOption[] = [
 		label: 'Catalogue',
 		path: '/catalogue',
 	},
+	{
+		icon: <Icon icon='uil:money-withdraw' />,
+		label: 'Payment Requests',
+		path: '/payment-requests',
+	},
 ]
 
 const GridItem = ({ icon, label, path }: RouteOption) => {

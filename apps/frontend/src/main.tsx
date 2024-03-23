@@ -21,6 +21,7 @@ import ShopList from './features/shops/shop-list.page'
 import EditProfile from './features/user/edit-profile'
 import HomeWithPayments from './features/user/home-with-payments.page'
 import ManageWallet from './features/user/manage-wallet.page'
+import PaymentRequests from './features/user/payment-requests.page'
 import ErrorBoundary from './shared/error-boundary'
 import MainLayout from './shared/main-layout'
 import PermissionGuard from './shared/permission-guard'
@@ -57,6 +58,7 @@ const router = createBrowserRouter(
 						<Route index element={<EditProducts />} />
 						<Route path='add-product' element={<CreateProduct />} />
 					</Route>
+					<Route path='payment-requests' element={<PaymentRequests />} />
 				</Route>
 
 				{/* Protected only for admin */}
