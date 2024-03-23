@@ -5,10 +5,12 @@ import {
 	createProduct,
 	deleteProduct,
 	getProducts,
+	searchProducts,
 	updateProduct,
 	validateDeletedProduct,
 	validateNewProduct,
 	validateProductQuery,
+	validateSearchProduct,
 	validateUpdatedProduct,
 } from './products.handler'
 
@@ -23,3 +25,4 @@ productRouter.post(
 productRouter.post('/update/:id', validateUpdatedProduct, updateProduct)
 productRouter.post('/delete/:id', validateDeletedProduct, deleteProduct)
 productRouter.get('/', validateProductQuery, getProducts)
+productRouter.get('/searchProduct', validateSearchProduct, searchProducts)
