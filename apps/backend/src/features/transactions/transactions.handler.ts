@@ -15,6 +15,7 @@ export const viewTransactionHistory: RequestHandler = async (
 				senderUsername: sender.username,
 			},
 			select: {
+				id: true,
 				amount: true,
 				senderUsername: true,
 				receiverUsername: true,
@@ -26,6 +27,7 @@ export const viewTransactionHistory: RequestHandler = async (
 				receiverUsername: sender.username,
 			},
 			select: {
+				id: true,
 				amount: true,
 				senderUsername: true,
 				receiverUsername: true,
@@ -35,6 +37,7 @@ export const viewTransactionHistory: RequestHandler = async (
 		const walletTransactions = await prisma.walletTransactionHistory.findMany({
 			where: { userId: sender.id },
 			select: {
+				id: true,
 				amount: true,
 				type: true,
 				createdAt: true,
