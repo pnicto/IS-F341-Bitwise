@@ -76,3 +76,72 @@ export const editUserDetails: RequestHandler = async (req, res, next) => {
 		next(err)
 	}
 }
+
+export const getTags: RequestHandler = async (req, res, next) => {
+	try {
+		const authorizedUser = getAuthorizedUser(req)
+
+		const userTags = await prisma.user.findUnique({
+			where: { id: authorizedUser.id },
+			select: {
+				tags: true,
+			},
+		})
+
+		if (!userTags) {
+			throw new NotFound('User not found')
+		}
+
+		const tags = userTags.tags
+
+		return res.status(StatusCodes.OK).json({ tags })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const validateNewTag = [
+	body('name').trim().notEmpty().withMessage('Tag name is required'),
+]
+export const createNewTag: RequestHandler = async (req, res, next) => {
+	try {
+		const { name } = validateRequest<{
+			name: string
+		}>(req)
+
+		const authorizedUser = getAuthorizedUser(req)
+
+		const userTags = await prisma.user.findUnique({
+			where: { id: authorizedUser.id },
+			select: {
+				tags: true,
+			},
+		})
+
+		if (!userTags) {
+			throw new NotFound('User not found')
+		}
+		const tags = userTags.tags
+
+		if (tags.includes(name)) {
+			throw new BadRequest(`Tag name ${name} already exists`)
+		}
+
+		tags.push(name)
+
+		await prisma.user.update({
+			where: {
+				id: authorizedUser.id,
+			},
+			data: {
+				tags: tags,
+			}
+		})
+
+		return res
+			.status(StatusCodes.OK)
+			.json({ message: `Tag ${name} added successfully` })
+	} catch (err) {
+		next(err)
+	}
+}
