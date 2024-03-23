@@ -33,7 +33,7 @@ async function main() {
 	await prisma.user.deleteMany({})
 	console.log('Users deleted')
 
-	const users: Omit<User, 'id' | 'enabled'>[] = [
+	const users: Omit<User, 'id' | 'enabled' | 'tags'>[] = [
 		{
 			email: 'john@email.com',
 			role: 'ADMIN',
@@ -129,7 +129,7 @@ async function main() {
 	await prisma.product.createMany({ data: products })
 	console.log('Seeded products')
 
-	const transactions: Omit<Transaction, 'id'>[] = []
+	const transactions: Omit<Transaction, 'id' | 'tags'>[] = []
 	const students = await prisma.user.findMany({ where: { role: 'STUDENT' } })
 	for (let i = 0; i < 50; i++) {
 		const v = faker.helpers.arrayElement(vendors)
@@ -137,6 +137,7 @@ async function main() {
 			where: { vendorId: v['id'] },
 		})
 		const product = faker.helpers.arrayElement(v_products)
+
 		transactions.push({
 			senderUsername: faker.helpers.arrayElement(students)['username'],
 			receiverUsername: v['username'],

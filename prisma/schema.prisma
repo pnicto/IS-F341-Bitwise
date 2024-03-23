@@ -35,6 +35,7 @@ model User {
   shopName             String?
   balance              Int           @default(0)
   enabled              Boolean       @default(true)
+  tags                 String[]      @default([])
   Product              Product[]
   transactionsSend     Transaction[] @relation("sender")
   transactionsReceived Transaction[] @relation("receiver")
@@ -63,6 +64,7 @@ model Transaction {
   receiver         User     @relation("receiver", fields: [receiverUsername], references: [username])
   receiverUsername String
   amount           Int
+  tags             String[] @default([])
   createdAt        DateTime @default(now())
   status           Boolean  @default(true)
 }
