@@ -8,6 +8,7 @@ type Props = Product & {
 	allowEdit?: boolean
 	editComponent?: ReactNode
 	deleteComponent?: ReactNode
+	category: string
 }
 
 const ProductCard = ({

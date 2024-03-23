@@ -1,30 +1,42 @@
-import { Button, NumberInput, Select, TextInput, Textarea } from '@mantine/core'
+import {
+	Button,
+	Loader,
+	NumberInput,
+	Select,
+	TextInput,
+	Textarea,
+} from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { Category, Product } from '@prisma/client'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 
 const CreateProduct = () => {
-	const categories = Object.values(Category).map((category) => {
-		return {
-			value: category,
-			label: category[0] + category.slice(1).toLowerCase(),
-		}
+	const categoriesQuery = useQuery({
+		queryKey: ['categories'],
+		queryFn: async () => {
+			const response = await axios.get<{ categories: Category[] }>(
+				'/products/categories',
+			)
+			return response.data
+		},
 	})
 
 	const form = useForm<{
 		name: string
 		description: string
 		price: number
-		category: Category
+		categoryId: string
 	}>({
 		initialValues: {
 			name: '',
 			description: '',
 			price: 100,
-			category: Category.FOOD,
+			categoryId: categoriesQuery.data
+				? categoriesQuery.data.categories[0].id
+				: '',
 		},
 		validate: {
 			name: (value) => (value.length > 0 ? null : 'Name cannot be empty'),
@@ -36,7 +48,10 @@ const CreateProduct = () => {
 
 	const createProduct = useMutation({
 		mutationFn: (
-			newProduct: Pick<Product, 'name' | 'description' | 'price' | 'category'>,
+			newProduct: Pick<
+				Product,
+				'name' | 'description' | 'price' | 'categoryId'
+			>,
 		) => {
 			return axios.post<{ message: string }>('/products/new', newProduct)
 		},
@@ -48,6 +63,20 @@ const CreateProduct = () => {
 			handleAxiosErrors(err)
 		},
 	})
+
+	if (categoriesQuery.isPending) {
+		return (
+			// TODO: Extract this loader to a separate component and make it better
+			<div className='text-center'>
+				<Loader />
+			</div>
+		)
+	}
+
+	if (categoriesQuery.isError) {
+		// TODO: Replace with a better error component
+		return <div>Error fetching product categories</div>
+	}
 
 	return (
 		<form
@@ -67,8 +96,13 @@ const CreateProduct = () => {
 			/>
 			<Select
 				label='Category'
-				data={categories}
-				{...form.getInputProps('category')}
+				data={categoriesQuery.data.categories.map((category) => {
+					return {
+						value: category.id,
+						label: category.name,
+					}
+				})}
+				{...form.getInputProps('categoryId')}
 			/>
 			<NumberInput
 				label='Price in INR'

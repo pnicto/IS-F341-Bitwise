@@ -22,13 +22,17 @@ import { useUserQuery } from '../user/queries'
 const EditProducts = () => {
 	const userQuery = useUserQuery()
 
-	const vendorId = userQuery.data?.user.id
-	const categories = Object.values(Category).map((category) => {
-		return {
-			value: category,
-			label: category[0] + category.slice(1).toLowerCase(),
-		}
+	const categoriesQuery = useQuery({
+		queryKey: ['categories'],
+		queryFn: async () => {
+			const response = await axios.get<{ categories: Category[] }>(
+				'/products/categories',
+			)
+			return response.data
+		},
 	})
+
+	const vendorId = userQuery.data?.user.id
 
 	const shopProductsQuery = useQuery({
 		queryKey: ['shopProducts', vendorId],
@@ -46,14 +50,16 @@ const EditProducts = () => {
 		name: string
 		description: string
 		price: number
-		category: Category
+		categoryId: string
 	}>({
 		initialValues: {
 			id: '',
 			name: '',
 			description: '',
 			price: 100,
-			category: Category.FOOD,
+			categoryId: categoriesQuery.data
+				? categoriesQuery.data.categories[0].id
+				: '',
 		},
 		validate: {
 			name: (value) => (value.length > 0 ? null : 'Name cannot be empty'),
@@ -71,7 +77,7 @@ const EditProducts = () => {
 		mutationFn: (
 			newProduct: Pick<
 				Product,
-				'id' | 'name' | 'description' | 'price' | 'category'
+				'id' | 'name' | 'description' | 'price' | 'categoryId'
 			>,
 		) => {
 			return axios.post<{ message: string }>(
@@ -103,7 +109,11 @@ const EditProducts = () => {
 		},
 	})
 
-	if (userQuery.isPending || shopProductsQuery.isPending) {
+	if (
+		userQuery.isPending ||
+		shopProductsQuery.isPending ||
+		categoriesQuery.isPending
+	) {
 		return (
 			// TODO: Extract this loader to a separate component and make it better
 			<div className='text-center'>
@@ -120,6 +130,11 @@ const EditProducts = () => {
 	if (shopProductsQuery.isError) {
 		// TODO: Replace with a better error component
 		return <div>Error fetching catalogue data</div>
+	}
+
+	if (categoriesQuery.isError) {
+		// TODO: Replace with a better error component
+		return <div>Error fetching product categories</div>
 	}
 
 	return (
@@ -143,8 +158,13 @@ const EditProducts = () => {
 					/>
 					<Select
 						label='Category'
-						data={categories}
-						{...updateProductForm.getInputProps('category')}
+						data={categoriesQuery.data.categories.map((category) => {
+							return {
+								value: category.id,
+								label: category.name,
+							}
+						})}
+						{...updateProductForm.getInputProps('categoryId')}
 					/>
 					<NumberInput
 						label='Price in INR'
@@ -170,6 +190,11 @@ const EditProducts = () => {
 					<ProductCard
 						key={product.id}
 						{...product}
+						category={
+							categoriesQuery.data.categories.find(
+								(category) => category.id === product.categoryId,
+							)?.name || ''
+						}
 						allowEdit
 						editComponent={
 							<Button

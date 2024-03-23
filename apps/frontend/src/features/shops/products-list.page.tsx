@@ -1,5 +1,5 @@
-import { SimpleGrid } from '@mantine/core'
-import { Product } from '@prisma/client'
+import { Loader, SimpleGrid } from '@mantine/core'
+import { Category, Product } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { useLocation, useParams } from 'react-router-dom'
 import axios from '../../lib/axios'
@@ -18,9 +18,34 @@ const ProductList = () => {
 		},
 	})
 
-	if (shopProductsQuery.isPending) return <div>Loading</div>
+	const categoriesQuery = useQuery({
+		queryKey: ['categories'],
+		queryFn: async () => {
+			const response = await axios.get<{ categories: Category[] }>(
+				'/products/categories',
+			)
+			return response.data
+		},
+	})
 
-	if (shopProductsQuery.isError) return <div>Error fetching data</div>
+	if (shopProductsQuery.isPending || categoriesQuery.isPending) {
+		return (
+			// TODO: Extract this loader to a separate component and make it better
+			<div className='text-center'>
+				<Loader />
+			</div>
+		)
+	}
+
+	if (shopProductsQuery.isError) {
+		// TODO: Replace with a better error component
+		return <div>Error fetching data</div>
+	}
+
+	if (categoriesQuery.isError) {
+		// TODO: Replace with a better error component
+		return <div>Error fetching product categories</div>
+	}
 
 	return (
 		<>
@@ -38,6 +63,11 @@ const ProductList = () => {
 					<ProductCard
 						key={product.id}
 						{...product}
+						category={
+							categoriesQuery.data.categories.find(
+								(category) => category.id === product.categoryId,
+							)?.name || ''
+						}
 						showVendorDetails={location.pathname.startsWith('/buy&sell')}
 					/>
 				))}
