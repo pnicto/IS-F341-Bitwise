@@ -92,7 +92,15 @@ export const searchProducts: RequestHandler = async (req, res, next) => {
 		const { name } = validateRequest<{ name: string }>(req)
 		const products = await prisma.product.findMany({
 			where: { name: { contains: name, mode: 'insensitive' } },
-			include: { vendor: true },
+			include: {
+				vendor: {
+					select: {
+						username: true,
+						shopName: true,
+						mobile: true,
+					},
+				},
+			},
 		})
 		return res.status(StatusCodes.OK).json({ products })
 	} catch (err) {
