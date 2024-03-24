@@ -96,29 +96,6 @@ export const disableAccount: RequestHandler = async (req, res, next) => {
 	}
 }
 
-export const getTags: RequestHandler = async (req, res, next) => {
-	try {
-		const authorizedUser = getAuthorizedUser(req)
-
-		const userTags = await prisma.user.findUnique({
-			where: { id: authorizedUser.id },
-			select: {
-				tags: true,
-			},
-		})
-
-		if (!userTags) {
-			throw new NotFound('User not found')
-		}
-
-		const tags = userTags.tags
-
-		return res.status(StatusCodes.OK).json({ tags })
-	} catch (err) {
-		next(err)
-	}
-}
-
 export const validateTag = [
 	body('name').trim().notEmpty().withMessage('Tag name is required'),
 ]
@@ -130,17 +107,7 @@ export const createNewTag: RequestHandler = async (req, res, next) => {
 
 		const authorizedUser = getAuthorizedUser(req)
 
-		const userTags = await prisma.user.findUnique({
-			where: { id: authorizedUser.id },
-			select: {
-				tags: true,
-			},
-		})
-
-		if (!userTags) {
-			throw new NotFound('User not found')
-		}
-		const tags = userTags.tags
+		const tags = authorizedUser.tags
 
 		if (tags.includes(name)) {
 			throw new BadRequest(`Tag ${name} already exists`)
@@ -178,17 +145,7 @@ export const editTag: RequestHandler = async (req, res, next) => {
 
 		const authorizedUser = getAuthorizedUser(req)
 
-		const userTags = await prisma.user.findUnique({
-			where: { id: authorizedUser.id },
-			select: {
-				tags: true,
-			},
-		})
-
-		if (!userTags) {
-			throw new NotFound('User not found')
-		}
-		const tags = userTags.tags
+		const tags = authorizedUser.tags
 
 		if (oldName && newName) {
 			if (!tags.includes(oldName)) {
@@ -224,17 +181,7 @@ export const deleteTag: RequestHandler = async (req, res, next) => {
 
 		const authorizedUser = getAuthorizedUser(req)
 
-		const userTags = await prisma.user.findUnique({
-			where: { id: authorizedUser.id },
-			select: {
-				tags: true,
-			},
-		})
-
-		if (!userTags) {
-			throw new NotFound('User not found')
-		}
-		const tags = userTags.tags
+		const tags = authorizedUser.tags
 
 		if (!tags.includes(name)) {
 			throw new BadRequest(`Tag ${name} does not exist`)

@@ -139,37 +139,39 @@ const TransactionHistory = () => {
 						{...transaction}
 						username={getPersonName(transaction)}
 						bottomLeft={
-							transaction.type !== 'DEBIT'
-								? transaction.type !== 'CREDIT'
-									? null
-									: transaction.recieverTags
+							transaction.type === 'DEBIT'
+								? transaction.senderTags
+									? transaction.senderTags.map((tag, id) => (
+											<Badge key={id}>{tag}</Badge>
+									  ))
+									: null
+								: transaction.type === 'CREDIT'
+								? transaction.recieverTags
 									? transaction.recieverTags.map((tag, id) => (
 											<Badge key={id}>{tag}</Badge>
 									  ))
 									: null
-								: transaction.senderTags
-								? transaction.senderTags.map((tag, id) => (
-										<Badge key={id}>{tag}</Badge>
-								  ))
 								: null
 						}
 						bottomRight={
-							<Button
-								onClick={() => {
-									updateTransactionTagsForm.setValues({
-										id: transaction.id,
-										tags:
-											transaction.type !== 'DEBIT'
-												? transaction.type !== 'CREDIT'
-													? []
-													: transaction.senderTags
-												: transaction.recieverTags,
-									})
-									modalHandlers.open()
-								}}
-							>
-								Manage tags
-							</Button>
+							transaction.type === 'DEBIT' || transaction.type === 'CREDIT' ? (
+								<Button
+									onClick={() => {
+										updateTransactionTagsForm.setValues({
+											id: transaction.id,
+											tags:
+												transaction.type === 'DEBIT'
+													? transaction.senderTags
+													: transaction.type === 'CREDIT'
+													? transaction.recieverTags
+													: [],
+										})
+										modalHandlers.open()
+									}}
+								>
+									Add tags
+								</Button>
+							) : null
 						}
 					/>
 				))}
