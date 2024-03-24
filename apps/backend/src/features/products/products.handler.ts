@@ -85,7 +85,9 @@ export const getProducts: RequestHandler = async (req, res, next) => {
 	}
 }
 
-export const validateSearchProduct = [query('name').trim().notEmpty()]
+export const validateSearchProduct = [
+	query('name').trim().notEmpty().withMessage('Product name is required'),
+]
 
 export const searchProducts: RequestHandler = async (req, res, next) => {
 	try {
