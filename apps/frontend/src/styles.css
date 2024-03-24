@@ -24,6 +24,6 @@ body {
 	}
 
 	h2 {
-		@apply text-2xl font-semibold py-2 text-center;
+		@apply text-xl font-semibold py-2 text-center;
 	}
 }
