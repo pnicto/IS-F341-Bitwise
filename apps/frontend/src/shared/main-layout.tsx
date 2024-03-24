@@ -38,12 +38,14 @@ const MainLayout = () => {
 	return (
 		<>
 			{data && (
-				<nav className='flex justify-between py-2 items-center pl-10 pr-6'>
+				<nav className='flex justify-between py-2 items-center pl-3 pr-2'>
+					{/* TODO: Discuss if we are going to replace this with back button */}
 					<Anchor
 						component={NavLink}
+						className='flex items-center justify-center'
 						to={data.user.role === 'ADMIN' ? '/admin' : '/'}
 					>
-						Home
+						<Icon icon='lucide:home' className='text-2xl' />
 					</Anchor>
 					<div className='flex gap-8 items-center'>
 						{currentRoute.pathname === '/catalogue' && (
@@ -65,8 +67,8 @@ const MainLayout = () => {
 
 						<Menu>
 							<Menu.Target>
-								<Button variant='light'>
-									<Icon icon='lucide:more-horizontal' className='text-2xl' />
+								<Button variant='light' className=''>
+									<Icon icon='lucide:more-vertical' className='text-2xl' />
 								</Button>
 							</Menu.Target>
 							<Menu.Dropdown>
