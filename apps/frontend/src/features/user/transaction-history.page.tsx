@@ -1,8 +1,25 @@
 import { Loader, Stack } from '@mantine/core'
+import { Transaction, WalletTransactionType } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import axios from '../../lib/axios'
 import TransactionItemCard from '../../shared/transaction-item-card'
-import { HistoryItem } from './types'
+
+export type HistoryItem = Omit<Transaction, 'status'> & {
+	type: WalletTransactionType | 'DEBIT' | 'CREDIT'
+}
+
+const getPersonName = (transaction: HistoryItem) => {
+	switch (transaction.type) {
+		case 'DEBIT':
+			return transaction.receiverUsername
+		case 'CREDIT':
+			return transaction.senderUsername
+		case 'DEPOSIT':
+			return '<DEPOSIT>'
+		case 'WITHDRAWAL':
+			return '<WITHDRAWAL>'
+	}
+}
 
 const TransactionHistory = () => {
 	const transactionsQuery = useQuery({
@@ -34,11 +51,13 @@ const TransactionHistory = () => {
 
 	return (
 		<Stack>
-			{transactionsQuery.data.map((transaction) => {
-				return (
-					<TransactionItemCard key={transaction.id} transaction={transaction} />
-				)
-			})}
+			{transactionsQuery.data.map((transaction) => (
+				<TransactionItemCard
+					key={transaction.id}
+					{...transaction}
+					username={getPersonName(transaction)}
+				/>
+			))}
 		</Stack>
 	)
 }

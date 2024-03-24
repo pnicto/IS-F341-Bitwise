@@ -1,45 +1,45 @@
-import { Card, Flex, Stack } from '@mantine/core'
-import { HistoryItem } from '../features/user/types'
+import { Card, Flex } from '@mantine/core'
+import { WalletTransactionType } from '@prisma/client'
+import { ReactNode } from 'react'
 
 type Props = {
-	transaction: HistoryItem
+	username: string
+	amount: number
+	createdAt: Date
+	type: WalletTransactionType | 'DEBIT' | 'CREDIT'
+	bottomLeft?: ReactNode
+	bottomRight?: ReactNode
 }
 
-const getPersonName = (transaction: Props['transaction']) => {
-	switch (transaction.type) {
-		case 'DEBIT':
-			return transaction.receiverUsername
-		case 'CREDIT':
-			return transaction.senderUsername
-		case 'DEPOSIT':
-			return '<DEPOSIT>'
-		case 'WITHDRAWAL':
-			return '<WITHDRAWAL>'
-	}
-}
-
-const TransactionItemCard = ({ transaction }: Props) => {
-	const personName = getPersonName(transaction)
-
+const TransactionItemCard = ({
+	username,
+	amount,
+	createdAt,
+	type,
+	bottomLeft,
+	bottomRight,
+}: Props) => {
 	return (
 		<Card>
 			<Flex justify='space-between'>
-				<Stack>
-					<p className='font-bold text-lg'>{personName}</p>
-					<p>{transaction.createdAt.toLocaleString()}</p>
-				</Stack>
+				<div className='flex flex-col'>
+					<p className='font-bold text-lg'>{username}</p>
+					<p>{createdAt.toLocaleString()}</p>
+					<div className='flex flex-wrap gap-3'>{bottomLeft}</div>
+				</div>
 
-				<Stack>
+				<div className='flex flex-col items-end'>
 					<p
 						className={`${
-							transaction.type === 'DEPOSIT' || transaction.type === 'DEBIT'
+							type === 'DEPOSIT' || type === 'DEBIT'
 								? 'text-green-500'
 								: 'text-red-500'
 						} font-bold`}
 					>
-						{transaction.amount} ₹
+						{amount} ₹
 					</p>
-				</Stack>
+					<div className='flex flex-wrap gap-3 justify-end'>{bottomRight}</div>
+				</div>
 			</Flex>
 		</Card>
 	)
