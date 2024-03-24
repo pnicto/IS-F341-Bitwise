@@ -8,21 +8,14 @@ import {
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
-import { Category, Product } from '@prisma/client'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { Product } from '@prisma/client'
+import { useMutation } from '@tanstack/react-query'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
+import { useCategoriesQuery } from './queries'
 
 const CreateProduct = () => {
-	const categoriesQuery = useQuery({
-		queryKey: ['categories'],
-		queryFn: async () => {
-			const response = await axios.get<{ categories: Category[] }>(
-				'/products/categories',
-			)
-			return response.data
-		},
-	})
+	const categoriesQuery = useCategoriesQuery()
 
 	const form = useForm<{
 		name: string

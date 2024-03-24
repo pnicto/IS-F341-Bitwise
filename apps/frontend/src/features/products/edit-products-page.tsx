@@ -11,26 +11,19 @@ import {
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { Category, Product } from '@prisma/client'
+import { Product } from '@prisma/client'
 import { IconEdit, IconTrash } from '@tabler/icons-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 import ProductCard from '../../shared/product-card'
 import { useUserQuery } from '../user/queries'
+import { useCategoriesQuery } from './queries'
 
 const EditProducts = () => {
 	const userQuery = useUserQuery()
 
-	const categoriesQuery = useQuery({
-		queryKey: ['categories'],
-		queryFn: async () => {
-			const response = await axios.get<{ categories: Category[] }>(
-				'/products/categories',
-			)
-			return response.data
-		},
-	})
+	const categoriesQuery = useCategoriesQuery()
 
 	const vendorId = userQuery.data?.user.id
 
