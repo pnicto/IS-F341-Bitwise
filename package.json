@@ -44,7 +44,6 @@
 		"@nx/esbuild": "18.0.4",
 		"@nx/eslint": "18.0.4",
 		"@nx/eslint-plugin": "18.0.4",
-		"@nx/express": "^18.0.4",
 		"@nx/jest": "18.0.4",
 		"@nx/js": "18.0.4",
 		"@nx/node": "18.0.4",
