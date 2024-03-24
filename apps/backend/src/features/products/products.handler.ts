@@ -1,9 +1,9 @@
-import { Product, Role } from '@prisma/client'
+import { Category, Product, Role } from '@prisma/client'
 import { RequestHandler } from 'express'
 import { body, param, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
-import { Forbidden, NotFound } from '../../errors/CustomErrors'
+import { BadRequest, Forbidden, NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 
@@ -179,6 +179,84 @@ export const getCategories: RequestHandler = async (req, res, next) => {
 	try {
 		const categories = await prisma.category.findMany()
 		return res.status(StatusCodes.OK).json({ categories })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const validateNewCategory = [
+	body('name').trim().notEmpty().withMessage('Category name is required'),
+]
+export const addCategory: RequestHandler = async (req, res, next) => {
+	try {
+		const { name } = validateRequest<Pick<Category, 'name'>>(req)
+		if (name === '(None)') {
+			// To stop confusion when user doesn't want to pick any category
+			throw new BadRequest("Category can't be named '(None)'")
+		}
+		await prisma.category.create({ data: { name } })
+		return res
+			.status(StatusCodes.CREATED)
+			.json({ message: 'Product successfully created' })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const validateDeletedCategory = [
+	param('id').trim().notEmpty().withMessage('Category ID is required'),
+]
+export const deleteCategory: RequestHandler = async (req, res, next) => {
+	try {
+		const { id } = validateRequest<Pick<Category, 'id'>>(req)
+
+		const category = await prisma.category.findUnique({ where: { id } })
+		if (!category) {
+			throw new NotFound('The category does not exist')
+		}
+
+		await prisma.$transaction([
+			prisma.product.updateMany({
+				data: { categoryName: null },
+				where: { categoryName: category.name },
+			}),
+			prisma.category.delete({
+				where: { id },
+			}),
+		])
+
+		return res
+			.status(StatusCodes.OK)
+			.json({ message: 'Category successfully deleted' })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const validateUpdatedCategory = [
+	param('id').trim().notEmpty().withMessage('Category ID is required'),
+	body('name').trim().notEmpty().withMessage('Category name is required'),
+]
+export const updateCategory: RequestHandler = async (req, res, next) => {
+	try {
+		const { id, name } = validateRequest<Pick<Category, 'id' | 'name'>>(req)
+
+		const category = await prisma.category.findUnique({ where: { id } })
+		if (!category) {
+			throw new NotFound('The category does not exist')
+		}
+
+		await prisma.$transaction([
+			prisma.category.update({ data: { name }, where: { id } }),
+			prisma.product.updateMany({
+				data: { categoryName: name },
+				where: { categoryName: category.name },
+			}),
+		])
+
+		return res
+			.status(StatusCodes.OK)
+			.json({ message: 'Category successfully updated' })
 	} catch (err) {
 		next(err)
 	}

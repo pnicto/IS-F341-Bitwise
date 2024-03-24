@@ -14,6 +14,7 @@ import {
 import CreateAccountsBulk from './features/admin/create-accounts-bulk.page'
 import CreateAccount from './features/admin/create-accout.page'
 import HomeWithCreateAndUpdateAccount from './features/admin/home-with-find-account.page'
+import ManageCategories from './features/admin/manage-categories.page'
 import Login, { loginLoader } from './features/auth/login.page'
 import CreateProduct from './features/products/create-product.page'
 import EditProducts from './features/products/edit-products-page'
@@ -67,6 +68,10 @@ const router = createBrowserRouter(
 					<Route
 						path='admin/bulk-add-account'
 						element={<CreateAccountsBulk />}
+					/>
+					<Route
+						path='admin/manage-categories'
+						element={<ManageCategories />}
 					/>
 				</Route>
 			</Route>
