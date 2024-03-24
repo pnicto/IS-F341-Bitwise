@@ -70,7 +70,8 @@ model Transaction {
   receiver         User     @relation("receiver", fields: [receiverUsername], references: [username])
   receiverUsername String
   amount           Int
-  tags             String[] @default([])
+  senderTags       String[] @default([])
+  recieverTags     String[] @default([])
   createdAt        DateTime @default(now())
 }
 
