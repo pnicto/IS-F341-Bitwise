@@ -85,6 +85,31 @@ export const getProducts: RequestHandler = async (req, res, next) => {
 	}
 }
 
+export const validateSearchProduct = [
+	query('name').trim().notEmpty().withMessage('Product name is required'),
+]
+
+export const searchProducts: RequestHandler = async (req, res, next) => {
+	try {
+		const { name } = validateRequest<{ name: string }>(req)
+		const products = await prisma.product.findMany({
+			where: { name: { contains: name, mode: 'insensitive' } },
+			include: {
+				vendor: {
+					select: {
+						username: true,
+						shopName: true,
+						mobile: true,
+					},
+				},
+			},
+		})
+		return res.status(StatusCodes.OK).json({ products })
+	} catch (err) {
+		next(err)
+	}
+}
+
 export const validateUpdatedProduct = [
 	param('id').trim().notEmpty().withMessage('Product ID is required'),
 	body('name').trim().notEmpty().withMessage('Product name is required'),
