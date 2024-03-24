@@ -77,6 +77,25 @@ export const editUserDetails: RequestHandler = async (req, res, next) => {
 	}
 }
 
+export const disableAccount: RequestHandler = async (req, res, next) => {
+	try {
+		const authorizedUser = getAuthorizedUser(req)
+		const userDetails = await prisma.user.findUnique({
+			where: { id: authorizedUser.id },
+		})
+		if (!userDetails) throw new NotFound('User not found')
+		await prisma.user.update({
+			where: { id: authorizedUser.id },
+			data: { enabled: false },
+		})
+		return res
+			.status(StatusCodes.OK)
+			.json({ message: 'Account disabled successfully' })
+	} catch (err) {
+		next(err)
+	}
+}
+
 export const getTags: RequestHandler = async (req, res, next) => {
 	try {
 		const authorizedUser = getAuthorizedUser(req)

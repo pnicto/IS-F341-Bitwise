@@ -4,7 +4,7 @@ import { ReactNode } from 'react'
 
 type Props = Product & {
 	showVendorDetails?: boolean
-	vendor?: User
+	vendor?: Pick<User, 'mobile' | 'username'>
 	allowEdit?: boolean
 	editComponent?: ReactNode
 	deleteComponent?: ReactNode

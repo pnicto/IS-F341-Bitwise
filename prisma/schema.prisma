@@ -25,20 +25,26 @@ enum Category {
   MISC
 }
 
+enum WalletTransactionType {
+  DEPOSIT
+  WITHDRAWAL
+}
+
 model User {
-  id                   String        @id @default(auto()) @map("_id") @db.ObjectId
-  username             String        @unique
-  email                String        @unique
-  password             String
-  mobile               String?
-  role                 Role          @default(STUDENT)
-  shopName             String?
-  balance              Int           @default(0)
-  enabled              Boolean       @default(true)
-  tags                 String[]      @default([])
-  Product              Product[]
-  transactionsSend     Transaction[] @relation("sender")
-  transactionsReceived Transaction[] @relation("receiver")
+  id                       String                     @id @default(auto()) @map("_id") @db.ObjectId
+  username                 String                     @unique
+  email                    String                     @unique
+  password                 String
+  mobile                   String?
+  role                     Role                       @default(STUDENT)
+  shopName                 String?
+  balance                  Int                        @default(0)
+  enabled                  Boolean                    @default(true)
+  tags                     String[]                   @default([])
+  Product                  Product[]
+  transactionsSend         Transaction[]              @relation("sender")
+  transactionsReceived     Transaction[]              @relation("receiver")
+  walletTransactionHistory WalletTransactionHistory[]
 
   @@index([shopName])
 }
@@ -66,5 +72,13 @@ model Transaction {
   amount           Int
   tags             String[] @default([])
   createdAt        DateTime @default(now())
-  status           Boolean  @default(true)
+}
+
+model WalletTransactionHistory {
+  id        String                @id @default(auto()) @map("_id") @db.ObjectId
+  user      User                  @relation(fields: [userId], references: [id])
+  userId    String                @db.ObjectId
+  amount    Int
+  type      WalletTransactionType @default(DEPOSIT)
+  createdAt DateTime              @default(now())
 }

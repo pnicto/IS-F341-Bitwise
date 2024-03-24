@@ -32,6 +32,11 @@ const navigationOptions: RouteOption[] = [
 		label: 'Catalogue',
 		path: '/catalogue',
 	},
+	{
+		icon: <Icon icon='lucide:history' />,
+		label: 'Transaction History',
+		path: '/txn-history',
+	},
 ]
 
 const GridItem = ({ icon, label, path }: RouteOption) => {
