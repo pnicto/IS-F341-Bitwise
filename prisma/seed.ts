@@ -129,7 +129,10 @@ async function main() {
 	await prisma.product.createMany({ data: products })
 	console.log('Seeded products')
 
-	const transactions: Omit<Transaction, 'id' | 'senderTags' | 'recieverTags'>[] = []
+	const transactions: Omit<
+		Transaction,
+		'id' | 'senderTags' | 'recieverTags'
+	>[] = []
 	const students = await prisma.user.findMany({ where: { role: 'STUDENT' } })
 	for (let i = 0; i < 50; i++) {
 		const v = faker.helpers.arrayElement(vendors)

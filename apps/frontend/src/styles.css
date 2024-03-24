@@ -22,7 +22,7 @@ body {
 	h1 {
 		@apply text-4xl font-bold py-4 text-center;
 	}
-	
+
 	h2 {
 		@apply text-xl font-semibold py-2 text-center;
 	}
