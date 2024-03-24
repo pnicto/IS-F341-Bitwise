@@ -1,4 +1,4 @@
-import { Loader, Stack } from '@mantine/core'
+import { Badge, Loader, Stack } from '@mantine/core'
 import { Transaction, WalletTransactionType } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import axios from '../../lib/axios'
@@ -56,6 +56,11 @@ const TransactionHistory = () => {
 					key={transaction.id}
 					{...transaction}
 					username={getPersonName(transaction)}
+					bottomLeft={
+						transaction.tags
+							? transaction.tags.map((tag, id) => <Badge key={id}>{tag}</Badge>)
+							: null
+					}
 				/>
 			))}
 		</Stack>

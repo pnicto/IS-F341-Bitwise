@@ -19,6 +19,7 @@ export const viewTransactionHistory: RequestHandler = async (
 				amount: true,
 				senderUsername: true,
 				receiverUsername: true,
+				tags: true,
 				createdAt: true,
 			},
 		})
@@ -31,6 +32,7 @@ export const viewTransactionHistory: RequestHandler = async (
 				amount: true,
 				senderUsername: true,
 				receiverUsername: true,
+				tags: true,
 				createdAt: true,
 			},
 		})
