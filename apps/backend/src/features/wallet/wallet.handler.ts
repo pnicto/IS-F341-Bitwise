@@ -25,10 +25,35 @@ export const modifyWalletBalance: RequestHandler = async (req, res, next) => {
 		if (amount < 0 && -1 * amount > currentBalance) {
 			throw new BadRequest('Insufficient balance')
 		}
-		await prisma.user.update({
-			where: { username: currentUser.username },
-			data: { balance: { increment: amount } },
-		})
+		if (amount < 0) {
+			await prisma.$transaction([
+				prisma.user.update({
+					where: { username: currentUser.username },
+					data: { balance: { increment: amount } },
+				}),
+				prisma.walletTransactionHistory.create({
+					data: {
+						amount: -amount,
+						userId: currentUser.id,
+						type: 'WITHDRAWAL',
+					},
+				}),
+			])
+		} else {
+			await prisma.$transaction([
+				prisma.user.update({
+					where: { username: currentUser.username },
+					data: { balance: { increment: amount } },
+				}),
+				prisma.walletTransactionHistory.create({
+					data: {
+						amount: amount,
+						userId: currentUser.id,
+						type: 'DEPOSIT',
+					},
+				}),
+			])
+		}
 		const returnMessage = amount < 0 ? 'Amount withdrawn' : 'Amount added'
 		return res.status(StatusCodes.OK).json({ message: returnMessage })
 	} catch (err) {

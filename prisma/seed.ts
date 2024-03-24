@@ -159,7 +159,6 @@ async function main() {
 				from: product['updatedAt'],
 				to: '2024-02-29T00:00:00.000Z',
 			}),
-			status: faker.datatype.boolean({ probability: 0.8 }),
 		})
 	}
 
