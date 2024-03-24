@@ -184,7 +184,7 @@ export const respondToPaymentRequest: RequestHandler = async (
 					}),
 					prisma.paymentRequest.update({
 						where: { id: requestId },
-						data: { status: 'COMPLETED' },
+						data: { status: 'REJECTED' },
 					}),
 				])
 			} else {
