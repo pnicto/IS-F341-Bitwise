@@ -10,6 +10,8 @@ import {
 	validatePaymentRequestResponse,
 	validateGetPaymentRequests,
 	getPaymentRequests,
+	validateCancelPaymentRequest,
+	cancelPaymentRequest,
 } from './payment.handler'
 
 export const paymentRouter = express.Router()
@@ -40,4 +42,11 @@ paymentRouter.post(
 	authorize(Role.STUDENT, Role.VENDOR),
 	validatePaymentRequestResponse,
 	respondToPaymentRequest,
+)
+
+paymentRouter.post(
+	'/request/cancel',
+	authorize(Role.STUDENT, Role.VENDOR),
+	validateCancelPaymentRequest,
+	cancelPaymentRequest,
 )
