@@ -149,7 +149,7 @@ const ManageCategories = () => {
 				</Button>
 			</form>
 			<h2>Current Categories</h2>
-			<div className='flex flex-col gap-2'>
+			<div className='flex flex-col gap-2 max-w-lg m-auto'>
 				{categoriesQuery.data.categories.map((category) => {
 					return (
 						<div
