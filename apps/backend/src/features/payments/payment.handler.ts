@@ -103,6 +103,39 @@ export const requestPayment: RequestHandler = async (req, res, next) => {
 	}
 }
 
+export const validateGetPaymentRequests = [
+	body('status').optional().isIn(['PENDING', 'COMPLETED', 'CANCELLED']),
+]
+
+export const getPaymentRequests: RequestHandler = async (req, res, next) => {
+	try {
+		const { status } = validateRequest<{
+			status?: 'PENDING' | 'COMPLETED' | 'CANCELLED'
+		}>(req)
+		const user = getAuthorizedUser(req)
+
+		const requests = await prisma.paymentRequest.findMany({
+			where: {
+				OR: [
+					{ requesterUsername: user.username },
+					{ requesteeUsername: user.username },
+				],
+				status,
+			},
+			select: {
+				id: true,
+				requesterUsername: true,
+				requesteeUsername: true,
+				amount: true,
+				status: true,
+			},
+		})
+		return res.status(StatusCodes.OK).json({ requests })
+	} catch (err) {
+		next(err)
+	}
+}
+
 export const validatePaymentRequestResponse = [
 	body('requestId').trim().notEmpty().withMessage('Request ID is required'),
 	body('response')
@@ -151,17 +184,16 @@ export const respondToPaymentRequest: RequestHandler = async (
 					}),
 					prisma.paymentRequest.update({
 						where: { id: requestId },
-						data: { status: 'COMPLETED'},
+						data: { status: 'COMPLETED' },
 					}),
 				])
-			}
-			else {
+			} else {
 				throw new BadRequest('Insufficient balance')
 			}
 		} else {
 			await prisma.paymentRequest.update({
 				where: { id: requestId },
-				data: { status: 'CANCELLED'},
+				data: { status: 'CANCELLED' },
 			})
 		}
 		return res
