@@ -16,6 +16,7 @@ import HomeWithCreateAndUpdateAccount from './features/admin/home-with-create-ac
 import Login, { loginLoader } from './features/auth/login.page'
 import CreateProduct from './features/products/create-product.page'
 import EditProducts from './features/products/edit-products-page'
+import SearchProduct from './features/products/search-product.page'
 import ProductList from './features/shops/products-list.page'
 import ShopList from './features/shops/shop-list.page'
 import EditProfile from './features/user/edit-profile'
@@ -57,6 +58,7 @@ const router = createBrowserRouter(
 						<Route index element={<EditProducts />} />
 						<Route path='add-product' element={<CreateProduct />} />
 					</Route>
+					<Route path='/search-product' element={<SearchProduct />} />
 				</Route>
 
 				{/* Protected only for admin */}
