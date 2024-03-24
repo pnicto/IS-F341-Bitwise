@@ -25,4 +25,4 @@ productRouter.post(
 productRouter.post('/update/:id', validateUpdatedProduct, updateProduct)
 productRouter.post('/delete/:id', validateDeletedProduct, deleteProduct)
 productRouter.get('/', validateProductQuery, getProducts)
-productRouter.get('/searchProduct', validateSearchProduct, searchProducts)
+productRouter.get('/search', validateSearchProduct, searchProducts)
