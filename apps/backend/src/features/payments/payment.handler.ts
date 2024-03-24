@@ -203,3 +203,37 @@ export const respondToPaymentRequest: RequestHandler = async (
 		next(err)
 	}
 }
+
+export const validateCancelPaymentRequest = [
+	body('requestId').trim().notEmpty().withMessage('Request ID is required'),
+]
+
+export const cancelPaymentRequest: RequestHandler = async (req, res, next) => {
+	try {
+		const { id } = validateRequest<Pick<PaymentRequest, 'id'>>(req)
+		const user = getAuthorizedUser(req)
+
+		const request = await prisma.paymentRequest.findUnique({
+			where: { id },
+		})
+		if (!request) {
+			throw new BadRequest('Request not found')
+		}
+		if (request.requesterUsername !== user.username) {
+			throw new BadRequest('Unauthorized')
+		}
+		if (request.status !== 'PENDING') {
+			throw new BadRequest('Request already responded to')
+		}
+
+		await prisma.paymentRequest.update({
+			where: { id },
+			data: { status: 'CANCELLED' },
+		})
+		return res
+			.status(StatusCodes.OK)
+			.json({ message: 'Payment request cancelled' })
+	} catch (err) {
+		next(err)
+	}
+}
