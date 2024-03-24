@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react'
-import { Anchor, Button, Menu } from '@mantine/core'
+import { Anchor, Button, Menu, TextInput } from '@mantine/core'
+import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { User } from '@prisma/client'
 import { IconPlus } from '@tabler/icons-react'
@@ -34,6 +35,18 @@ const MainLayout = () => {
 			handleAxiosErrors(err)
 		},
 	})
+	const searchForm = useForm({
+		initialValues: {
+			search: '',
+		},
+		validate: {
+			search: (value) => {
+				if (value.length < 3) {
+					return 'Search must be at least 3 characters long'
+				}
+			},
+		},
+	})
 
 	return (
 		<>
@@ -47,6 +60,30 @@ const MainLayout = () => {
 					>
 						<Icon icon='lucide:home' className='text-2xl' />
 					</Anchor>
+
+					{(currentRoute.pathname === '/' ||
+						currentRoute.pathname === '/shops/view' ||
+						currentRoute.pathname === '/search-product') && (
+						<form
+							className='p-0'
+							onSubmit={searchForm.onSubmit((values) => {
+								navigate(`/search-product?name=${values.search}`)
+							})}
+						>
+							<TextInput
+								placeholder='Search for products'
+								rightSection={
+									<Button variant='light' type='submit'>
+										<Icon icon='lucide:search' />
+									</Button>
+								}
+								{...searchForm.getInputProps('search')}
+								rightSectionPointerEvents='all'
+								rightSectionWidth={50}
+							/>
+						</form>
+					)}
+
 					<div className='flex gap-8 items-center'>
 						{currentRoute.pathname === '/catalogue' && (
 							<Button
