@@ -109,7 +109,7 @@ export const updateTransactionTags: RequestHandler = async (req, res, next) => {
 			throw new NotFound('The transaction does not exist')
 		}
 		if (
-			transaction.senderUsername !== user.username ||
+			transaction.senderUsername !== user.username &&
 			transaction.receiverUsername !== user.username
 		) {
 			throw new Forbidden('You cannot edit the tags for this transaction')
