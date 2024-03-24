@@ -99,9 +99,9 @@ export const validateUpdatedTags = [
 ]
 export const updateTransactionTags: RequestHandler = async (req, res, next) => {
 	try {
-		const user = getAuthorizedUser(req)
 		const { id, tags } = validateRequest<{ id: string; tags: string[] }>(req)
 
+		const user = getAuthorizedUser(req)
 		const transaction = await prisma.transaction.findUnique({
 			where: { id: id },
 		})

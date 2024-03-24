@@ -57,8 +57,18 @@ const TransactionHistory = () => {
 					{...transaction}
 					username={getPersonName(transaction)}
 					bottomLeft={
-						transaction.tags
-							? transaction.tags.map((tag, id) => <Badge key={id}>{tag}</Badge>)
+						transaction.type === 'DEBIT'
+							? transaction.senderTags
+								? transaction.senderTags.map((tag, id) => (
+										<Badge key={id}>{tag}</Badge>
+								  ))
+								: null
+							: transaction.type === 'CREDIT'
+							? transaction.recieverTags
+								? transaction.recieverTags.map((tag, id) => (
+										<Badge key={id}>{tag}</Badge>
+								  ))
+								: null
 							: null
 					}
 				/>
