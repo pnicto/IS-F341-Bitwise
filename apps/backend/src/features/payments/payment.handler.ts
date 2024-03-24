@@ -18,17 +18,6 @@ export const validateTransaction = [
 		.withMessage('Amount must be a number'),
 ]
 
-export const validatePaymentRequest = [
-	body('requesteeUsername')
-		.trim()
-		.notEmpty()
-		.withMessage('To account is required'),
-	body('amount')
-		.isInt({ min: 1 })
-		.toInt()
-		.withMessage('Amount must be a number'),
-]
-
 export const transact: RequestHandler = async (req, res, next) => {
 	try {
 		const { receiverUsername, amount } =
@@ -72,6 +61,17 @@ export const transact: RequestHandler = async (req, res, next) => {
 	}
 }
 
+export const validatePaymentRequest = [
+	body('requesteeUsername')
+		.trim()
+		.notEmpty()
+		.withMessage('To account is required'),
+	body('amount')
+		.isInt({ min: 1 })
+		.toInt()
+		.withMessage('Amount must be a number'),
+]
+
 export const requestPayment: RequestHandler = async (req, res, next) => {
 	try {
 		const { requesteeUsername, amount } =
@@ -98,6 +98,75 @@ export const requestPayment: RequestHandler = async (req, res, next) => {
 		return res
 			.status(StatusCodes.CREATED)
 			.json({ message: 'Payment request created successfully' })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const validatePaymentRequestResponse = [
+	body('requestId').trim().notEmpty().withMessage('Request ID is required'),
+	body('response')
+		.trim()
+		.isIn(['accept', 'reject'])
+		.withMessage('Invalid response'),
+]
+
+export type PaymentRequestResponse = {
+	requestId: string
+	response: 'accept' | 'reject'
+}
+
+export const respondToPaymentRequest: RequestHandler = async (
+	req,
+	res,
+	next,
+) => {
+	try {
+		const { requestId, response } = validateRequest<PaymentRequestResponse>(req)
+		const requestee = getAuthorizedUser(req)
+
+		const request = await prisma.paymentRequest.findUnique({
+			where: { id: requestId },
+		})
+		if (!request) {
+			throw new BadRequest('Request not found')
+		}
+		if (request.requesteeUsername !== requestee.username) {
+			throw new BadRequest('Unauthorized')
+		}
+		if (request.status !== 'PENDING') {
+			throw new BadRequest('Request already responded to')
+		}
+
+		if (response === 'accept') {
+			if (requestee.balance < request.amount) {
+				await prisma.$transaction([
+					prisma.user.update({
+						where: { username: request.requesterUsername },
+						data: { balance: { increment: request.amount } },
+					}),
+					prisma.user.update({
+						where: { username: request.requesteeUsername },
+						data: { balance: { decrement: request.amount } },
+					}),
+					prisma.paymentRequest.update({
+						where: { id: requestId },
+						data: { status: 'COMPLETED'},
+					}),
+				])
+			}
+			else {
+				throw new BadRequest('Insufficient balance')
+			}
+		} else {
+			await prisma.paymentRequest.update({
+				where: { id: requestId },
+				data: { status: 'CANCELLED'},
+			})
+		}
+		return res
+			.status(StatusCodes.OK)
+			.json({ message: 'Payment request responded to' })
 	} catch (err) {
 		next(err)
 	}
