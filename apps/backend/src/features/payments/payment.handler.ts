@@ -220,7 +220,7 @@ export const respondToPaymentRequest: RequestHandler = async (
 }
 
 export const validateCancelPaymentRequest = [
-	body('requestId').trim().notEmpty().withMessage('Request ID is required'),
+	body('id').trim().notEmpty().withMessage('Request ID is required'),
 ]
 
 export const cancelPaymentRequest: RequestHandler = async (req, res, next) => {
