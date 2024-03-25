@@ -1,13 +1,11 @@
-import { PaymentRequest, Transaction } from '@prisma/client'
+import { PaymentRequest, PaymentStatus, Transaction } from '@prisma/client'
 import { RequestHandler } from 'express'
 import { body, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
-import { BadRequest } from '../../errors/CustomErrors'
+import { BadRequest, Unauthorized } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
-import { Unauthorized } from '../../errors/CustomErrors'
-import { PaymentStatus } from '@prisma/client'
 
 export const validateTransaction = [
 	body('receiverUsername')
