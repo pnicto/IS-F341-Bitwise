@@ -168,10 +168,15 @@ export const respondToPaymentRequest: RequestHandler = async (
 		if (request.requesteeUsername !== requestee.username) {
 			throw new Unauthorized('Unauthorized, user is not requestee')
 		}
-		if (request.status !== 'PENDING') {
-			throw new BadRequest('Request already responded to')
+		if (request.status === 'COMPLETED') {
+			throw new BadRequest('Request has already been accepted')
 		}
-
+		if (request.status === 'CANCELLED') {
+			throw new BadRequest('Request has been cancelled by requester')
+		}
+		if (request.status === 'REJECTED') {
+			throw new BadRequest('Request has already been rejected')
+		}
 		if (response === 'accept') {
 			if (requestee.balance > request.amount) {
 				await prisma.$transaction([
@@ -191,15 +196,18 @@ export const respondToPaymentRequest: RequestHandler = async (
 			} else {
 				throw new BadRequest('Insufficient balance')
 			}
+			return res
+				.status(StatusCodes.OK)
+				.json({ message: 'Payment request accepted' })
 		} else {
 			await prisma.paymentRequest.update({
 				where: { id: requestId },
 				data: { status: 'REJECTED' },
 			})
+			return res
+				.status(StatusCodes.OK)
+				.json({ message: 'Payment request rejected' })
 		}
-		return res
-			.status(StatusCodes.OK)
-			.json({ message: 'Payment request responded to' })
 	} catch (err) {
 		next(err)
 	}
