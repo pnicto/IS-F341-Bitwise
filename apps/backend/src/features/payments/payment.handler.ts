@@ -6,6 +6,7 @@ import { prisma } from '../../config/prisma'
 import { BadRequest } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
+import { Unauthorized } from '../../errors/CustomErrors'
 
 export const validateTransaction = [
 	body('receiverUsername')
@@ -165,7 +166,7 @@ export const respondToPaymentRequest: RequestHandler = async (
 			throw new BadRequest('Request not found')
 		}
 		if (request.requesteeUsername !== requestee.username) {
-			throw new BadRequest('Unauthorized')
+			throw new Unauthorized('Unauthorized, user is not requestee')
 		}
 		if (request.status !== 'PENDING') {
 			throw new BadRequest('Request already responded to')
@@ -220,7 +221,7 @@ export const cancelPaymentRequest: RequestHandler = async (req, res, next) => {
 			throw new BadRequest('Request not found')
 		}
 		if (request.requesterUsername !== user.username) {
-			throw new BadRequest('Unauthorized')
+			throw new Unauthorized('Unauthorized, user is not requester')
 		}
 		if (request.status !== 'PENDING') {
 			throw new BadRequest('Request already responded to')
