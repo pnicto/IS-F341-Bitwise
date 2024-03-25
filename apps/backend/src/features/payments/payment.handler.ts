@@ -185,7 +185,7 @@ export const respondToPaymentRequest: RequestHandler = async (
 					}),
 					prisma.paymentRequest.update({
 						where: { id: requestId },
-						data: { status: 'REJECTED' },
+						data: { status: 'COMPLETED' },
 					}),
 				])
 			} else {
@@ -194,7 +194,7 @@ export const respondToPaymentRequest: RequestHandler = async (
 		} else {
 			await prisma.paymentRequest.update({
 				where: { id: requestId },
-				data: { status: 'CANCELLED' },
+				data: { status: 'REJECTED' },
 			})
 		}
 		return res
