@@ -1,30 +1,33 @@
-import { Button, NumberInput, Select, TextInput, Textarea } from '@mantine/core'
+import {
+	Button,
+	Loader,
+	NumberInput,
+	Select,
+	TextInput,
+	Textarea,
+} from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
-import { Category, Product } from '@prisma/client'
+import { Product } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
+import { useCategoriesQuery } from './queries'
 
 const CreateProduct = () => {
-	const categories = Object.values(Category).map((category) => {
-		return {
-			value: category,
-			label: category[0] + category.slice(1).toLowerCase(),
-		}
-	})
+	const categoriesQuery = useCategoriesQuery()
 
 	const form = useForm<{
 		name: string
 		description: string
 		price: number
-		category: Category
+		categoryName: string
 	}>({
 		initialValues: {
 			name: '',
 			description: '',
 			price: 100,
-			category: Category.FOOD,
+			categoryName: '',
 		},
 		validate: {
 			name: (value) => (value.length > 0 ? null : 'Name cannot be empty'),
@@ -36,7 +39,10 @@ const CreateProduct = () => {
 
 	const createProduct = useMutation({
 		mutationFn: (
-			newProduct: Pick<Product, 'name' | 'description' | 'price' | 'category'>,
+			newProduct: Pick<
+				Product,
+				'name' | 'description' | 'price' | 'categoryName'
+			>,
 		) => {
 			return axios.post<{ message: string }>('/products/new', newProduct)
 		},
@@ -48,6 +54,20 @@ const CreateProduct = () => {
 			handleAxiosErrors(err)
 		},
 	})
+
+	if (categoriesQuery.isPending) {
+		return (
+			// TODO: Extract this loader to a separate component and make it better
+			<div className='text-center'>
+				<Loader />
+			</div>
+		)
+	}
+
+	if (categoriesQuery.isError) {
+		// TODO: Replace with a better error component
+		return <div>Error fetching product categories</div>
+	}
 
 	return (
 		<form
@@ -67,8 +87,16 @@ const CreateProduct = () => {
 			/>
 			<Select
 				label='Category'
-				data={categories}
-				{...form.getInputProps('category')}
+				data={[
+					{ value: '', label: '(None)' },
+					...categoriesQuery.data.categories.map((category) => {
+						return {
+							value: category.name,
+							label: category.name,
+						}
+					}),
+				]}
+				{...form.getInputProps('categoryName')}
 			/>
 			<NumberInput
 				label='Price in INR'

@@ -32,6 +32,11 @@ const navigationOptions: RouteOption[] = [
 		path: '/catalogue',
 	},
 	{
+		icon: <Icon icon='lucide:history' />,
+		label: 'Transaction History',
+		path: '/txn-history',
+	},
+	{
 		icon: <Icon icon='uil:money-withdraw' />,
 		label: 'Payment Requests',
 		path: '/payment-requests',

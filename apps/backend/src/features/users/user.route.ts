@@ -1,5 +1,6 @@
 import express from 'express'
 import {
+	disableAccount,
 	editUserDetails,
 	getUserDetails,
 	validateNewDetails,
@@ -8,3 +9,4 @@ import {
 export const userRouter = express.Router()
 userRouter.get('/details', getUserDetails)
 userRouter.post('/details/edit', validateNewDetails, editUserDetails)
+userRouter.post('/disable-account', disableAccount)

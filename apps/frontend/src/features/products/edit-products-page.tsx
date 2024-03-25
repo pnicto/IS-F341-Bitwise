@@ -12,23 +12,20 @@ import {
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { Category, Product } from '@prisma/client'
+import { Product } from '@prisma/client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 import ProductCard from '../../shared/product-card'
 import { useUserQuery } from '../user/queries'
+import { useCategoriesQuery } from './queries'
 
 const EditProducts = () => {
 	const userQuery = useUserQuery()
 
+	const categoriesQuery = useCategoriesQuery()
+
 	const vendorId = userQuery.data?.user.id
-	const categories = Object.values(Category).map((category) => {
-		return {
-			value: category,
-			label: category[0] + category.slice(1).toLowerCase(),
-		}
-	})
 
 	const shopProductsQuery = useQuery({
 		queryKey: ['shopProducts', vendorId],
@@ -46,14 +43,14 @@ const EditProducts = () => {
 		name: string
 		description: string
 		price: number
-		category: Category
+		categoryName: string
 	}>({
 		initialValues: {
 			id: '',
 			name: '',
 			description: '',
 			price: 100,
-			category: Category.FOOD,
+			categoryName: '',
 		},
 		validate: {
 			name: (value) => (value.length > 0 ? null : 'Name cannot be empty'),
@@ -71,7 +68,7 @@ const EditProducts = () => {
 		mutationFn: (
 			newProduct: Pick<
 				Product,
-				'id' | 'name' | 'description' | 'price' | 'category'
+				'id' | 'name' | 'description' | 'price' | 'categoryName'
 			>,
 		) => {
 			return axios.post<{ message: string }>(
@@ -103,7 +100,11 @@ const EditProducts = () => {
 		},
 	})
 
-	if (userQuery.isPending || shopProductsQuery.isPending) {
+	if (
+		userQuery.isPending ||
+		shopProductsQuery.isPending ||
+		categoriesQuery.isPending
+	) {
 		return (
 			// TODO: Extract this loader to a separate component and make it better
 			<div className='text-center'>
@@ -120,6 +121,11 @@ const EditProducts = () => {
 	if (shopProductsQuery.isError) {
 		// TODO: Replace with a better error component
 		return <div>Error fetching catalogue data</div>
+	}
+
+	if (categoriesQuery.isError) {
+		// TODO: Replace with a better error component
+		return <div>Error fetching product categories</div>
 	}
 
 	return (
@@ -143,8 +149,16 @@ const EditProducts = () => {
 					/>
 					<Select
 						label='Category'
-						data={categories}
-						{...updateProductForm.getInputProps('category')}
+						data={[
+							{ value: '', label: '(None)' },
+							...categoriesQuery.data.categories.map((category) => {
+								return {
+									value: category.name,
+									label: category.name,
+								}
+							}),
+						]}
+						{...updateProductForm.getInputProps('categoryName')}
 					/>
 					<NumberInput
 						label='Price in INR'
@@ -177,6 +191,7 @@ const EditProducts = () => {
 								onClick={() => {
 									updateProductForm.setValues({
 										...product,
+										categoryName: product.categoryName ?? '',
 									})
 									modalHandlers.open()
 								}}

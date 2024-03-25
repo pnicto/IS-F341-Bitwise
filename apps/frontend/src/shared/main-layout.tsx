@@ -68,17 +68,55 @@ const MainLayout = () => {
 			amount: (value) => (value > 0 ? null : 'Please enter a valid amount.'),
 		},
 	})
+	const searchForm = useForm({
+		initialValues: {
+			search: '',
+		},
+		validate: {
+			search: (value) => {
+				if (value.length < 3) {
+					return 'Search must be at least 3 characters long'
+				}
+			},
+		},
+	})
 
 	return (
 		<>
 			{data && (
-				<nav className='flex justify-between py-2 items-center pl-10 pr-6'>
+				<nav className='flex justify-between py-2 items-center pl-3 pr-2'>
+					{/* TODO: Discuss if we are going to replace this with back button */}
 					<Anchor
 						component={NavLink}
+						className='flex items-center justify-center'
 						to={data.user.role === 'ADMIN' ? '/admin' : '/'}
 					>
-						Home
+						<Icon icon='lucide:home' className='text-2xl' />
 					</Anchor>
+
+					{(currentRoute.pathname === '/' ||
+						currentRoute.pathname === '/shops/view' ||
+						currentRoute.pathname === '/search-product') && (
+						<form
+							className='p-0'
+							onSubmit={searchForm.onSubmit((values) => {
+								navigate(`/search-product?name=${values.search}`)
+							})}
+						>
+							<TextInput
+								placeholder='Search for products'
+								rightSection={
+									<Button variant='light' type='submit'>
+										<Icon icon='lucide:search' />
+									</Button>
+								}
+								{...searchForm.getInputProps('search')}
+								rightSectionPointerEvents='all'
+								rightSectionWidth={50}
+							/>
+						</form>
+					)}
+
 					<div className='flex gap-8 items-center'>
 						{currentRoute.pathname === '/catalogue' && (
 							<Button
@@ -91,11 +129,6 @@ const MainLayout = () => {
 								<Icon icon='lucide:plus' className='text-2xl' />
 							</Button>
 						)}
-						{currentRoute.pathname === '/admin' && (
-							<Anchor component={NavLink} to='/admin/bulk-add-account'>
-								Bulk Add Users
-							</Anchor>
-						)}
 						{currentRoute.pathname === '/payment-requests' && (
 							<Button color='green' onClick={open}>
 								New Request
@@ -104,8 +137,8 @@ const MainLayout = () => {
 
 						<Menu>
 							<Menu.Target>
-								<Button variant='light'>
-									<Icon icon='lucide:more-horizontal' className='text-2xl' />
+								<Button variant='light' className=''>
+									<Icon icon='lucide:more-vertical' className='text-2xl' />
 								</Button>
 							</Menu.Target>
 							<Menu.Dropdown>
