@@ -16,6 +16,7 @@ import { shopRouter } from './features/shops/shops.route'
 import { userRouter } from './features/users/user.route'
 import { walletRouter } from './features/wallet/wallet.route'
 import { transactionRouter } from './features/transactions/transactions.route'
+import { paymentRequestRouter } from './features/paymentRequests/paymentRequest.route'
 import { authorize } from './middleware/authorize'
 
 const app = express()
@@ -64,6 +65,7 @@ app.use(root('/wallet'), passportJWT, walletRouter)
 app.use(root('/user'), passportJWT, userRouter)
 app.use(root('/shops'), passportJWT, shopRouter)
 app.use(root('/transactions'), passportJWT, transactionRouter)
+app.use(root('/requests'), passportJWT, paymentRequestRouter)
 
 // Custom error handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
