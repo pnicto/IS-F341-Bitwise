@@ -1,4 +1,4 @@
-import { SimpleGrid } from '@mantine/core'
+import { Loader, SimpleGrid } from '@mantine/core'
 import { Product } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { useLocation, useParams } from 'react-router-dom'
@@ -18,9 +18,19 @@ const ProductList = () => {
 		},
 	})
 
-	if (shopProductsQuery.isPending) return <div>Loading</div>
+	if (shopProductsQuery.isPending) {
+		return (
+			// TODO: Extract this loader to a separate component and make it better
+			<div className='text-center'>
+				<Loader />
+			</div>
+		)
+	}
 
-	if (shopProductsQuery.isError) return <div>Error fetching data</div>
+	if (shopProductsQuery.isError) {
+		// TODO: Replace with a better error component
+		return <div>Error fetching data</div>
+	}
 
 	return (
 		<>

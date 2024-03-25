@@ -13,16 +13,9 @@ enum Role {
   ADMIN
 }
 
-enum Category {
-  FOOD
-  BOOKS
-  ELECTRONICS
-  CLOTHING
-  HOUSEHOLD
-  HEALTH
-  OFFICE
-  COSMETICS
-  MISC
+model Category {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @unique
 }
 
 enum WalletTransactionType {
@@ -49,15 +42,15 @@ model User {
 }
 
 model Product {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String
-  price       Int      @default(0)
-  category    Category
-  vendor      User     @relation(fields: [vendorId], references: [id])
-  vendorId    String   @db.ObjectId
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  description  String
+  price        Int      @default(0)
+  categoryName String?
+  vendor       User     @relation(fields: [vendorId], references: [id])
+  vendorId     String   @db.ObjectId
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@unique([name, vendorId])
 }

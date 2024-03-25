@@ -1,11 +1,5 @@
 import { fakerEN_IN as faker } from '@faker-js/faker'
-import {
-	Category,
-	PrismaClient,
-	Product,
-	Transaction,
-	User,
-} from '@prisma/client'
+import { PrismaClient, Product, Transaction, User } from '@prisma/client'
 import { extractUsernameFromEmail } from '../apps/backend/src/features/admin/admin.utils'
 import { hashPassword } from '../apps/backend/src/utils/password'
 
@@ -25,6 +19,22 @@ const SHOP_NAMES = [
 	'Rapid Retail',
 ] as const
 
+const CATEGORY_NAMES = [
+	'Food',
+	'Books',
+	'Electronics',
+	'Clothing',
+	'Household',
+	'Health',
+	'Office',
+	'Cosmetics',
+	'Misc',
+]
+
+const categories = CATEGORY_NAMES.map((categoryName) => {
+	return { name: categoryName }
+})
+
 async function main() {
 	await prisma.transaction.deleteMany({})
 	console.log('Transactions deleted')
@@ -32,6 +42,8 @@ async function main() {
 	console.log('Products deleted')
 	await prisma.user.deleteMany({})
 	console.log('Users deleted')
+	await prisma.category.deleteMany({})
+	console.log('Categories deleted')
 
 	const users: Omit<User, 'id' | 'enabled'>[] = [
 		{
@@ -105,6 +117,8 @@ async function main() {
 	await prisma.user.createMany({ data: users })
 	console.log('Seeded users')
 
+	await prisma.category.createMany({ data: categories })
+
 	const products: Omit<Product, 'id'>[] = []
 
 	const vendors = await prisma.user.findMany({ where: { role: 'VENDOR' } })
@@ -120,7 +134,7 @@ async function main() {
 				price: parseInt(faker.commerce.price({ min: 10, max: 1000, dec: 0 })),
 				vendorId: v['id'],
 				createdAt: productDate,
-				category: faker.helpers.enumValue(Category),
+				categoryName: faker.helpers.arrayElement(CATEGORY_NAMES),
 				updatedAt: productDate,
 			})
 		}

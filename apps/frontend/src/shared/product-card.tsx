@@ -15,7 +15,7 @@ const ProductCard = ({
 	name,
 	description,
 	price,
-	category,
+	categoryName,
 	vendor,
 	showVendorDetails = false,
 	allowEdit = false,
@@ -33,7 +33,7 @@ const ProductCard = ({
 					</Grid.Col>
 					<Grid.Col span={'content'}>
 						<p>Price: {price} ₹</p>
-						<Badge>{category}</Badge>
+						{categoryName && <Badge>{categoryName}</Badge>}
 					</Grid.Col>
 				</Grid>
 				<p>{description}</p>
