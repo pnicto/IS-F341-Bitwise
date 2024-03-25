@@ -173,7 +173,7 @@ export const respondToPaymentRequest: RequestHandler = async (
 		}
 
 		if (response === 'accept') {
-			if (requestee.balance < request.amount) {
+			if (requestee.balance > request.amount) {
 				await prisma.$transaction([
 					prisma.user.update({
 						where: { username: request.requesterUsername },
