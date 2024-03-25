@@ -1,12 +1,13 @@
 import { PaymentRequest, Transaction } from '@prisma/client'
 import { RequestHandler } from 'express'
-import { body } from 'express-validator'
+import { body, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
 import { BadRequest } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 import { Unauthorized } from '../../errors/CustomErrors'
+import { PaymentStatus } from '@prisma/client'
 
 export const validateTransaction = [
 	body('receiverUsername')
@@ -105,13 +106,18 @@ export const requestPayment: RequestHandler = async (req, res, next) => {
 }
 
 export const validateGetPaymentRequests = [
-	body('status').optional().isIn(['PENDING', 'COMPLETED', 'CANCELLED']),
+	query('status')
+		.optional()
+		.isIn(Object.values(PaymentStatus))
+		.withMessage(
+			'Invalid status, status must be one of PENDING, COMPLETED or CANCELLED',
+		),
 ]
 
 export const getPaymentRequests: RequestHandler = async (req, res, next) => {
 	try {
 		const { status } = validateRequest<{
-			status?: 'PENDING' | 'COMPLETED' | 'CANCELLED'
+			status?: PaymentStatus
 		}>(req)
 		const user = getAuthorizedUser(req)
 
