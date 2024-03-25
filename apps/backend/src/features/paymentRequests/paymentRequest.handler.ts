@@ -52,17 +52,18 @@ export const requestPayment: RequestHandler = async (req, res, next) => {
 export const validateGetPaymentRequests = [
 	query('status')
 		.optional()
-		.isIn(Object.values(PaymentStatus))
+		.isIn(Object.values(PaymentStatus).map((status) => status.toLowerCase()))
 		.withMessage(
-			'Invalid status, status must be one of PENDING, COMPLETED or CANCELLED',
+			'Invalid status, status must be one of pending, completed, rejected or cancelled',
 		),
 ]
 
 export const getPaymentRequests: RequestHandler = async (req, res, next) => {
 	try {
-		const { status } = validateRequest<{
+		let { status } = validateRequest<{
 			status?: PaymentStatus
 		}>(req)
+		status = status?.toUpperCase() as PaymentStatus
 		const user = getAuthorizedUser(req)
 
 		const requests = await prisma.paymentRequest.findMany({
