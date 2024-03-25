@@ -172,14 +172,16 @@ export const respondToPaymentRequest: RequestHandler = async (
 		if (request.requesteeUsername !== requestee.username) {
 			throw new Unauthorized('Unauthorized, user is not requestee')
 		}
-		if (request.status === 'COMPLETED') {
-			throw new BadRequest('Request has already been accepted')
-		}
-		if (request.status === 'CANCELLED') {
-			throw new BadRequest('Request has been cancelled by requester')
-		}
-		if (request.status === 'REJECTED') {
-			throw new BadRequest('Request has already been rejected')
+		if (request.status !== 'PENDING') {
+			if (request.status === 'COMPLETED') {
+				throw new BadRequest('Request has already been accepted')
+			}
+			if (request.status === 'CANCELLED') {
+				throw new BadRequest('Request has been cancelled by requester')
+			}
+			if (request.status === 'REJECTED') {
+				throw new BadRequest('Request has already been rejected')
+			}
 		}
 		if (response === 'accept') {
 			if (requestee.balance > request.amount) {
@@ -236,9 +238,16 @@ export const cancelPaymentRequest: RequestHandler = async (req, res, next) => {
 			throw new Unauthorized('Unauthorized, user is not requester')
 		}
 		if (request.status !== 'PENDING') {
-			throw new BadRequest('Request already responded to')
+			if (request.status === 'COMPLETED') {
+				throw new BadRequest('Request has already been accepted')
+			}
+			if (request.status === 'CANCELLED') {
+				throw new BadRequest('Request has been cancelled by requester')
+			}
+			if (request.status === 'REJECTED') {
+				throw new BadRequest('Request has already been rejected')
+			}
 		}
-
 		await prisma.paymentRequest.update({
 			where: { id },
 			data: { status: 'CANCELLED' },
