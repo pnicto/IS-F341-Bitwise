@@ -29,6 +29,7 @@ import ErrorBoundary from './shared/error-boundary'
 import MainLayout from './shared/main-layout'
 import PermissionGuard from './shared/permission-guard'
 import ProtectedLayout, { protectedLoader } from './shared/protected-layout'
+import ManageTags from './features/user/manage-tags'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
@@ -62,6 +63,7 @@ const router = createBrowserRouter(
 						<Route path='add-product' element={<CreateProduct />} />
 					</Route>
 					<Route path='/txn-history' element={<TransactionHistory />} />
+					<Route path='/manage-tags' element={<ManageTags />} />
 					<Route path='/search-product' element={<SearchProduct />} />
 				</Route>
 

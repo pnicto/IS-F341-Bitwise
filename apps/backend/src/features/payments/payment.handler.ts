@@ -3,7 +3,7 @@ import { RequestHandler } from 'express'
 import { body } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
-import { BadRequest } from '../../errors/CustomErrors'
+import { BadRequest, NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 
@@ -27,7 +27,7 @@ export const transact: RequestHandler = async (req, res, next) => {
 			where: { username: receiverUsername },
 		})
 		if (!receiver) {
-			throw new BadRequest('Receiver not found')
+			throw new NotFound('Receiver not found')
 		}
 		if (!receiver.enabled) {
 			throw new BadRequest('Receiver account is disabled')
@@ -47,7 +47,7 @@ export const transact: RequestHandler = async (req, res, next) => {
 			prisma.transaction.create({
 				data: {
 					senderUsername: sender.username,
-					receiverUsername,
+					receiverUsername: receiver.username,
 					amount,
 				},
 			}),
