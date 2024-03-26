@@ -118,6 +118,17 @@ const MainLayout = () => {
 					)}
 
 					<div className='flex gap-8 items-center'>
+						{currentRoute.pathname === '/txn-history' && (
+							<Button
+								color='green'
+								radius='xl'
+								size='compact-md'
+								component={NavLink}
+								to='/manage-tags'
+							>
+								Manage tags
+							</Button>
+						)}
 						{currentRoute.pathname === '/catalogue' && (
 							<Button
 								color='green'
