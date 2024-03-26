@@ -72,7 +72,6 @@ model Transaction {
   receiverUsername String
   amount           Int
   createdAt        DateTime @default(now())
-  status           Boolean  @default(true)
 }
 
 model WalletTransactionHistory {
