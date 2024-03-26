@@ -50,6 +50,7 @@ const MainLayout = () => {
 		},
 		onSuccess: ({ data }) => {
 			notifications.show({ message: data.message, color: 'green' })
+			paymentRequestForm.reset()
 			close()
 		},
 		onError: (err) => {
