@@ -13,45 +13,44 @@ enum Role {
   ADMIN
 }
 
-enum Category {
-  FOOD
-  BOOKS
-  ELECTRONICS
-  CLOTHING
-  HOUSEHOLD
-  HEALTH
-  OFFICE
-  COSMETICS
-  MISC
+model Category {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @unique
+}
+
+enum WalletTransactionType {
+  DEPOSIT
+  WITHDRAWAL
 }
 
 model User {
-  id                   String        @id @default(auto()) @map("_id") @db.ObjectId
-  username             String        @unique
-  email                String        @unique
-  password             String
-  mobile               String?
-  role                 Role          @default(STUDENT)
-  shopName             String?
-  balance              Int           @default(0)
-  enabled              Boolean       @default(true)
-  Product              Product[]
-  transactionsSend     Transaction[] @relation("sender")
-  transactionsReceived Transaction[] @relation("receiver")
+  id                       String                     @id @default(auto()) @map("_id") @db.ObjectId
+  username                 String                     @unique
+  email                    String                     @unique
+  password                 String
+  mobile                   String?
+  role                     Role                       @default(STUDENT)
+  shopName                 String?
+  balance                  Int                        @default(0)
+  enabled                  Boolean                    @default(true)
+  Product                  Product[]
+  transactionsSend         Transaction[]              @relation("sender")
+  transactionsReceived     Transaction[]              @relation("receiver")
+  walletTransactionHistory WalletTransactionHistory[]
 
   @@index([shopName])
 }
 
 model Product {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String
-  price       Int      @default(0)
-  category    Category
-  vendor      User     @relation(fields: [vendorId], references: [id])
-  vendorId    String   @db.ObjectId
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  description  String
+  price        Int      @default(0)
+  categoryName String?
+  vendor       User     @relation(fields: [vendorId], references: [id])
+  vendorId     String   @db.ObjectId
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@unique([name, vendorId])
 }
@@ -64,5 +63,13 @@ model Transaction {
   receiverUsername String
   amount           Int
   createdAt        DateTime @default(now())
-  status           Boolean  @default(true)
+}
+
+model WalletTransactionHistory {
+  id        String                @id @default(auto()) @map("_id") @db.ObjectId
+  user      User                  @relation(fields: [userId], references: [id])
+  userId    String                @db.ObjectId
+  amount    Int
+  type      WalletTransactionType @default(DEPOSIT)
+  createdAt DateTime              @default(now())
 }

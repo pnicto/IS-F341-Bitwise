@@ -3,7 +3,7 @@ import { RequestHandler } from 'express'
 import { body, param, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
-import { Forbidden, NotFound } from '../../errors/CustomErrors'
+import { BadRequest, Forbidden, NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 
@@ -14,20 +14,33 @@ export const validateNewProduct = [
 		.notEmpty()
 		.withMessage('Product description is required'),
 	body('price').isInt({ min: 1 }).toInt().withMessage('Price must be a number'),
-	body('category')
-		.trim()
-		.isIn(Object.values(Category))
-		.withMessage('Invalid category'),
+	body('categoryName').trim().optional(),
 ]
 export const createProduct: RequestHandler = async (req, res, next) => {
 	try {
-		const { name, description, price, category } =
+		const { name, description, price, categoryName } =
 			validateRequest<
-				Pick<Product, 'name' | 'description' | 'price' | 'category'>
+				Pick<Product, 'name' | 'description' | 'price' | 'categoryName'>
 			>(req)
+
+		if (categoryName) {
+			const category = await prisma.category.findUnique({
+				where: { name: categoryName },
+			})
+			if (!category) {
+				throw new NotFound('The category does not exist')
+			}
+		}
+
 		const vendor = getAuthorizedUser(req)
 		await prisma.product.create({
-			data: { name, description, price, category, vendorId: vendor.id },
+			data: {
+				name,
+				description,
+				price,
+				categoryName: categoryName || null,
+				vendorId: vendor.id,
+			},
 		})
 		return res
 			.status(StatusCodes.CREATED)
@@ -85,37 +98,25 @@ export const getProducts: RequestHandler = async (req, res, next) => {
 	}
 }
 
-export const validateFilteredProductSearch = [
-	query('searchString').trim().notEmpty().optional(),
-	query('category').trim().notEmpty(),
+export const validateSearchProduct = [
+	query('name').trim().notEmpty().withMessage('Product name is required'),
 ]
 
-export const filterProductsByCategory: RequestHandler = async (
-	req,
-	res,
-	next,
-) => {
+export const searchProducts: RequestHandler = async (req, res, next) => {
 	try {
-		const { searchString, category } = validateRequest<{
-			searchString: string | undefined
-			category: Product['category']
-		}>(req)
-		let products
-		if (!searchString) {
-			products = await prisma.product.findMany({
-				where: { category: category },
-			})
-		} else {
-			products = await prisma.product.findMany({
-				where: {
-					name: {
-						contains: searchString,
-						mode: 'insensitive',
+		const { name } = validateRequest<{ name: string }>(req)
+		const products = await prisma.product.findMany({
+			where: { name: { contains: name, mode: 'insensitive' } },
+			include: {
+				vendor: {
+					select: {
+						username: true,
+						shopName: true,
+						mobile: true,
 					},
-					category: category,
 				},
-			})
-		}
+			},
+		})
 		return res.status(StatusCodes.OK).json({ products })
 	} catch (err) {
 		next(err)
@@ -130,17 +131,24 @@ export const validateUpdatedProduct = [
 		.notEmpty()
 		.withMessage('Product description is required'),
 	body('price').isInt({ min: 1 }).toInt().withMessage('Price must be a number'),
-	body('category')
-		.trim()
-		.isIn(Object.values(Category))
-		.withMessage('Invalid category'),
+	body('categoryName').trim().optional(),
 ]
 export const updateProduct: RequestHandler = async (req, res, next) => {
 	try {
-		const { name, description, price, category, id } =
+		const { name, description, price, categoryName, id } =
 			validateRequest<
-				Pick<Product, 'name' | 'description' | 'price' | 'category' | 'id'>
+				Pick<Product, 'name' | 'description' | 'price' | 'categoryName' | 'id'>
 			>(req)
+
+		if (categoryName) {
+			const category = await prisma.category.findUnique({
+				where: { name: categoryName },
+			})
+			if (!category) {
+				throw new NotFound('The category does not exist')
+			}
+		}
+
 		const vendor = getAuthorizedUser(req)
 
 		const product = await prisma.product.findUnique({ where: { id: id } })
@@ -154,7 +162,7 @@ export const updateProduct: RequestHandler = async (req, res, next) => {
 
 		await prisma.product.update({
 			where: { id: id },
-			data: { name, description, price, category },
+			data: { name, description, price, categoryName: categoryName || null },
 		})
 		return res
 			.status(StatusCodes.OK)
@@ -187,6 +195,93 @@ export const deleteProduct: RequestHandler = async (req, res, next) => {
 		return res
 			.status(StatusCodes.OK)
 			.json({ message: 'Product successfully deleted' })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const getCategories: RequestHandler = async (req, res, next) => {
+	try {
+		const categories = await prisma.category.findMany()
+		return res.status(StatusCodes.OK).json({ categories })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const validateNewCategory = [
+	body('name').trim().notEmpty().withMessage('Category name is required'),
+]
+export const addCategory: RequestHandler = async (req, res, next) => {
+	try {
+		const { name } = validateRequest<Pick<Category, 'name'>>(req)
+		if (name === '(None)') {
+			// To stop confusion when user doesn't want to pick any category
+			throw new BadRequest("Category can't be named '(None)'")
+		}
+		await prisma.category.create({ data: { name } })
+		return res
+			.status(StatusCodes.CREATED)
+			.json({ message: 'Product successfully created' })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const validateDeletedCategory = [
+	param('id').trim().notEmpty().withMessage('Category ID is required'),
+]
+export const deleteCategory: RequestHandler = async (req, res, next) => {
+	try {
+		const { id } = validateRequest<Pick<Category, 'id'>>(req)
+
+		const category = await prisma.category.findUnique({ where: { id } })
+		if (!category) {
+			throw new NotFound('The category does not exist')
+		}
+
+		await prisma.$transaction([
+			prisma.product.updateMany({
+				data: { categoryName: null },
+				where: { categoryName: category.name },
+			}),
+			prisma.category.delete({
+				where: { id },
+			}),
+		])
+
+		return res
+			.status(StatusCodes.OK)
+			.json({ message: 'Category successfully deleted' })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const validateUpdatedCategory = [
+	param('id').trim().notEmpty().withMessage('Category ID is required'),
+	body('name').trim().notEmpty().withMessage('Category name is required'),
+]
+export const updateCategory: RequestHandler = async (req, res, next) => {
+	try {
+		const { id, name } = validateRequest<Pick<Category, 'id' | 'name'>>(req)
+
+		const category = await prisma.category.findUnique({ where: { id } })
+		if (!category) {
+			throw new NotFound('The category does not exist')
+		}
+
+		await prisma.$transaction([
+			prisma.category.update({ data: { name }, where: { id } }),
+			prisma.product.updateMany({
+				data: { categoryName: name },
+				where: { categoryName: category.name },
+			}),
+		])
+
+		return res
+			.status(StatusCodes.OK)
+			.json({ message: 'Category successfully updated' })
 	} catch (err) {
 		next(err)
 	}

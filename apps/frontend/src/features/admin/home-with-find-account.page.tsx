@@ -1,13 +1,15 @@
-import { Button, Select, TextInput } from '@mantine/core'
+import { Icon } from '@iconify/react'
+import { Button, Card, SimpleGrid, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
-import { Role, User } from '@prisma/client'
+import { User } from '@prisma/client'
 import {
 	queryOptions,
 	useMutation,
 	useQuery,
 	useQueryClient,
 } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 
@@ -23,27 +25,50 @@ const userDetailsQueryOptions = (email: string) =>
 		queryFn: () => fetchUserDetails(email),
 		enabled: false,
 	})
+type RouteOption = {
+	icon: React.ReactNode
+	label: string
+	path: string
+}
+const navigationOptions: RouteOption[] = [
+	{
+		icon: <Icon icon='mdi:account-add-outline' />,
+		label: 'Create User',
+		path: '/admin/add-account',
+	},
+	{
+		icon: <Icon icon='mdi:account-multiple-add-outline' />,
+		label: 'Create Users in Bulk',
+		path: '/admin/bulk-add-account',
+	},
+	{
+		icon: <Icon icon='mdi:tag-multiple-outline' />,
+		label: 'Manage Product Categories',
+		path: '/admin/manage-categories',
+	},
+]
+
+const GridItem = ({ icon, label, path }: RouteOption) => {
+	return (
+		<Card
+			component={Link}
+			to={path}
+			className='flex flex-col items-center gap-3 justify-center'
+		>
+			<span className='text-3xl'>{icon}</span>
+			<h2>{label}</h2>
+		</Card>
+	)
+}
+
+function renderGridItems() {
+	return navigationOptions.map((option) => (
+		<GridItem key={option.label} {...option} />
+	))
+}
 
 const HomeWithCreateAndUpdateAccount = () => {
 	const queryClient = useQueryClient()
-
-	const createForm = useForm<{ email: string; role: Role; shopName: string }>({
-		initialValues: { email: '', role: Role.STUDENT, shopName: '' },
-		validate: {
-			email: (value) =>
-				value.length > 0
-					? /^\S+@\S+$/.test(value)
-						? null
-						: 'Invalid email'
-					: 'Email cannot be empty',
-			shopName: (value, values) =>
-				values.role === Role.VENDOR
-					? value.length > 0
-						? null
-						: 'Shop name cannot be empty for vendor'
-					: null,
-		},
-	})
 
 	const getDetailsForm = useForm<{ email: string }>({
 		initialValues: { email: '' },
@@ -61,19 +86,6 @@ const HomeWithCreateAndUpdateAccount = () => {
 		userDetailsQueryOptions(getDetailsForm.values.email),
 	)
 
-	const createAccount = useMutation({
-		mutationFn: (body: { email: string; role: Role }) => {
-			return axios.post<{ message: string }>('/admin/create', body)
-		},
-		onSuccess: ({ data }) => {
-			createForm.reset()
-			notifications.show({ message: data.message, color: 'green' })
-		},
-		onError: (error) => {
-			handleAxiosErrors(error)
-		},
-	})
-
 	const updateAccount = useMutation({
 		mutationFn: (body: { email: string; enabled: boolean }) => {
 			return axios.post<{ message: string }>('/admin/user/update-status', body)
@@ -90,38 +102,6 @@ const HomeWithCreateAndUpdateAccount = () => {
 
 	return (
 		<>
-			<form
-				onSubmit={createForm.onSubmit((values) => {
-					createAccount.mutate(values)
-				})}
-			>
-				<TextInput
-					label='Email'
-					description='Email address of the account to be created'
-					placeholder='Eg., john@john.com'
-					{...createForm.getInputProps('email')}
-				/>
-				<Select
-					label='Role'
-					description='Role of the account to be created (Student/Vendor)'
-					data={[
-						{ value: Role.STUDENT, label: 'Student' },
-						{ value: Role.VENDOR, label: 'Vendor' },
-					]}
-					{...createForm.getInputProps('role')}
-				/>
-				{createForm.values.role === Role.VENDOR && (
-					<TextInput
-						label='Shop Name'
-						description='Name of the shop owned by the vendor'
-						placeholder='Eg., YumPlease'
-						{...createForm.getInputProps('shopName')}
-					/>
-				)}
-				<Button type='submit' loading={createAccount.isPending}>
-					Create
-				</Button>
-			</form>
 			<form
 				className=''
 				onSubmit={getDetailsForm.onSubmit(() => {
@@ -182,6 +162,18 @@ const HomeWithCreateAndUpdateAccount = () => {
 					<h1 className='text-2xl'>{userDetailsQueryResult.error.message}</h1>
 				</div>
 			)}
+
+			<SimpleGrid
+				cols={{
+					base: 2,
+					md: 3,
+				}}
+				spacing='xl'
+				verticalSpacing='md'
+				className='max-w-3xl mx-auto pt-5'
+			>
+				{renderGridItems()}
+			</SimpleGrid>
 		</>
 	)
 }

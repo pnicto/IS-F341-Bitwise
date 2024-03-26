@@ -10,18 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v3
         with:
           version: 8
       - name: restore cached npm dependencies
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: node_modules
           key: npm-dependencies-${{ hashFiles('pnpm-lock.yaml') }}
       - name: install dependencies
         run: pnpm install --frozen-lockfile
       - name: cache npm dependencies
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: node_modules
           key: npm-dependencies-${{ hashFiles('pnpm-lock.yaml') }}
