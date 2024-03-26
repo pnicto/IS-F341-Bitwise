@@ -94,6 +94,19 @@ const TransactionHistory = () => {
 			})),
 	})
 
+	if (userQuery.isPending)
+		return (
+			// TODO: Extract this loader to a separate component and make it better
+			<div className='text-center'>
+				<Loader />
+			</div>
+		)
+
+	if (userQuery.isError) {
+		// TODO: Replace with a better error component
+		return <div>Error fetching user data</div>
+	}
+
 	if (transactionsQuery.isPending)
 		return (
 			// TODO: Extract this loader to a separate component and make it better
@@ -119,7 +132,7 @@ const TransactionHistory = () => {
 					<TagsInput
 						label='Select Tags'
 						placeholder='Pick value or enter anything'
-						data={userQuery.data?.user.tags}
+						data={userQuery.data.user.tags}
 						filter={optionsFilter}
 						comboboxProps={{
 							transitionProps: { transition: 'pop', duration: 200 },
