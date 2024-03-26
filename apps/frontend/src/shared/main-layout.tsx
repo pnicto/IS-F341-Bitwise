@@ -46,7 +46,7 @@ const MainLayout = () => {
 
 	const paymentRequest = useMutation({
 		mutationFn: (body: { requesteeUsername: string; amount: number }) => {
-			return axios.post<{ message: string }>('/pay/request', body)
+			return axios.post<{ message: string }>('/requests', body)
 		},
 		onSuccess: ({ data }) => {
 			notifications.show({ message: data.message, color: 'green' })
