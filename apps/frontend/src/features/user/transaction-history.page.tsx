@@ -64,7 +64,7 @@ const TransactionHistory = () => {
 		mutationFn: (transaction: { id: string; tags: string[] }) => {
 			return axios.post<{ message: string }>(
 				`/transactions/update/${transaction.id}`,
-				transaction.tags,
+				{ tags: transaction.tags },
 			)
 		},
 		onSuccess: ({ data }) => {
@@ -94,28 +94,16 @@ const TransactionHistory = () => {
 			})),
 	})
 
-	if (userQuery.isPending)
+	if (userQuery.isPending || transactionsQuery.isPending) {
 		return (
 			// TODO: Extract this loader to a separate component and make it better
 			<div className='text-center'>
 				<Loader />
 			</div>
 		)
-
-	if (userQuery.isError) {
-		// TODO: Replace with a better error component
-		return <div>Error fetching user data</div>
 	}
 
-	if (transactionsQuery.isPending)
-		return (
-			// TODO: Extract this loader to a separate component and make it better
-			<div className='text-center'>
-				<Loader />
-			</div>
-		)
-
-	if (transactionsQuery.isError) {
+	if (userQuery.isError || transactionsQuery.isError) {
 		// TODO: Replace with a better error component
 		return <div>Error fetching user data</div>
 	}
