@@ -139,8 +139,8 @@ export const validateUpdateTag = [
 export const editTag: RequestHandler = async (req, res, next) => {
 	try {
 		const { oldName, newName } = validateRequest<{
-			oldName: string | undefined
-			newName: string | undefined
+			oldName: string
+			newName: string
 		}>(req)
 
 		const authorizedUser = getAuthorizedUser(req)
