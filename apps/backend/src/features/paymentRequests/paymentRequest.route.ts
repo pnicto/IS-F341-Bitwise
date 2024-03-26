@@ -1,26 +1,26 @@
-import express from 'express'
 import { Role } from '@prisma/client'
+import express from 'express'
 import { authorize } from '../../middleware/authorize'
 import {
+	cancelPaymentRequest,
+	getPaymentRequests,
 	getPaymentRequestsByStatus,
 	requestPayment,
-	validatePaymentRequest,
 	respondToPaymentRequest,
-	validatePaymentRequestResponse,
-	validateGetPaymentRequests,
-	getPaymentRequests,
 	validateCancelPaymentRequest,
-	cancelPaymentRequest,
+	validateGetPaymentRequestsByStatus,
+	validatePaymentRequest,
+	validatePaymentRequestResponse,
 } from './paymentRequest.handler'
 
 export const paymentRequestRouter = express.Router()
 
 paymentRequestRouter.get(
-	'/',
+	'/all',
 	authorize(Role.STUDENT, Role.VENDOR),
-	validateGetPaymentRequests,
 	getPaymentRequests,
 )
+
 paymentRequestRouter.get(
 	'/',
 	authorize(Role.STUDENT, Role.VENDOR),
