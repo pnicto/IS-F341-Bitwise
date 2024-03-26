@@ -3,7 +3,7 @@ import { RequestHandler } from 'express'
 import { body, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
-import { BadRequest, Unauthorized } from '../../errors/CustomErrors'
+import { BadRequest, NotFound, Unauthorized } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 
@@ -28,7 +28,7 @@ export const requestPayment: RequestHandler = async (req, res, next) => {
 			where: { username: requesteeUsername },
 		})
 		if (!requestee) {
-			throw new BadRequest('Requestee not found')
+			throw new NotFound('Requestee not found')
 		}
 		if (!requestee.enabled) {
 			throw new BadRequest('Requestee account is disabled')
