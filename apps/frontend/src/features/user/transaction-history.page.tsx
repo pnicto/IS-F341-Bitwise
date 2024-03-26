@@ -64,7 +64,7 @@ const TransactionHistory = () => {
 		mutationFn: (transaction: { id: string; tags: string[] }) => {
 			return axios.post<{ message: string }>(
 				`/transactions/update/${transaction.id}`,
-				transaction,
+				transaction.tags,
 			)
 		},
 		onSuccess: ({ data }) => {
