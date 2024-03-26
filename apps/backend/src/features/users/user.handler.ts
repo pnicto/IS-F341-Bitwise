@@ -147,16 +147,14 @@ export const editTag: RequestHandler = async (req, res, next) => {
 
 		const tags = authorizedUser.tags
 
-		if (oldName && newName) {
-			if (!tags.includes(oldName)) {
-				throw new BadRequest(`Tag ${oldName} does not exist`)
-			}
-			if (tags.includes(newName)) {
-				throw new BadRequest(`Tag ${newName} already exists`)
-			}
-			const index = tags.indexOf(oldName)
-			tags[index] = newName
+		if (!tags.includes(oldName)) {
+			throw new BadRequest(`Tag ${oldName} does not exist`)
 		}
+		if (tags.includes(newName)) {
+			throw new BadRequest(`Tag ${newName} already exists`)
+		}
+		const index = tags.indexOf(oldName)
+		tags[index] = newName
 
 		await prisma.user.update({
 			where: { id: authorizedUser.id },
