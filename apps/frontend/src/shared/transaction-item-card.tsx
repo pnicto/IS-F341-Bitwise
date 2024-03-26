@@ -38,7 +38,7 @@ const TransactionItemCard = ({
 								: 'text-red-500'
 						} font-bold`}
 					>
-						{amount} ₹
+						₹ {amount}
 					</p>
 					<div className='flex flex-wrap gap-3 justify-end'>{bottomRight}</div>
 				</div>
