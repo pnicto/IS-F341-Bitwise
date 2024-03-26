@@ -11,7 +11,7 @@ import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { User } from '@prisma/client'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
 	NavLink,
 	Outlet,
@@ -25,6 +25,7 @@ import { handleAxiosErrors } from '../notifications/utils'
 const MainLayout = () => {
 	const data = useRouteLoaderData('protected-layout') as { user: User }
 	const [opened, { open, close }] = useDisclosure(false)
+	const queryClient = useQueryClient()
 
 	const currentRoute = useLocation()
 	const navigate = useNavigate()
@@ -49,6 +50,7 @@ const MainLayout = () => {
 			return axios.post<{ message: string }>('/requests', body)
 		},
 		onSuccess: ({ data }) => {
+			queryClient.invalidateQueries({ queryKey: ['paymentRequests'] })
 			notifications.show({ message: data.message, color: 'green' })
 			paymentRequestForm.reset()
 			close()
