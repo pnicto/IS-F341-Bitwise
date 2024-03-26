@@ -62,10 +62,14 @@ export const validateGetPaymentRequests = [
 		),
 ]
 
-export const getPaymentRequests: RequestHandler = async (req, res, next) => {
+export const getPaymentRequestsByStatus: RequestHandler = async (
+	req,
+	res,
+	next,
+) => {
 	try {
 		let { status } = validateRequest<{
-			status?: PaymentStatus
+			status: PaymentStatus
 		}>(req)
 		status = status?.toUpperCase() as PaymentStatus
 		const user = getAuthorizedUser(req)

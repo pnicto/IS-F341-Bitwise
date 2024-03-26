@@ -2,6 +2,7 @@ import express from 'express'
 import { Role } from '@prisma/client'
 import { authorize } from '../../middleware/authorize'
 import {
+	getPaymentRequestsByStatus,
 	requestPayment,
 	validatePaymentRequest,
 	respondToPaymentRequest,
@@ -19,6 +20,12 @@ paymentRequestRouter.get(
 	authorize(Role.STUDENT, Role.VENDOR),
 	validateGetPaymentRequests,
 	getPaymentRequests,
+)
+paymentRequestRouter.get(
+	'/',
+	authorize(Role.STUDENT, Role.VENDOR),
+	validateGetPaymentRequestsByStatus,
+	getPaymentRequestsByStatus,
 )
 
 paymentRequestRouter.post(
