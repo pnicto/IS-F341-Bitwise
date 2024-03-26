@@ -27,6 +27,10 @@ export const requestPayment: RequestHandler = async (req, res, next) => {
 		const requestee = await prisma.user.findUnique({
 			where: { username: requesteeUsername },
 		})
+
+		if (requester.username === requesteeUsername) {
+			throw new BadRequest('Cannot request payment from self')
+		}
 		if (!requestee) {
 			throw new NotFound('Requestee not found')
 		}
