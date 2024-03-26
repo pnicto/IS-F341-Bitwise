@@ -89,17 +89,12 @@ export const getPaymentRequests: RequestHandler = async (req, res, next) => {
 }
 
 export const validatePaymentRequestResponse = [
-	body('requestId').trim().notEmpty().withMessage('Request ID is required'),
+	query('id').trim().notEmpty().withMessage('Request ID is required'),
 	body('response')
 		.trim()
 		.isIn(['accept', 'reject'])
 		.withMessage('Invalid response'),
 ]
-
-export type PaymentRequestResponse = {
-	requestId: string
-	response: 'accept' | 'reject'
-}
 
 export const respondToPaymentRequest: RequestHandler = async (
 	req,
@@ -107,11 +102,14 @@ export const respondToPaymentRequest: RequestHandler = async (
 	next,
 ) => {
 	try {
-		const { requestId, response } = validateRequest<PaymentRequestResponse>(req)
+		const { id, response } = validateRequest<{
+			id: string
+			response: 'accept' | 'reject'
+		}>(req)
 		const requestee = getAuthorizedUser(req)
 
 		const request = await prisma.paymentRequest.findUnique({
-			where: { id: requestId },
+			where: { id },
 		})
 		if (!request) {
 			throw new BadRequest('Request not found')
@@ -142,7 +140,7 @@ export const respondToPaymentRequest: RequestHandler = async (
 						data: { balance: { decrement: request.amount } },
 					}),
 					prisma.paymentRequest.update({
-						where: { id: requestId },
+						where: { id },
 						data: { status: 'COMPLETED' },
 					}),
 				])
@@ -154,7 +152,7 @@ export const respondToPaymentRequest: RequestHandler = async (
 				.json({ message: 'Payment request accepted' })
 		} else {
 			await prisma.paymentRequest.update({
-				where: { id: requestId },
+				where: { id },
 				data: { status: 'REJECTED' },
 			})
 			return res
@@ -167,7 +165,7 @@ export const respondToPaymentRequest: RequestHandler = async (
 }
 
 export const validateCancelPaymentRequest = [
-	body('id').trim().notEmpty().withMessage('Request ID is required'),
+	query('id').trim().notEmpty().withMessage('Request ID is required'),
 ]
 
 export const cancelPaymentRequest: RequestHandler = async (req, res, next) => {
