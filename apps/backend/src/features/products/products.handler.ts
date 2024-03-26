@@ -99,24 +99,65 @@ export const getProducts: RequestHandler = async (req, res, next) => {
 }
 
 export const validateSearchProduct = [
-	query('name').trim().notEmpty().withMessage('Product name is required'),
+	query('name').trim().notEmpty().optional(),
+	query('category').trim().notEmpty().optional(),
 ]
 
 export const searchProducts: RequestHandler = async (req, res, next) => {
 	try {
-		const { name } = validateRequest<{ name: string }>(req)
-		const products = await prisma.product.findMany({
-			where: { name: { contains: name, mode: 'insensitive' } },
-			include: {
-				vendor: {
-					select: {
-						username: true,
-						shopName: true,
-						mobile: true,
+		const { name, category } = validateRequest<{
+			name: string | undefined
+			category: Product['categoryName'] | undefined
+		}>(req)
+		let products
+		if (!(name || category)) {
+			products = await prisma.product.findMany()
+		}
+		if (!name) {
+			products = await prisma.product.findMany({
+				where: { categoryName: category },
+				include: {
+					vendor: {
+						select: {
+							username: true,
+							shopName: true,
+							mobile: true,
+						},
 					},
 				},
-			},
-		})
+			})
+		} else {
+			if (!category) {
+				products = await prisma.product.findMany({
+					where: { name: { contains: name, mode: 'insensitive' } },
+					include: {
+						vendor: {
+							select: {
+								username: true,
+								shopName: true,
+								mobile: true,
+							},
+						},
+					},
+				})
+			} else {
+				products = await prisma.product.findMany({
+					where: {
+						name: { contains: name, mode: 'insensitive' },
+						categoryName: category,
+					},
+					include: {
+						vendor: {
+							select: {
+								username: true,
+								shopName: true,
+								mobile: true,
+							},
+						},
+					},
+				})
+			}
+		}
 		return res.status(StatusCodes.OK).json({ products })
 	} catch (err) {
 		next(err)
