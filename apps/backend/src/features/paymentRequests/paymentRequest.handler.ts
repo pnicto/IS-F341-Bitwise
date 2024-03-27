@@ -37,6 +37,9 @@ export const requestPayment: RequestHandler = async (req, res, next) => {
 		if (!requestee.enabled) {
 			throw new BadRequest('Requestee account is disabled')
 		}
+		if (requestee.role === 'ADMIN') {
+			throw new BadRequest('Cannot request payment from admin')
+		}
 
 		await prisma.paymentRequest.create({
 			data: {
