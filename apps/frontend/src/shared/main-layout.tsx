@@ -144,7 +144,14 @@ const MainLayout = () => {
 							</Button>
 						)}
 						{currentRoute.pathname === '/payment-requests' && (
-							<Button onClick={open}>New Request</Button>
+							<Button
+								onClick={open}
+								color='green'
+								radius='xl'
+								size='compact-md'
+							>
+								New Request
+							</Button>
 						)}
 
 						<Menu>
