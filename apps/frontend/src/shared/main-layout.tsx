@@ -88,56 +88,59 @@ const MainLayout = () => {
 						>
 							<TextInput
 								placeholder='Search for products'
+								type='search'
 								rightSection={
-									<Popover
-										opened={isFilterPopoverOpen}
-										onChange={setIsFilterPopoverOpen}
-									>
-										<Popover.Target>
-											<ActionIcon
-												variant='light'
-												onClick={() => setIsFilterPopoverOpen((prev) => !prev)}
-												size='lg'
-											>
-												<Icon icon='lucide:filter' />
-											</ActionIcon>
-										</Popover.Target>
+									<>
+										<ActionIcon
+											variant='light'
+											type='submit'
+											size='lg'
+											className='mr-2'
+										>
+											<Icon icon='lucide:search' />
+										</ActionIcon>
+										<Popover
+											opened={isFilterPopoverOpen}
+											onChange={setIsFilterPopoverOpen}
+										>
+											<Popover.Target>
+												<ActionIcon
+													variant='light'
+													onClick={() =>
+														setIsFilterPopoverOpen((prev) => !prev)
+													}
+													size='lg'
+												>
+													<Icon icon='lucide:filter' />
+												</ActionIcon>
+											</Popover.Target>
 
-										<Popover.Dropdown>
-											{!(
-												categoriesQuery.isPending || categoriesQuery.isError
-											) && (
-												<Select
-													className='max-w-32'
-													data={[
-														{ value: '', label: 'All' },
-														...categoriesQuery.data.categories.map(
-															(category) => {
-																return {
-																	value: category.name,
-																	label: category.name,
-																}
-															},
-														),
-													]}
-													{...searchForm.getInputProps('categoryName')}
-												/>
-											)}
-										</Popover.Dropdown>
-									</Popover>
-								}
-								leftSection={
-									<ActionIcon
-										variant='light'
-										type='submit'
-										size='lg'
-										className='mr-2'
-									>
-										<Icon icon='lucide:search' />
-									</ActionIcon>
+											<Popover.Dropdown>
+												{!(
+													categoriesQuery.isPending || categoriesQuery.isError
+												) && (
+													<Select
+														className='max-w-32'
+														data={[
+															{ value: '', label: 'All' },
+															...categoriesQuery.data.categories.map(
+																(category) => {
+																	return {
+																		value: category.name,
+																		label: category.name,
+																	}
+																},
+															),
+														]}
+														{...searchForm.getInputProps('categoryName')}
+													/>
+												)}
+											</Popover.Dropdown>
+										</Popover>
+									</>
 								}
 								{...searchForm.getInputProps('name')}
-								leftSectionWidth={42}
+								rightSectionWidth={79}
 								leftSectionPointerEvents='all'
 								rightSectionPointerEvents='all'
 							/>
