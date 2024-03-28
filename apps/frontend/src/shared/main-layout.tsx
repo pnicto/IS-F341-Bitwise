@@ -1,5 +1,13 @@
 import { Icon } from '@iconify/react'
-import { Anchor, Button, Menu, Popover, Select, TextInput } from '@mantine/core'
+import {
+	ActionIcon,
+	Anchor,
+	Button,
+	Menu,
+	Popover,
+	Select,
+	TextInput,
+} from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { User } from '@prisma/client'
@@ -86,12 +94,13 @@ const MainLayout = () => {
 										onChange={setIsFilterPopoverOpen}
 									>
 										<Popover.Target>
-											<Button
+											<ActionIcon
 												variant='light'
 												onClick={() => setIsFilterPopoverOpen((prev) => !prev)}
+												size='lg'
 											>
 												<Icon icon='lucide:filter' />
-											</Button>
+											</ActionIcon>
 										</Popover.Target>
 
 										<Popover.Dropdown>
@@ -118,15 +127,19 @@ const MainLayout = () => {
 									</Popover>
 								}
 								leftSection={
-									<Button variant='light' type='submit'>
+									<ActionIcon
+										variant='light'
+										type='submit'
+										size='lg'
+										className='mr-2'
+									>
 										<Icon icon='lucide:search' />
-									</Button>
+									</ActionIcon>
 								}
 								{...searchForm.getInputProps('name')}
+								leftSectionWidth={42}
 								leftSectionPointerEvents='all'
-								leftSectionWidth={50}
 								rightSectionPointerEvents='all'
-								rightSectionWidth={50}
 							/>
 						</form>
 					)}
