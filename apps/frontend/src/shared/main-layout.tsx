@@ -95,7 +95,7 @@ const MainLayout = () => {
 											variant='light'
 											type='submit'
 											size='lg'
-											className='mr-2'
+											className='mr-1'
 										>
 											<Icon icon='lucide:search' />
 										</ActionIcon>
@@ -140,8 +140,7 @@ const MainLayout = () => {
 									</>
 								}
 								{...searchForm.getInputProps('name')}
-								rightSectionWidth={79}
-								leftSectionPointerEvents='all'
+								rightSectionWidth={75}
 								rightSectionPointerEvents='all'
 							/>
 						</form>
