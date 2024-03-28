@@ -39,7 +39,7 @@ const PaymentRequests = () => {
 			id: string
 			response: 'accept' | 'reject'
 		}) => {
-			return axios.post<{ message: string }>(`/requests/respond?id=${id}`, {
+			return axios.post<{ message: string }>(`/requests/respond/${id}`, {
 				response,
 			})
 		},
@@ -54,7 +54,7 @@ const PaymentRequests = () => {
 
 	const cancelMutation = useMutation({
 		mutationFn: async ({ id }: { id: string }) => {
-			return axios.post(`/requests/cancel?id=${id}`)
+			return axios.post(`/requests/cancel/${id}`)
 		},
 		onSuccess: ({ data }) => {
 			paymentRequestsQuery.refetch()

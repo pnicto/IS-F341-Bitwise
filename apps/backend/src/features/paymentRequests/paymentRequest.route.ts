@@ -36,14 +36,14 @@ paymentRequestRouter.post(
 )
 
 paymentRequestRouter.post(
-	'/respond',
+	'/respond/:id',
 	authorize(Role.STUDENT, Role.VENDOR),
 	validatePaymentRequestResponse,
 	respondToPaymentRequest,
 )
 
 paymentRequestRouter.post(
-	'/cancel',
+	'/cancel/:id',
 	authorize(Role.STUDENT, Role.VENDOR),
 	validateCancelPaymentRequest,
 	cancelPaymentRequest,

@@ -1,6 +1,6 @@
 import { PaymentRequest, PaymentStatus } from '@prisma/client'
 import { RequestHandler } from 'express'
-import { body, query } from 'express-validator'
+import { body, param, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
 import { BadRequest, NotFound, Unauthorized } from '../../errors/CustomErrors'
@@ -120,7 +120,7 @@ export const getPaymentRequestsByStatus: RequestHandler = async (
 }
 
 export const validatePaymentRequestResponse = [
-	query('id').trim().notEmpty().withMessage('Request ID is required'),
+	param('id').trim().notEmpty().withMessage('Request ID is required'),
 	body('response')
 		.trim()
 		.isIn(['accept', 'reject'])
@@ -196,7 +196,7 @@ export const respondToPaymentRequest: RequestHandler = async (
 }
 
 export const validateCancelPaymentRequest = [
-	query('id').trim().notEmpty().withMessage('Request ID is required'),
+	param('id').trim().notEmpty().withMessage('Request ID is required'),
 ]
 
 export const cancelPaymentRequest: RequestHandler = async (req, res, next) => {
