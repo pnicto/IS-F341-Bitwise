@@ -12,16 +12,17 @@ type ProductWithVendor = Product & {
 const SearchProduct = () => {
 	const [searchParams] = useSearchParams()
 	const productName = searchParams.get('name')
+	const categoryName = searchParams.get('category')
 
 	const searchQuery = useQuery({
-		queryKey: ['search-product', productName],
+		queryKey: ['search-product', productName, categoryName],
 		queryFn: async () => {
 			const response = await axios.get<{
 				products: ProductWithVendor[]
-			}>(`/products/search?name=${productName}`)
+			}>(`/products/search?name=${productName}&category=${categoryName}`)
 			return response.data
 		},
-		enabled: !!productName,
+		enabled: !!productName || !!categoryName,
 		select: (data) => {
 			const groupedProducts: Record<string, ProductWithVendor[]> = {}
 
@@ -55,18 +56,34 @@ const SearchProduct = () => {
 
 	if (searchQuery.data.length === 0) {
 		return (
-			<p className='text-2xl'>
-				No products found for query "<em>{productName}</em>"
-			</p>
+			<>
+				<p className='text-2xl inline'>
+					No products found for query "<em>{productName}</em>""
+				</p>
+				{categoryName && (
+					<p className='text-2xl inline'>
+						{' '}
+						and category "<em>{categoryName}</em>"
+					</p>
+				)}
+			</>
 			// TODO: We can add some svg here	to make it more visually appealing
 		)
 	}
 
 	return (
 		<>
-			<p className='text-lg'>
-				Showing {searchQuery.data.length} results for "<em>{productName}</em>"
-			</p>
+			<div className='text-lg'>
+				<p className='inline'>
+					Showing {searchQuery.data.length} results for "<em>{productName}</em>"
+				</p>
+				{categoryName && (
+					<p className='inline'>
+						{' '}
+						in category "<em>{categoryName}</em>"
+					</p>
+				)}
+			</div>
 
 			{Object.entries(searchQuery.data.groupedProducts).map(
 				([shopName, products]) => (
