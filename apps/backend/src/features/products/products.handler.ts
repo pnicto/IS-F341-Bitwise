@@ -99,14 +99,14 @@ export const getProducts: RequestHandler = async (req, res, next) => {
 }
 
 export const validateSearchProduct = [
-	query('name').trim().notEmpty().optional(),
+	query('name').trim().notEmpty().withMessage('Product name is required'),
 	query('category').trim().optional(),
 ]
 
 export const searchProducts: RequestHandler = async (req, res, next) => {
 	try {
 		const { name, category } = validateRequest<{
-			name?: string
+			name: string
 			category?: Product['categoryName']
 		}>(req)
 
