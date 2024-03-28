@@ -100,7 +100,7 @@ export const getProducts: RequestHandler = async (req, res, next) => {
 
 export const validateSearchProduct = [
 	query('name').trim().notEmpty().optional(),
-	query('category').trim().notEmpty().optional(),
+	query('category').trim().optional(),
 ]
 
 export const searchProducts: RequestHandler = async (req, res, next) => {
@@ -113,7 +113,8 @@ export const searchProducts: RequestHandler = async (req, res, next) => {
 		const products = await prisma.product.findMany({
 			where: {
 				name: { contains: name, mode: 'insensitive' },
-				categoryName: category,
+				// prisma with field undefined will discard the filter on that field. so when the category is ''it will only filter by name
+				categoryName: category === '' ? undefined : category,
 			},
 			include: {
 				vendor: {
