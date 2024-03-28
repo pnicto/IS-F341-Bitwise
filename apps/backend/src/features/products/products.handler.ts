@@ -106,58 +106,26 @@ export const validateSearchProduct = [
 export const searchProducts: RequestHandler = async (req, res, next) => {
 	try {
 		const { name, category } = validateRequest<{
-			name: string | undefined
-			category: Product['categoryName'] | undefined
+			name?: string
+			category?: Product['categoryName']
 		}>(req)
-		let products
-		if (!(name || category)) {
-			products = await prisma.product.findMany()
-		}
-		if (!name) {
-			products = await prisma.product.findMany({
-				where: { categoryName: category },
-				include: {
-					vendor: {
-						select: {
-							username: true,
-							shopName: true,
-							mobile: true,
-						},
+
+		const products = await prisma.product.findMany({
+			where: {
+				name: { contains: name, mode: 'insensitive' },
+				categoryName: category,
+			},
+			include: {
+				vendor: {
+					select: {
+						username: true,
+						shopName: true,
+						mobile: true,
 					},
 				},
-			})
-		} else {
-			if (!category) {
-				products = await prisma.product.findMany({
-					where: { name: { contains: name, mode: 'insensitive' } },
-					include: {
-						vendor: {
-							select: {
-								username: true,
-								shopName: true,
-								mobile: true,
-							},
-						},
-					},
-				})
-			} else {
-				products = await prisma.product.findMany({
-					where: {
-						name: { contains: name, mode: 'insensitive' },
-						categoryName: category,
-					},
-					include: {
-						vendor: {
-							select: {
-								username: true,
-								shopName: true,
-								mobile: true,
-							},
-						},
-					},
-				})
-			}
-		}
+			},
+		})
+
 		return res.status(StatusCodes.OK).json({ products })
 	} catch (err) {
 		next(err)
