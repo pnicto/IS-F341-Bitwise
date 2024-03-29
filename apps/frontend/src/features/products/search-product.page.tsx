@@ -5,7 +5,6 @@ import { useSearchParams } from 'react-router-dom'
 import axios from '../../lib/axios'
 import ProductCard from '../../shared/product-card'
 
-
 const SearchProduct = () => {
 	const [searchParams] = useSearchParams()
 	const productName = searchParams.get('name')
