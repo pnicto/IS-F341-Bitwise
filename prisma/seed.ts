@@ -136,6 +136,12 @@ async function main() {
 				createdAt: productDate,
 				categoryName: faker.helpers.arrayElement(CATEGORY_NAMES),
 				updatedAt: productDate,
+				contactDetails: {
+					email: v.email,
+					mobile: v.mobile,
+					shopName: v.shopName,
+					username: v.username,
+				},
 			})
 		}
 	}
@@ -171,7 +177,7 @@ main()
 		await prisma.$disconnect()
 	})
 	.catch(async (e) => {
-		console.error(e)
+		// console.error(e)
 		await prisma.$disconnect()
 		process.exit(1)
 	})
