@@ -153,6 +153,9 @@ export const respondToPaymentRequest: RequestHandler = async (
 				throw new BadRequest('Request has already been rejected')
 			}
 		}
+		if (!requestee.enabled) {
+			throw new BadRequest('Requestee account is disabled')
+		}
 		if (accept) {
 			if (requestee.balance > request.amount) {
 				await prisma.$transaction([
