@@ -3,7 +3,12 @@ import { RequestHandler } from 'express'
 import { body, param, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
-import { BadRequest, NotFound, Unauthorized } from '../../errors/CustomErrors'
+import {
+	BadRequest,
+	Forbidden,
+	NotFound,
+	Unauthorized,
+} from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 
@@ -94,7 +99,7 @@ export const getPaymentRequestsByStatus: RequestHandler = async (
 		let { status } = validateRequest<{
 			status: PaymentStatus
 		}>(req)
-		status = status?.toUpperCase() as PaymentStatus
+		status = status.toUpperCase() as PaymentStatus
 		const user = getAuthorizedUser(req)
 
 		const requests = await prisma.paymentRequest.findMany({
@@ -143,10 +148,10 @@ export const respondToPaymentRequest: RequestHandler = async (
 			where: { id },
 		})
 		if (!request) {
-			throw new BadRequest('Request not found')
+			throw new NotFound('Request not found')
 		}
 		if (request.requesteeUsername !== requestee.username) {
-			throw new Unauthorized('Unauthorized, user is not requestee')
+			throw new Forbidden('User is not requestee')
 		}
 		if (request.status !== 'PENDING') {
 			if (request.status === 'COMPLETED') {
@@ -208,10 +213,10 @@ export const cancelPaymentRequest: RequestHandler = async (req, res, next) => {
 			where: { id },
 		})
 		if (!request) {
-			throw new BadRequest('Request not found')
+			throw new NotFound('Request not found')
 		}
 		if (request.requesterUsername !== user.username) {
-			throw new Unauthorized('Unauthorized, user is not requester')
+			throw new Forbidden('User is not requester')
 		}
 		if (request.status !== 'PENDING') {
 			if (request.status === 'COMPLETED') {
