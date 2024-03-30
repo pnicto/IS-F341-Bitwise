@@ -34,6 +34,7 @@ const MainLayout = () => {
 			return axios.post<{ message: string }>('/auth/logout')
 		},
 		onSuccess: ({ data }) => {
+			queryClient.clear()
 			notifications.show({
 				message: data.message,
 				color: 'green',
