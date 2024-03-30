@@ -6,15 +6,13 @@ import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 import TransactionItemCard from '../../shared/transaction-item-card'
 
-type Request = Omit<PaymentRequest, 'requester' | 'requestee'>
-
 const PaymentRequests = () => {
 	const paymentRequestsQuery = useQuery({
 		queryKey: ['paymentRequests'],
 		queryFn: async () => {
 			const response = await axios.get<{
-				incomingRequests: Request[]
-				outgoingRequests: Request[]
+				incomingRequests: PaymentRequest[]
+				outgoingRequests: PaymentRequest[]
 			}>('/requests/all')
 			return response.data
 		},
@@ -65,7 +63,7 @@ const PaymentRequests = () => {
 		},
 	})
 
-	const renderStatusBadge = (status: Request['status']) => {
+	const renderStatusBadge = (status: PaymentRequest['status']) => {
 		switch (status) {
 			case 'PENDING':
 				return <Badge color='blue'>Pending</Badge>
@@ -81,7 +79,7 @@ const PaymentRequests = () => {
 	}
 
 	const renderActionButtons = (
-		request: Request,
+		request: PaymentRequest,
 		type: 'incoming' | 'outgoing',
 	) => {
 		switch (request.status) {
