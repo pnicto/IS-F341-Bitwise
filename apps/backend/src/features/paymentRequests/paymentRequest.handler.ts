@@ -119,10 +119,7 @@ export const getPaymentRequestsByStatus: RequestHandler = async (
 
 export const validatePaymentRequestResponse = [
 	param('id').trim().notEmpty().withMessage('Request ID is required'),
-	body('response')
-		.trim()
-		.isIn(['accept', 'reject'])
-		.withMessage('Invalid response'),
+	body('accept').isBoolean().withMessage('Accept field is required'),
 ]
 export const respondToPaymentRequest: RequestHandler = async (
 	req,
@@ -130,9 +127,9 @@ export const respondToPaymentRequest: RequestHandler = async (
 	next,
 ) => {
 	try {
-		const { id, response } = validateRequest<{
+		const { id, accept } = validateRequest<{
 			id: string
-			response: 'accept' | 'reject'
+			accept: boolean
 		}>(req)
 		const requestee = getAuthorizedUser(req)
 
@@ -156,7 +153,7 @@ export const respondToPaymentRequest: RequestHandler = async (
 				throw new BadRequest('Request has already been rejected')
 			}
 		}
-		if (response === 'accept') {
+		if (accept) {
 			if (requestee.balance > request.amount) {
 				await prisma.$transaction([
 					prisma.user.update({
