@@ -3,12 +3,7 @@ import { RequestHandler } from 'express'
 import { body, param, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
-import {
-	BadRequest,
-	Forbidden,
-	NotFound,
-	Unauthorized,
-} from '../../errors/CustomErrors'
+import { BadRequest, Forbidden, NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 
@@ -22,7 +17,6 @@ export const validatePaymentRequest = [
 		.toInt()
 		.withMessage('Amount must be a number'),
 ]
-
 export const requestPayment: RequestHandler = async (req, res, next) => {
 	try {
 		const { requesteeUsername, amount } =
@@ -89,7 +83,6 @@ export const validateGetPaymentRequestsByStatus = [
 			'Invalid status, status must be one of pending, completed, rejected or cancelled',
 		),
 ]
-
 export const getPaymentRequestsByStatus: RequestHandler = async (
 	req,
 	res,
@@ -131,7 +124,6 @@ export const validatePaymentRequestResponse = [
 		.isIn(['accept', 'reject'])
 		.withMessage('Invalid response'),
 ]
-
 export const respondToPaymentRequest: RequestHandler = async (
 	req,
 	res,
@@ -203,7 +195,6 @@ export const respondToPaymentRequest: RequestHandler = async (
 export const validateCancelPaymentRequest = [
 	param('id').trim().notEmpty().withMessage('Request ID is required'),
 ]
-
 export const cancelPaymentRequest: RequestHandler = async (req, res, next) => {
 	try {
 		const { id } = validateRequest<Pick<PaymentRequest, 'id'>>(req)
