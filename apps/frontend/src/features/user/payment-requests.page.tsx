@@ -30,15 +30,9 @@ const PaymentRequests = () => {
 	})
 
 	const respondMutation = useMutation({
-		mutationFn: async ({
-			id,
-			response,
-		}: {
-			id: string
-			response: 'accept' | 'reject'
-		}) => {
+		mutationFn: async ({ id, accept }: { id: string; accept: boolean }) => {
 			return axios.post<{ message: string }>(`/requests/respond/${id}`, {
-				response,
+				accept,
 			})
 		},
 		onSuccess: ({ data }) => {
@@ -92,7 +86,7 @@ const PaymentRequests = () => {
 								onClick={() =>
 									respondMutation.mutate({
 										id: request.id,
-										response: 'accept',
+										accept: true,
 									})
 								}
 							>
@@ -103,7 +97,7 @@ const PaymentRequests = () => {
 								onClick={() =>
 									respondMutation.mutate({
 										id: request.id,
-										response: 'reject',
+										accept: false,
 									})
 								}
 							>
