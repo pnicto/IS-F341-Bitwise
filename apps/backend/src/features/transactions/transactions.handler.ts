@@ -1,17 +1,41 @@
 import { RequestHandler } from 'express'
-import { body, param } from 'express-validator'
+import { body, param, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
-import { Forbidden, NotFound } from '../../errors/CustomErrors'
+import { BadRequest, Forbidden, NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 
+export const viewTransactionHistoryValidator = [
+	query('items').trim().notEmpty().optional(),
+	query('page').trim().notEmpty().optional(),
+]
 export const viewTransactionHistory: RequestHandler = async (
 	req,
 	res,
 	next,
 ) => {
 	try {
+		let { items, page } = validateRequest<{
+			items: number | undefined
+			page: number | undefined
+		}>(req)
+
+		if (!items) {
+			items = 10
+		}
+		if (!page) {
+			page = 1
+		}
+		page -= 1
+
+		if (items < 1) {
+			throw new BadRequest('Invalid number of items')
+		}
+		if (page < 0) {
+			throw new BadRequest('Invalid page number')
+		}
+
 		const user = getAuthorizedUser(req)
 		const debitTransactions = await prisma.transaction.findMany({
 			where: {
@@ -81,7 +105,11 @@ export const viewTransactionHistory: RequestHandler = async (
 			return b.createdAt.getTime() - a.createdAt.getTime()
 		})
 
-		return res.status(StatusCodes.OK).json(allTransactions)
+		return res.status(StatusCodes.OK).json({
+			transactions: allTransactions.slice(items * page, items * page + items),
+			totalPages:
+				allTransactions.length / Math.min(items, allTransactions.length),
+		})
 	} catch (err) {
 		next(err)
 	}

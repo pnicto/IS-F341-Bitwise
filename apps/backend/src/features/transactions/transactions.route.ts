@@ -5,6 +5,7 @@ import {
 	updateTransactionTags,
 	validateUpdatedTags,
 	viewTransactionHistory,
+	viewTransactionHistoryValidator,
 } from './transactions.handler'
 
 export const transactionRouter = express.Router()
@@ -12,6 +13,7 @@ export const transactionRouter = express.Router()
 transactionRouter.get(
 	'/view',
 	authorize(Role.STUDENT, Role.VENDOR),
+	viewTransactionHistoryValidator,
 	viewTransactionHistory,
 )
 transactionRouter.post(
