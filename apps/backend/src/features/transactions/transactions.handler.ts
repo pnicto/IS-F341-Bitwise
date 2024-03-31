@@ -16,23 +16,18 @@ export const viewTransactionHistory: RequestHandler = async (
 	next,
 ) => {
 	try {
-		let { items, page } = validateRequest<{
-			items: number | undefined
-			page: number | undefined
+		const { items, page } = validateRequest<{
+			items: string | undefined
+			page: string | undefined
 		}>(req)
 
-		if (!items) {
-			items = 10
-		}
-		if (!page) {
-			page = 1
-		}
-		page -= 1
+		const numberOfItems = parseInt(items ?? '10')
+		const currentPage = parseInt(page ?? '1') - 1
 
-		if (items < 1) {
+		if (numberOfItems < 1) {
 			throw new BadRequest('Invalid number of items')
 		}
-		if (page < 0) {
+		if (currentPage < 0) {
 			throw new BadRequest('Invalid page number')
 		}
 
@@ -106,9 +101,14 @@ export const viewTransactionHistory: RequestHandler = async (
 		})
 
 		return res.status(StatusCodes.OK).json({
-			transactions: allTransactions.slice(items * page, items * page + items),
-			totalPages:
-				allTransactions.length / Math.min(items, allTransactions.length),
+			transactions: allTransactions.slice(
+				numberOfItems * currentPage,
+				numberOfItems * currentPage + numberOfItems,
+			),
+			totalPages: Math.ceil(
+				allTransactions.length /
+					Math.min(numberOfItems, allTransactions.length),
+			),
 		})
 	} catch (err) {
 		next(err)
