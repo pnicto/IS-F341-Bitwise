@@ -1,4 +1,6 @@
+import { Icon } from '@iconify/react'
 import {
+	ActionIcon,
 	Badge,
 	Button,
 	ComboboxItem,
@@ -7,6 +9,7 @@ import {
 	OptionsFilter,
 	Stack,
 	TagsInput,
+	TextInput,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
@@ -56,7 +59,26 @@ const TransactionHistory = () => {
 		},
 	})
 
-	const [modalIsOpen, modalHandlers] = useDisclosure(false)
+	const splitTransactionForm = useForm<{
+		id: string
+		requesteeUsernames: string[]
+	}>({
+		initialValues: {
+			id: '',
+			requesteeUsernames: [],
+		},
+		validate: {
+			requesteeUsernames: (value) => {
+				if (value.length === 0) {
+					return 'At least one requestee is required'
+				}
+				return null
+			},
+		},
+	})
+
+	const [tagsModalIsOpen, tagsModalHandlers] = useDisclosure(false)
+	const [splitsModalIsOpen, splitsModalHandlers] = useDisclosure(false)
 
 	const queryClient = useQueryClient()
 
@@ -71,6 +93,24 @@ const TransactionHistory = () => {
 			queryClient.invalidateQueries({ queryKey: ['transactions'] })
 			updateTransactionTagsForm.reset()
 			tagsModalHandlers.close()
+			notifications.show({ message: data.message, color: 'green' })
+		},
+		onError: (err) => {
+			handleAxiosErrors(err)
+		},
+	})
+
+	const splitTransaction = useMutation({
+		mutationFn: (transaction: { id: string; requesteeUsernames: string[] }) => {
+			return axios.post<{ message: string }>(
+				`/requests/${transaction.id}/split`,
+				{ requesteeUsernames: transaction.requesteeUsernames },
+			)
+		},
+		onSuccess: ({ data }) => {
+			queryClient.invalidateQueries({ queryKey: ['transactions'] })
+			splitTransactionForm.reset()
+			splitsModalHandlers.close()
 			notifications.show({ message: data.message, color: 'green' })
 		},
 		onError: (err) => {
@@ -133,6 +173,55 @@ const TransactionHistory = () => {
 					</Button>
 				</form>
 			</Modal>
+			<Modal
+				opened={splitsModalIsOpen}
+				onClose={() => {
+					splitTransactionForm.reset()
+					splitsModalHandlers.close()
+				}}
+			>
+				<form
+					onSubmit={splitTransactionForm.onSubmit((values) => {
+						splitTransaction.mutate(values)
+					})}
+				>
+					{splitTransactionForm.values.requesteeUsernames.map((_, index) => (
+						<TextInput
+							key={index}
+							label={`Enter username ${index + 1}`}
+							placeholder='john420'
+							{...splitTransactionForm.getInputProps(
+								`requesteeUsernames.${index}`,
+							)}
+							rightSection={
+								index === 0 ? null : (
+									<ActionIcon
+										color='red'
+										onClick={() =>
+											splitTransactionForm.removeListItem(
+												'requesteeUsernames',
+												index,
+											)
+										}
+									>
+										<Icon icon='lucide:trash-2' />
+									</ActionIcon>
+								)
+							}
+						/>
+					))}
+					<Button
+						onClick={() => {
+							splitTransactionForm.insertListItem('requesteeUsernames', '')
+						}}
+					>
+						Add User
+					</Button>
+					<Button type='submit' color='green'>
+						Split
+					</Button>
+				</form>
+			</Modal>
 			<Stack>
 				{transactionsQuery.data.map((transaction) => (
 					<TransactionItemCard
@@ -155,24 +244,40 @@ const TransactionHistory = () => {
 								: null
 						}
 						bottomRight={
-							transaction.type === 'DEBIT' || transaction.type === 'CREDIT' ? (
-								<Button
-									onClick={() => {
-										updateTransactionTagsForm.setValues({
-											id: transaction.id,
-											tags:
-												transaction.type === 'DEBIT'
-													? transaction.senderTags
-													: transaction.type === 'CREDIT'
-													? transaction.recieverTags
-													: [],
-										})
-										modalHandlers.open()
-									}}
-								>
-									Add tags
-								</Button>
-							) : null
+							<>
+								{transaction.type === 'DEBIT' ||
+								transaction.type === 'CREDIT' ? (
+									<Button
+										onClick={() => {
+											updateTransactionTagsForm.setValues({
+												id: transaction.id,
+												tags:
+													transaction.type === 'DEBIT'
+														? transaction.senderTags
+														: transaction.type === 'CREDIT'
+														? transaction.recieverTags
+														: [],
+											})
+											tagsModalHandlers.open()
+										}}
+									>
+										Add tags
+									</Button>
+								) : null}
+								{transaction.type === 'DEBIT' && (
+									<Button
+										onClick={() => {
+											splitTransactionForm.setValues({
+												id: transaction.id,
+												requesteeUsernames: [''],
+											})
+											splitsModalHandlers.open()
+										}}
+									>
+										Split
+									</Button>
+								)}
+							</>
 						}
 					/>
 				))}
