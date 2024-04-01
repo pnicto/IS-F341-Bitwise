@@ -23,6 +23,13 @@ enum WalletTransactionType {
   WITHDRAWAL
 }
 
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  REJECTED
+}
+
 model User {
   id                       String                     @id @default(auto()) @map("_id") @db.ObjectId
   username                 String                     @unique
@@ -38,6 +45,8 @@ model User {
   transactionsSend         Transaction[]              @relation("sender")
   transactionsReceived     Transaction[]              @relation("receiver")
   walletTransactionHistory WalletTransactionHistory[]
+  paymentRequested         PaymentRequest[]           @relation("requester")
+  paymentRequests          PaymentRequest[]           @relation("requestee")
 
   @@index([shopName])
 }
@@ -75,4 +84,15 @@ model WalletTransactionHistory {
   amount    Int
   type      WalletTransactionType @default(DEPOSIT)
   createdAt DateTime              @default(now())
+}
+
+model PaymentRequest {
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  requester         User          @relation("requester", fields: [requesterUsername], references: [username])
+  requesterUsername String
+  requestee         User          @relation("requestee", fields: [requesteeUsername], references: [username])
+  requesteeUsername String
+  amount            Int
+  createdAt         DateTime      @default(now())
+  status            PaymentStatus @default(PENDING)
 }

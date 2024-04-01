@@ -130,7 +130,7 @@ const HomeWithCreateAndUpdateAccount = () => {
 						<p>Email:</p>
 						<p>{userDetailsQueryResult.data.user.email}</p>
 						<p>Balance:</p>
-						<p>{userDetailsQueryResult.data.user.balance} ₹</p>
+						<p>₹ {userDetailsQueryResult.data.user.balance}</p>
 						<p>Mobile:</p>
 						<p>{userDetailsQueryResult.data.user.mobile}</p>
 						<p>Role:</p>

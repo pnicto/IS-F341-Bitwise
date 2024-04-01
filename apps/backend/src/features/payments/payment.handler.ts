@@ -17,6 +17,7 @@ export const validateTransaction = [
 		.toInt()
 		.withMessage('Amount must be a number'),
 ]
+
 export const transact: RequestHandler = async (req, res, next) => {
 	try {
 		const { receiverUsername, amount } =
