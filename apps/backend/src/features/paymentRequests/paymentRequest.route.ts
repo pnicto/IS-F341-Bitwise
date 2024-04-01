@@ -11,6 +11,8 @@ import {
 	validateGetPaymentRequestsByStatus,
 	validatePaymentRequest,
 	validatePaymentRequestResponse,
+	validateSplitRequest,
+	splitPaymentRequest
 } from './paymentRequest.handler'
 
 export const paymentRequestRouter = express.Router()
@@ -48,3 +50,11 @@ paymentRequestRouter.post(
 	validateCancelPaymentRequest,
 	cancelPaymentRequest,
 )
+
+paymentRequestRouter.post(
+	'/:id/split',
+	authorize(Role.STUDENT),
+	validateSplitRequest,
+	splitPaymentRequest,
+)
+

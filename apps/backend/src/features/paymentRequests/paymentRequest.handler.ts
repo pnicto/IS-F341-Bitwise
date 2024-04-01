@@ -55,6 +55,58 @@ export const requestPayment: RequestHandler = async (req, res, next) => {
 	}
 }
 
+export const validateSplitRequest = [
+	param('id').trim().notEmpty().withMessage('Transaction ID is required'),
+	body('requesteeUsernames')
+		.isArray({ min: 1 })
+		.withMessage('At least one requestee is required'),
+]
+export const splitPaymentRequest: RequestHandler = async (req, res, next) => {
+	try {
+		const { id, requesteeUsernames } = validateRequest<{
+			id: string
+			requesteeUsernames: string[]
+		}>(req)
+		const requester = getAuthorizedUser(req)
+
+		const transaction = await prisma.transaction.findUnique({
+			where: { id },
+		})
+		if (!transaction) {
+			throw new NotFound('Transaction not found')
+		}
+		if (transaction.senderUsername !== requester.username) {
+			throw new Forbidden('User is not the person who paid for the transaction')
+		}
+		const requestees = await prisma.user.findMany({
+			where: { username: { in: requesteeUsernames } },
+		})
+		const requesteeUsernamesFound = requestees.map((requestee) => requestee.username)
+		const requesteeUsernamesNotFound = requesteeUsernames.filter(
+			(requesteeUsername) => !requesteeUsernamesFound.includes(requesteeUsername),
+		)
+		if (requesteeUsernamesNotFound.length > 0) {
+			throw new NotFound(
+				`Requestee(s) not found: ${requesteeUsernamesNotFound.join(', ')}`,
+			)
+		}
+		const amountPerRequestee = transaction.amount / requesteeUsernames.length
+		const paymentRequests = requesteeUsernames.map((requesteeUsername) => ({
+			requesterUsername: requester.username,
+			requesteeUsername: requesteeUsername,
+			amount: amountPerRequestee,
+		}))
+		await prisma.paymentRequest.createMany({
+			data: paymentRequests,
+		})
+		return res
+			.status(StatusCodes.CREATED)
+			.json({ message: 'Split request created successfully' })
+	} catch (err) {
+		next(err)
+	}
+}
+
 export const getPaymentRequests: RequestHandler = async (req, res, next) => {
 	try {
 		const user = getAuthorizedUser(req)
