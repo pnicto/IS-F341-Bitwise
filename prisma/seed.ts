@@ -55,7 +55,7 @@ async function main() {
 			password: await hashPassword('password'),
 			balance: 0,
 			shopName: null,
-			mobile: null,
+			mobile: faker.phone.number().replace(/-/g, '').slice(3),
 		},
 		{
 			email: 'tron@email.com',
@@ -64,7 +64,7 @@ async function main() {
 			password: await hashPassword('password'),
 			balance: 1000,
 			shopName: null,
-			mobile: null,
+			mobile: faker.phone.number().replace(/-/g, '').slice(3),
 		},
 		{
 			email: 'lane@email.com',
@@ -73,7 +73,7 @@ async function main() {
 			password: await hashPassword('password'),
 			balance: 1000,
 			shopName: 'shoppy',
-			mobile: null,
+			mobile: faker.phone.number().replace(/-/g, '').slice(3),
 		},
 	]
 
@@ -86,7 +86,7 @@ async function main() {
 			password: await hashPassword('password'),
 			balance: faker.number.int({ min: 100, max: 10000 }),
 			shopName: null,
-			mobile: null,
+			mobile: faker.phone.number().replace(/-/g, '').slice(3),
 		})
 	}
 
