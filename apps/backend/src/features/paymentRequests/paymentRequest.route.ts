@@ -12,7 +12,7 @@ import {
 	validatePaymentRequest,
 	validatePaymentRequestResponse,
 	validateSplitRequest,
-	splitPaymentRequest
+	splitPaymentRequest,
 } from './paymentRequest.handler'
 
 export const paymentRequestRouter = express.Router()
@@ -57,4 +57,3 @@ paymentRequestRouter.post(
 	validateSplitRequest,
 	splitPaymentRequest,
 )
-

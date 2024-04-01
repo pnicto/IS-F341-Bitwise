@@ -81,9 +81,12 @@ export const splitPaymentRequest: RequestHandler = async (req, res, next) => {
 		const requestees = await prisma.user.findMany({
 			where: { username: { in: requesteeUsernames } },
 		})
-		const requesteeUsernamesFound = requestees.map((requestee) => requestee.username)
+		const requesteeUsernamesFound = requestees.map(
+			(requestee) => requestee.username,
+		)
 		const requesteeUsernamesNotFound = requesteeUsernames.filter(
-			(requesteeUsername) => !requesteeUsernamesFound.includes(requesteeUsername),
+			(requesteeUsername) =>
+				!requesteeUsernamesFound.includes(requesteeUsername),
 		)
 		if (requesteeUsernamesNotFound.length > 0) {
 			throw new NotFound(
