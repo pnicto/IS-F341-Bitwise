@@ -171,6 +171,13 @@ export const respondToPaymentRequest: RequestHandler = async (
 						where: { id },
 						data: { status: 'COMPLETED' },
 					}),
+					prisma.transaction.create({
+						data: {
+							amount: request.amount,
+							senderUsername: request.requesteeUsername,
+							receiverUsername: request.requesterUsername,
+						},
+					}),
 				])
 			} else {
 				throw new BadRequest('Insufficient balance')
