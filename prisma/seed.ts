@@ -136,7 +136,7 @@ async function main() {
 				createdAt: productDate,
 				categoryName: faker.helpers.arrayElement(CATEGORY_NAMES),
 				updatedAt: productDate,
-				contactDetails: {
+				sellerDetails: {
 					email: v.email,
 					mobile: v.mobile,
 					shopName: v.shopName,

@@ -40,7 +40,7 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 				price,
 				categoryName: categoryName || null,
 				vendorId: vendor.id,
-				contactDetails: {
+				sellerDetails: {
 					username: vendor.username,
 					email: vendor.email,
 					mobile: vendor.mobile,

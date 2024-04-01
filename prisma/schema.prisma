@@ -41,7 +41,7 @@ model User {
   @@index([shopName])
 }
 
-type Contact {
+type SellerContactInfo {
   username String
   email    String
   mobile   String?
@@ -49,16 +49,16 @@ type Contact {
 }
 
 model Product {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  name           String
-  description    String
-  price          Int      @default(0)
-  categoryName   String?
-  vendor         User     @relation(fields: [vendorId], references: [id])
-  vendorId       String   @db.ObjectId
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  contactDetails Contact
+  id            String            @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  description   String
+  price         Int               @default(0)
+  categoryName  String?
+  vendor        User              @relation(fields: [vendorId], references: [id])
+  vendorId      String            @db.ObjectId
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  sellerDetails SellerContactInfo
 
   @@unique([name, vendorId])
 }

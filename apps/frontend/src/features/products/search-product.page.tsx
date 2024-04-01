@@ -23,7 +23,7 @@ const SearchProduct = () => {
 
 			// Group products by shop name or 'Buy & Sell' if no shop name is present
 			data.products.forEach((product) => {
-				const shopName = product.contactDetails.shopName
+				const shopName = product.sellerDetails.shopName
 
 				if (shopName) {
 					if (!groupedProducts[shopName]) {
