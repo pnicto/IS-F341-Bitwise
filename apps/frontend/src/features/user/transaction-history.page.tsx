@@ -94,11 +94,13 @@ const TransactionHistory = () => {
 		},
 		select: (data) => {
 			// this is performed to convert the date strings in the json to Date objects
-			data.transactions.forEach((transaction) => ({
-				...transaction,
-				createdAt: new Date(transaction.createdAt),
-			}))
-			return data
+			return {
+				...data,
+				transactions: data.transactions.map((transaction) => ({
+					...transaction,
+					createdAt: new Date(transaction.createdAt),
+				})),
+			}
 		},
 	})
 

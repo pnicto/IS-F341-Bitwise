@@ -8,8 +8,8 @@ import { validateRequest } from '../../utils/validateRequest'
 import { intOrNaN } from './transactions.utils'
 
 export const viewTransactionHistoryValidator = [
-	query('items').optional(),
-	query('page').optional(),
+	query('items').trim().optional(),
+	query('page').trim().optional(),
 ]
 export const viewTransactionHistory: RequestHandler = async (
 	req,
