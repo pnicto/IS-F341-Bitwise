@@ -1,8 +1,8 @@
+import { Icon } from '@iconify/react'
 import { Button, Group, Loader, NumberInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { Transaction } from '@prisma/client'
-import { IconCurrencyRupee } from '@tabler/icons-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import axios from '../../lib/axios'
@@ -62,7 +62,7 @@ const ManageWallet = () => {
 				<NumberInput
 					label='Amount (INR)'
 					placeholder='40'
-					leftSection={<IconCurrencyRupee />}
+					leftSection={<Icon icon='lucide:indian-rupee' />}
 					{...form.getInputProps('amount')}
 				/>
 				<Group justify='center'>

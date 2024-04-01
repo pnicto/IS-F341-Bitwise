@@ -32,7 +32,7 @@ const ProductCard = ({
 						<p className='text-2xl font-bold'>{name}</p>
 					</Grid.Col>
 					<Grid.Col span={'content'}>
-						<p>Price: {price} ₹</p>
+						<p>Price: ₹ {price}</p>
 						{categoryName && <Badge>{categoryName}</Badge>}
 					</Grid.Col>
 				</Grid>

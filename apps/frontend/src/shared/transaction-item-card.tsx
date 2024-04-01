@@ -6,7 +6,7 @@ type Props = {
 	username: string
 	amount: number
 	createdAt: Date
-	type: WalletTransactionType | 'DEBIT' | 'CREDIT'
+	type?: WalletTransactionType | 'DEBIT' | 'CREDIT' | 'NONE'
 	bottomLeft?: ReactNode
 	bottomRight?: ReactNode
 }
@@ -15,7 +15,7 @@ const TransactionItemCard = ({
 	username,
 	amount,
 	createdAt,
-	type,
+	type = 'NONE',
 	bottomLeft,
 	bottomRight,
 }: Props) => {
@@ -31,12 +31,14 @@ const TransactionItemCard = ({
 				<div className='flex flex-col items-end'>
 					<p
 						className={`${
-							type === 'DEPOSIT' || type === 'DEBIT'
+							type === 'NONE'
+								? ''
+								: type === 'DEPOSIT' || type === 'DEBIT'
 								? 'text-green-500'
 								: 'text-red-500'
 						} font-bold`}
 					>
-						{amount} ₹
+						₹ {amount}
 					</p>
 					<div className='flex flex-wrap gap-3 justify-end'>{bottomRight}</div>
 				</div>

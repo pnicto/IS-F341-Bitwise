@@ -105,14 +105,24 @@ export const getProducts: RequestHandler = async (req, res, next) => {
 
 export const validateSearchProduct = [
 	query('name').trim().notEmpty().withMessage('Product name is required'),
+	query('category').trim().optional(),
 ]
 
 export const searchProducts: RequestHandler = async (req, res, next) => {
 	try {
-		const { name } = validateRequest<{ name: string }>(req)
+		const { name, category } = validateRequest<{
+			name: string
+			category?: Product['categoryName']
+		}>(req)
+
 		const products = await prisma.product.findMany({
-			where: { name: { contains: name, mode: 'insensitive' } },
+			where: {
+				name: { contains: name, mode: 'insensitive' },
+				// prisma with field undefined will discard the filter on that field. so when the category is ''it will only filter by name
+				categoryName: category === '' ? undefined : category,
+			},
 		})
+
 		return res.status(StatusCodes.OK).json({ products })
 	} catch (err) {
 		next(err)
