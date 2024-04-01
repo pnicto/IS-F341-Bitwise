@@ -3,7 +3,6 @@ import { Button, Card, NumberInput, SimpleGrid, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { Transaction } from '@prisma/client'
-import { IconCurrencyRupee } from '@tabler/icons-react'
 import { useMutation } from '@tanstack/react-query'
 import React from 'react'
 import { Link } from 'react-router-dom'
@@ -36,6 +35,11 @@ const navigationOptions: RouteOption[] = [
 		icon: <Icon icon='lucide:history' />,
 		label: 'Transaction History',
 		path: '/txn-history',
+	},
+	{
+		icon: <Icon icon='uil:money-withdraw' />,
+		label: 'Payment Requests',
+		path: '/payment-requests',
 	},
 ]
 
@@ -93,7 +97,7 @@ const HomeWithPayments = () => {
 				<NumberInput
 					label='Amount to send (INR)'
 					placeholder='40'
-					leftSection={<IconCurrencyRupee />}
+					leftSection={<Icon icon='lucide:indian-rupee' />}
 					{...form.getInputProps('amount')}
 				/>
 				<Button type='submit'>Pay</Button>

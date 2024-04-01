@@ -3,6 +3,7 @@ import '@mantine/core/styles.css'
 import { Notifications } from '@mantine/notifications'
 import '@mantine/notifications/styles.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { StrictMode } from 'react'
 import * as ReactDOM from 'react-dom/client'
 import {
@@ -23,7 +24,9 @@ import ProductList from './features/shops/products-list.page'
 import ShopList from './features/shops/shop-list.page'
 import EditProfile from './features/user/edit-profile'
 import HomeWithPayments from './features/user/home-with-payments.page'
+import ManageTags from './features/user/manage-tags'
 import ManageWallet from './features/user/manage-wallet.page'
+import PaymentRequests from './features/user/payment-requests.page'
 import TransactionHistory from './features/user/transaction-history.page'
 import ErrorBoundary from './shared/error-boundary'
 import MainLayout from './shared/main-layout'
@@ -53,30 +56,28 @@ const router = createBrowserRouter(
 					element={<PermissionGuard permissions={['STUDENT', 'VENDOR']} />}
 				>
 					<Route index element={<HomeWithPayments />} />
-					<Route path='/manage-wallet' element={<ManageWallet />} />
-					<Route path='/shops/view' element={<ShopList />} />
-					<Route path='/:shopName/products' element={<ProductList />} />
-					<Route path='/edit-profile' element={<EditProfile />} />
+					<Route path='manage-wallet' element={<ManageWallet />} />
+					<Route path='shops/view' element={<ShopList />} />
+					<Route path=':shopName/products' element={<ProductList />} />
+					<Route path='edit-profile' element={<EditProfile />} />
 					<Route path='catalogue'>
 						<Route index element={<EditProducts />} />
 						<Route path='add-product' element={<CreateProduct />} />
 					</Route>
-					<Route path='/txn-history' element={<TransactionHistory />} />
-					<Route path='/search-product' element={<SearchProduct />} />
+					<Route path='txn-history' element={<TransactionHistory />} />
+					<Route path='manage-tags' element={<ManageTags />} />
+					<Route path='search-product' element={<SearchProduct />} />
+					<Route path='payment-requests' element={<PaymentRequests />} />
 				</Route>
 
 				{/* Protected only for admin */}
 				<Route element={<PermissionGuard permissions={['ADMIN']} />}>
-					<Route path='admin/' element={<HomeWithCreateAndUpdateAccount />} />
-					<Route path='admin/add-account' element={<CreateAccount />} />
-					<Route
-						path='admin/bulk-add-account'
-						element={<CreateAccountsBulk />}
-					/>
-					<Route
-						path='admin/manage-categories'
-						element={<ManageCategories />}
-					/>
+					<Route path='admin'>
+						<Route index element={<HomeWithCreateAndUpdateAccount />} />
+						<Route path='add-account' element={<CreateAccount />} />
+						<Route path='bulk-add-account' element={<CreateAccountsBulk />} />
+						<Route path='manage-categories' element={<ManageCategories />} />
+					</Route>
 				</Route>
 			</Route>
 		</Route>,
@@ -108,6 +109,7 @@ root.render(
 				<Notifications />
 				<RouterProvider router={router} />
 			</MantineProvider>
+			<ReactQueryDevtools initialIsOpen={false} />
 		</QueryClientProvider>
 	</StrictMode>,
 )
