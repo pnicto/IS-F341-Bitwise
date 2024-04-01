@@ -1,10 +1,13 @@
 import { Icon } from '@iconify/react'
 import {
+	ActionIcon,
 	Anchor,
 	Button,
 	Menu,
 	Modal,
 	NumberInput,
+	Popover,
+	Select,
 	TextInput,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
@@ -12,13 +15,16 @@ import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { User } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import {
 	NavLink,
 	Outlet,
 	useLocation,
 	useNavigate,
 	useRouteLoaderData,
+	useSearchParams,
 } from 'react-router-dom'
+import { useCategoriesQuery } from '../features/products/queries'
 import axios from '../lib/axios'
 import { handleAxiosErrors } from '../notifications/utils'
 
@@ -26,7 +32,8 @@ const MainLayout = () => {
 	const data = useRouteLoaderData('protected-layout') as { user: User }
 	const [opened, { open, close }] = useDisclosure(false)
 	const queryClient = useQueryClient()
-
+	const [isFilterPopoverOpen, setIsFilterPopoverOpen] = useState(false)
+	const categoriesQuery = useCategoriesQuery()
 	const currentRoute = useLocation()
 	const navigate = useNavigate()
 	const logout = useMutation({
@@ -45,6 +52,7 @@ const MainLayout = () => {
 			handleAxiosErrors(err)
 		},
 	})
+	const [searchParams] = useSearchParams()
 
 	const paymentRequest = useMutation({
 		mutationFn: (body: { requesteeUsername: string; amount: number }) => {
@@ -74,10 +82,11 @@ const MainLayout = () => {
 	})
 	const searchForm = useForm({
 		initialValues: {
-			search: '',
+			name: searchParams.get('name') || '',
+			categoryName: searchParams.get('category') || '',
 		},
 		validate: {
-			search: (value) => {
+			name: (value) => {
 				if (value.length < 3) {
 					return 'Search must be at least 3 characters long'
 				}
@@ -88,7 +97,7 @@ const MainLayout = () => {
 	return (
 		<>
 			{data && (
-				<nav className='flex justify-between py-2 items-center pl-3 pr-2'>
+				<nav className='flex justify-between py-2 items-center pl-3 pr-2 gap-3'>
 					{/* TODO: Discuss if we are going to replace this with back button */}
 					<Anchor
 						component={NavLink}
@@ -102,21 +111,69 @@ const MainLayout = () => {
 						currentRoute.pathname === '/shops/view' ||
 						currentRoute.pathname === '/search-product') && (
 						<form
-							className='p-0'
+							className='p-0 grow'
 							onSubmit={searchForm.onSubmit((values) => {
-								navigate(`/search-product?name=${values.search}`)
+								navigate(
+									`/search-product?name=${values.name}&category=${values.categoryName}`,
+								)
 							})}
 						>
 							<TextInput
 								placeholder='Search for products'
+								type='search'
 								rightSection={
-									<Button variant='light' type='submit'>
-										<Icon icon='lucide:search' />
-									</Button>
+									<>
+										<ActionIcon
+											variant='light'
+											type='submit'
+											size='lg'
+											className='mr-1'
+										>
+											<Icon icon='lucide:search' />
+										</ActionIcon>
+										<Popover
+											opened={isFilterPopoverOpen}
+											onChange={setIsFilterPopoverOpen}
+										>
+											<Popover.Target>
+												<ActionIcon
+													variant='light'
+													onClick={() =>
+														setIsFilterPopoverOpen((prev) => !prev)
+													}
+													size='lg'
+												>
+													<Icon icon='lucide:filter' />
+												</ActionIcon>
+											</Popover.Target>
+
+											<Popover.Dropdown>
+												{!(
+													categoriesQuery.isPending || categoriesQuery.isError
+												) && (
+													<Select
+														className='max-w-32'
+														data={[
+															{ value: '', label: 'All' },
+															...categoriesQuery.data.categories.map(
+																(category) => {
+																	return {
+																		value: category.name,
+																		label: category.name,
+																	}
+																},
+															),
+														]}
+														{...searchForm.getInputProps('categoryName')}
+													/>
+												)}
+											</Popover.Dropdown>
+										</Popover>
+									</>
 								}
-								{...searchForm.getInputProps('search')}
+								{...searchForm.getInputProps('name')}
+								rightSectionWidth={75}
 								rightSectionPointerEvents='all'
-								rightSectionWidth={50}
 							/>
 						</form>
 					)}
