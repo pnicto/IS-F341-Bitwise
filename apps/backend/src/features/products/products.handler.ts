@@ -40,6 +40,12 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 				price,
 				categoryName: categoryName || null,
 				vendorId: vendor.id,
+				sellerDetails: {
+					username: vendor.username,
+					email: vendor.email,
+					mobile: vendor.mobile,
+					shopName: vendor.shopName,
+				},
 			},
 		})
 		return res
@@ -80,7 +86,6 @@ export const getProducts: RequestHandler = async (req, res, next) => {
 			// for 'buy and sell' products, include the student details so the frontend can display them
 			products = await prisma.product.findMany({
 				where: { vendor: { role: Role.STUDENT } },
-				include: { vendor: true },
 			})
 		} else {
 			const vendor = await prisma.user.findFirst({ where: { shopName } })
@@ -115,15 +120,6 @@ export const searchProducts: RequestHandler = async (req, res, next) => {
 				name: { contains: name, mode: 'insensitive' },
 				// prisma with field undefined will discard the filter on that field. so when the category is ''it will only filter by name
 				categoryName: category === '' ? undefined : category,
-			},
-			include: {
-				vendor: {
-					select: {
-						username: true,
-						shopName: true,
-						mobile: true,
-					},
-				},
 			},
 		})
 

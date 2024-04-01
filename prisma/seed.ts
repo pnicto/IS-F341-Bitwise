@@ -138,6 +138,12 @@ async function main() {
 				createdAt: productDate,
 				categoryName: faker.helpers.arrayElement(CATEGORY_NAMES),
 				updatedAt: productDate,
+				sellerDetails: {
+					email: v.email,
+					mobile: v.mobile,
+					shopName: v.shopName,
+					username: v.username,
+				},
 			})
 		}
 	}

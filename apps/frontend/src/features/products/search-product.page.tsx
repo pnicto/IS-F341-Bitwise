@@ -1,13 +1,9 @@
 import { SimpleGrid } from '@mantine/core'
-import { Product, User } from '@prisma/client'
+import { Product } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
 import axios from '../../lib/axios'
 import ProductCard from '../../shared/product-card'
-
-type ProductWithVendor = Product & {
-	vendor: Pick<User, 'username' | 'shopName' | 'mobile'>
-}
 
 const SearchProduct = () => {
 	const [searchParams] = useSearchParams()
@@ -18,17 +14,17 @@ const SearchProduct = () => {
 		queryKey: ['search-product', productName, categoryName],
 		queryFn: async () => {
 			const response = await axios.get<{
-				products: ProductWithVendor[]
+				products: Product[]
 			}>(`/products/search?name=${productName}&category=${categoryName}`)
 			return response.data
 		},
 		enabled: !!productName || !!categoryName,
 		select: (data) => {
-			const groupedProducts: Record<string, ProductWithVendor[]> = {}
+			const groupedProducts: Record<string, Product[]> = {}
 
 			// Group products by shop name or 'Buy & Sell' if no shop name is present
 			data.products.forEach((product) => {
-				const shopName = product.vendor.shopName
+				const shopName = product.sellerDetails.shopName
 
 				if (shopName) {
 					if (!groupedProducts[shopName]) {
