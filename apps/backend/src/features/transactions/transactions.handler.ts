@@ -5,10 +5,11 @@ import { prisma } from '../../config/prisma'
 import { BadRequest, Forbidden, NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
+import { intOrNaN } from './transactions.utils'
 
 export const viewTransactionHistoryValidator = [
-	query('items').trim().notEmpty().optional(),
-	query('page').trim().notEmpty().optional(),
+	query('items').optional(),
+	query('page').optional(),
 ]
 export const viewTransactionHistory: RequestHandler = async (
 	req,
@@ -21,8 +22,16 @@ export const viewTransactionHistory: RequestHandler = async (
 			page: string | undefined
 		}>(req)
 
-		const numberOfItems = parseInt(items ?? '10')
-		const currentPage = parseInt(page ?? '1') - 1
+		let numberOfItems = intOrNaN(items)
+		let currentPage = intOrNaN(page)
+
+		if (isNaN(numberOfItems)) {
+			numberOfItems = 10
+		}
+		if (isNaN(currentPage)) {
+			currentPage = 1
+		}
+		currentPage -= 1
 
 		if (numberOfItems < 1) {
 			throw new BadRequest('Invalid number of items')
