@@ -70,7 +70,10 @@ const TransactionHistory = () => {
 		validate: {
 			requesteeUsernames: (value) => {
 				if (value.length === 0) {
-					return 'At least one requestee is required'
+					return 'At least one username must be filled'
+				}
+				if (value.some((username) => username.length === 0)) {
+					return 'All usernames must be filled'
 				}
 				return null
 			},
@@ -197,6 +200,7 @@ const TransactionHistory = () => {
 				>
 					{splitTransactionForm.values.requesteeUsernames.map((_, index) => (
 						<TextInput
+							required
 							key={index}
 							label={`Enter username ${index + 1}`}
 							placeholder='john420'
