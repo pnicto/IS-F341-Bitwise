@@ -7,8 +7,13 @@ import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 
 const CreateAccount = () => {
-	const createForm = useForm<{ email: string; role: Role; shopName: string }>({
-		initialValues: { email: '', role: Role.STUDENT, shopName: '' },
+	const createForm = useForm<{
+		email: string
+		role: Role
+		mobile: string
+		shopName: string
+	}>({
+		initialValues: { email: '', role: Role.STUDENT, shopName: '', mobile: '' },
 		validate: {
 			email: (value) =>
 				value.length > 0
@@ -51,6 +56,11 @@ const CreateAccount = () => {
 				description='Email address of the account to be created'
 				placeholder='Eg., john@john.com'
 				{...createForm.getInputProps('email')}
+			/>
+			<TextInput
+				label='Mobile Number'
+				placeholder='Mobile number of the account to be created'
+				{...createForm.getInputProps('mobile')}
 			/>
 			<Select
 				label='Role'
