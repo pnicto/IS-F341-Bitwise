@@ -10,7 +10,7 @@ import { useUserQuery } from './queries'
 
 const EditProfile = () => {
 	const editForm = useForm<{
-		mobile: string | null
+		mobile: string
 		oldPassword: string
 		newPassword: string
 	}>({
