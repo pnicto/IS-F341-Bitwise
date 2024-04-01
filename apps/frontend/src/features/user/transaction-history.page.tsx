@@ -58,7 +58,7 @@ const TransactionHistory = () => {
 		},
 	})
 
-	const [activePage, setPage] = useState(1)
+	const [currentPage, setCurrentPage] = useState(1)
 	const [modalIsOpen, modalHandlers] = useDisclosure(false)
 
 	const queryClient = useQueryClient()
@@ -84,12 +84,12 @@ const TransactionHistory = () => {
 	const userQuery = useUserQuery()
 
 	const transactionsQuery = useQuery({
-		queryKey: ['transactions', activePage],
+		queryKey: ['transactions', { page: currentPage }],
 		queryFn: async () => {
 			const response = await axios.get<{
 				transactions: HistoryItem[]
 				totalPages: number
-			}>(`/transactions/view?items=5&page=${activePage}`)
+			}>(`/transactions/view?items=5&page=${currentPage}`)
 			return response.data
 		},
 		select: (data) => {
@@ -188,11 +188,11 @@ const TransactionHistory = () => {
 			<div className='flex flex-col items-center'>
 				<Pagination
 					total={transactionsQuery.data.totalPages}
-					value={activePage}
+					value={currentPage}
 					onChange={(value: number) => {
-						setPage(value)
+						setCurrentPage(value)
 						queryClient.invalidateQueries({
-							queryKey: [activePage],
+							queryKey: ['transactions', { page: currentPage }],
 						})
 					}}
 					mt='sm'
