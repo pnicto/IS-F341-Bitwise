@@ -86,7 +86,6 @@ export const getProducts: RequestHandler = async (req, res, next) => {
 			// for 'buy and sell' products, include the student details so the frontend can display them
 			products = await prisma.product.findMany({
 				where: { vendor: { role: Role.STUDENT } },
-				include: { vendor: true },
 			})
 		} else {
 			const vendor = await prisma.user.findFirst({ where: { shopName } })
@@ -113,15 +112,6 @@ export const searchProducts: RequestHandler = async (req, res, next) => {
 		const { name } = validateRequest<{ name: string }>(req)
 		const products = await prisma.product.findMany({
 			where: { name: { contains: name, mode: 'insensitive' } },
-			include: {
-				vendor: {
-					select: {
-						username: true,
-						shopName: true,
-						mobile: true,
-					},
-				},
-			},
 		})
 		return res.status(StatusCodes.OK).json({ products })
 	} catch (err) {
