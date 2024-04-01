@@ -70,7 +70,7 @@ const TransactionHistory = () => {
 		onSuccess: ({ data }) => {
 			queryClient.invalidateQueries({ queryKey: ['transactions'] })
 			updateTransactionTagsForm.reset()
-			modalHandlers.close()
+			tagsModalHandlers.close()
 			notifications.show({ message: data.message, color: 'green' })
 		},
 		onError: (err) => {
@@ -110,7 +110,7 @@ const TransactionHistory = () => {
 
 	return (
 		<>
-			<Modal opened={modalIsOpen} onClose={modalHandlers.close}>
+			<Modal opened={tagsModalIsOpen} onClose={tagsModalHandlers.close}>
 				<form
 					onSubmit={updateTransactionTagsForm.onSubmit((values) => {
 						updateTransactionTags.mutate(values)
