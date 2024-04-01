@@ -181,9 +181,19 @@ const TransactionHistory = () => {
 				}}
 			>
 				<form
-					onSubmit={splitTransactionForm.onSubmit((values) => {
-						splitTransaction.mutate(values)
-					})}
+					onSubmit={splitTransactionForm.onSubmit(
+						(values) => {
+							splitTransaction.mutate(values)
+						},
+						(errors: typeof splitTransactionForm.errors) => {
+							if (errors.requesteeUsernames) {
+								notifications.show({
+									message: errors.requesteeUsernames,
+									color: 'red',
+								})
+							}
+						},
+					)}
 				>
 					{splitTransactionForm.values.requesteeUsernames.map((_, index) => (
 						<TextInput
