@@ -1,10 +1,9 @@
 import { Badge, Card, Grid, Group, Stack } from '@mantine/core'
-import { Product, User } from '@prisma/client'
+import { Product } from '@prisma/client'
 import { ReactNode } from 'react'
 
 type Props = Product & {
 	showVendorDetails?: boolean
-	vendor?: Pick<User, 'mobile' | 'username'>
 	allowEdit?: boolean
 	editComponent?: ReactNode
 	deleteComponent?: ReactNode
@@ -16,7 +15,7 @@ const ProductCard = ({
 	description,
 	price,
 	categoryName,
-	vendor,
+	sellerDetails,
 	showVendorDetails = false,
 	allowEdit = false,
 	editComponent,
@@ -36,13 +35,22 @@ const ProductCard = ({
 						{categoryName && <Badge>{categoryName}</Badge>}
 					</Grid.Col>
 				</Grid>
+				{showVendorDetails && sellerDetails.shopName !== null ? (
+					<p>
+						Sold by: <b>{sellerDetails.shopName}</b>
+					</p>
+				) : (
+					<p>
+						Sold by: <b>{sellerDetails.username}</b>
+					</p>
+				)}
+
 				<p>{description}</p>
 
-				{vendor && showVendorDetails && (
-					<Group>
-						<p>Sold by: {vendor.username}</p>
-						<p>Contact: {vendor.mobile}</p>
-					</Group>
+				{showVendorDetails && sellerDetails.shopName === null && (
+					<p>
+						Contact: <b>{sellerDetails.mobile}</b>
+					</p>
 				)}
 
 				{allowEdit && (

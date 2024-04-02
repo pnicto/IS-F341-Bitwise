@@ -19,27 +19,6 @@ const SearchProduct = () => {
 			return response.data
 		},
 		enabled: !!productName || !!categoryName,
-		select: (data) => {
-			const groupedProducts: Record<string, Product[]> = {}
-
-			// Group products by shop name or 'Buy & Sell' if no shop name is present
-			data.products.forEach((product) => {
-				const shopName = product.sellerDetails.shopName
-
-				if (shopName) {
-					if (!groupedProducts[shopName]) {
-						groupedProducts[shopName] = []
-					}
-					groupedProducts[shopName].push(product)
-				} else {
-					if (!groupedProducts['Buy & Sell']) {
-						groupedProducts['Buy & Sell'] = []
-					}
-					groupedProducts['Buy & Sell'].push(product)
-				}
-			})
-			return { groupedProducts, length: data.products.length }
-		},
 	})
 
 	if (searchQuery.isPending) {
@@ -50,7 +29,7 @@ const SearchProduct = () => {
 		return <div>Error: {searchQuery.error.message}</div>
 	}
 
-	if (searchQuery.data.length === 0) {
+	if (searchQuery.data.products.length === 0) {
 		return (
 			<>
 				<p className='text-2xl inline'>
@@ -69,9 +48,10 @@ const SearchProduct = () => {
 
 	return (
 		<>
-			<div className='text-lg'>
+			<div className='text-lg pb-5'>
 				<p className='inline'>
-					Showing {searchQuery.data.length} results for "<em>{productName}</em>"
+					Showing {searchQuery.data.products.length} results for "
+					<em>{productName}</em>"
 				</p>
 				{categoryName && (
 					<p className='inline'>
@@ -81,31 +61,19 @@ const SearchProduct = () => {
 				)}
 			</div>
 
-			{Object.entries(searchQuery.data.groupedProducts).map(
-				([shopName, products]) => (
-					<div key={shopName} className='pt-5'>
-						<h2 className='text-xl font-bold'>From {shopName}</h2>
-						<SimpleGrid
-							cols={{
-								base: 1,
-								sm: 2,
-								md: 3,
-							}}
-							spacing='xl'
-							verticalSpacing='md'
-						>
-							{products.map((product) => (
-								<ProductCard
-									key={product.id}
-									{...product}
-									// Show vendor details only for products from 'Buy & Sell'
-									showVendorDetails={shopName === 'Buy & Sell'}
-								/>
-							))}
-						</SimpleGrid>
-					</div>
-				),
-			)}
+			<SimpleGrid
+				cols={{
+					base: 1,
+					sm: 2,
+					md: 3,
+				}}
+				spacing='xl'
+				verticalSpacing='md'
+			>
+				{searchQuery.data.products.map((product) => (
+					<ProductCard key={product.id} {...product} showVendorDetails={true} />
+				))}
+			</SimpleGrid>
 		</>
 	)
 }
