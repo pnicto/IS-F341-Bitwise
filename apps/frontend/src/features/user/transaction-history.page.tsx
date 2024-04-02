@@ -5,6 +5,7 @@ import {
 	Loader,
 	Modal,
 	OptionsFilter,
+	Pagination,
 	Stack,
 	TagsInput,
 } from '@mantine/core'
@@ -13,6 +14,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { Transaction, WalletTransactionType } from '@prisma/client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 import TransactionItemCard from '../../shared/transaction-item-card'
@@ -56,6 +58,7 @@ const TransactionHistory = () => {
 		},
 	})
 
+	const [currentPage, setCurrentPage] = useState(1)
 	const [modalIsOpen, modalHandlers] = useDisclosure(false)
 
 	const queryClient = useQueryClient()
@@ -81,17 +84,24 @@ const TransactionHistory = () => {
 	const userQuery = useUserQuery()
 
 	const transactionsQuery = useQuery({
-		queryKey: ['transactions'],
+		queryKey: ['transactions', { page: currentPage }],
 		queryFn: async () => {
-			const response = await axios.get<HistoryItem[]>('/transactions/view', {})
+			const response = await axios.get<{
+				transactions: HistoryItem[]
+				totalPages: number
+			}>(`/transactions/view?items=5&page=${currentPage}`)
 			return response.data
 		},
-		select: (data) =>
+		select: (data) => {
 			// this is performed to convert the date strings in the json to Date objects
-			data.map((transaction) => ({
-				...transaction,
-				createdAt: new Date(transaction.createdAt),
-			})),
+			return {
+				...data,
+				transactions: data.transactions.map((transaction) => ({
+					...transaction,
+					createdAt: new Date(transaction.createdAt),
+				})),
+			}
+		},
 	})
 
 	if (userQuery.isPending || transactionsQuery.isPending) {
@@ -134,7 +144,7 @@ const TransactionHistory = () => {
 				</form>
 			</Modal>
 			<Stack>
-				{transactionsQuery.data.map((transaction) => (
+				{transactionsQuery.data.transactions.map((transaction) => (
 					<TransactionItemCard
 						key={transaction.id}
 						{...transaction}
@@ -177,6 +187,19 @@ const TransactionHistory = () => {
 					/>
 				))}
 			</Stack>
+			<div className='flex flex-col items-center'>
+				<Pagination
+					total={transactionsQuery.data.totalPages}
+					value={currentPage}
+					onChange={(value: number) => {
+						setCurrentPage(value)
+						queryClient.invalidateQueries({
+							queryKey: ['transactions', { page: currentPage }],
+						})
+					}}
+					mt='sm'
+				/>
+			</div>
 		</>
 	)
 }
