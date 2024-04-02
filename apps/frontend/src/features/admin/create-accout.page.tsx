@@ -72,6 +72,7 @@ const CreateAccount = () => {
 					{ value: Role.STUDENT, label: 'Student' },
 					{ value: Role.VENDOR, label: 'Vendor' },
 				]}
+				allowDeselect={false}
 				{...createForm.getInputProps('role')}
 			/>
 			{createForm.values.role === Role.VENDOR && (
