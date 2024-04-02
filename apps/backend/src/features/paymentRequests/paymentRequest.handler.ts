@@ -79,7 +79,7 @@ export const splitPaymentRequest: RequestHandler = async (req, res, next) => {
 			throw new Forbidden('User is not the person who paid for the transaction')
 		}
 		const requestees = await prisma.user.findMany({
-			where: { username: { in: requesteeUsernames } },
+			where: { username: { in: requesteeUsernames }, enabled: true },
 		})
 		const requesteeUsernamesFound = requestees.map(
 			(requestee) => requestee.username,
@@ -89,8 +89,10 @@ export const splitPaymentRequest: RequestHandler = async (req, res, next) => {
 				!requesteeUsernamesFound.includes(requesteeUsername),
 		)
 		if (requesteeUsernamesNotFound.length > 0) {
-			throw new NotFound(
-				`Requestee(s) not found: ${requesteeUsernamesNotFound.join(', ')}`,
+			throw new BadRequest(
+				`Requestee(s) either not found or have their accounts disabled: ${requesteeUsernamesNotFound.join(
+					', ',
+				)}`,
 			)
 		}
 		const amountPerRequestee =
