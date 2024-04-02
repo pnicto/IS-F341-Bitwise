@@ -27,6 +27,8 @@ const CreateAccount = () => {
 						? null
 						: 'Shop name cannot be empty for vendor'
 					: null,
+			mobile: (value) =>
+				value.length > 0 ? null : 'Mobile number cannot be empty',
 		},
 	})
 

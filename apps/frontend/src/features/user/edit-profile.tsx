@@ -19,6 +19,10 @@ const EditProfile = () => {
 			oldPassword: '',
 			newPassword: '',
 		},
+		validate: {
+			mobile: (value) =>
+				value.length > 0 ? null : 'Mobile number cannot be empty',
+		},
 	})
 	const navigate = useNavigate()
 	const queryClient = useQueryClient()
