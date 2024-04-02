@@ -61,7 +61,8 @@ const CreateAccount = () => {
 			/>
 			<TextInput
 				label='Mobile Number'
-				placeholder='Mobile number of the account to be created'
+				description='Mobile number of the account to be created'
+				placeholder='Eg., 9876543210'
 				{...createForm.getInputProps('mobile')}
 			/>
 			<Select
