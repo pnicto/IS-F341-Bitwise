@@ -30,6 +30,7 @@ import PaymentRequests from './features/user/payment-requests.page'
 import TransactionHistory from './features/user/transaction-history.page'
 import ErrorBoundary from './shared/error-boundary'
 import MainLayout from './shared/main-layout'
+import NotFound from './shared/not-found'
 import PermissionGuard from './shared/permission-guard'
 import ProtectedLayout, { protectedLoader } from './shared/protected-layout'
 
@@ -42,6 +43,7 @@ const router = createBrowserRouter(
 		<Route path='/' element={<MainLayout />}>
 			{/* Public routes */}
 			<Route path='login' element={<Login />} loader={loginLoader} />
+			<Route path='*' element={<NotFound />} />
 
 			{/* Protected routes */}
 			<Route
