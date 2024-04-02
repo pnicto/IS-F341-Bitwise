@@ -93,12 +93,15 @@ export const splitPaymentRequest: RequestHandler = async (req, res, next) => {
 				`Requestee(s) not found: ${requesteeUsernamesNotFound.join(', ')}`,
 			)
 		}
-		const amountPerRequestee = transaction.amount / requesteeUsernames.length
-		const paymentRequests = requesteeUsernames.map((requesteeUsername) => ({
-			requesterUsername: requester.username,
-			requesteeUsername: requesteeUsername,
-			amount: amountPerRequestee,
-		}))
+		const amountPerRequestee =
+			transaction.amount / requesteeUsernamesFound.length
+		const paymentRequests = requesteeUsernamesFound.map(
+			(requesteeUsername) => ({
+				requesterUsername: requester.username,
+				requesteeUsername: requesteeUsername,
+				amount: amountPerRequestee,
+			}),
+		)
 		await prisma.paymentRequest.createMany({
 			data: paymentRequests,
 		})
