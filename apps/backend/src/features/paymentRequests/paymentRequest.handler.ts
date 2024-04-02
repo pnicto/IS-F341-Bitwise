@@ -78,6 +78,12 @@ export const splitPaymentRequest: RequestHandler = async (req, res, next) => {
 		if (transaction.senderUsername !== requester.username) {
 			throw new Forbidden('User is not the person who paid for the transaction')
 		}
+		const isAdminInRequestees = await prisma.user.findFirst({
+			where: { username: { in: requesteeUsernames }, role: 'ADMIN' },
+		})
+		if (isAdminInRequestees) {
+			throw new BadRequest('Cannot request payment from admin')
+		}
 		const requestees = await prisma.user.findMany({
 			where: { username: { in: requesteeUsernames }, enabled: true },
 		})
