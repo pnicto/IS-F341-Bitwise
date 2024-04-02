@@ -31,9 +31,13 @@ const EditProfile = () => {
 		mutationFn: (body: typeof editForm.values) =>
 			axios.post('/user/details/edit', body),
 
-		onSuccess: ({ data }) => {
-			queryClient.invalidateQueries({ queryKey: ['user'] })
-			editForm.reset()
+		onSuccess: async ({ data }) => {
+			await queryClient.invalidateQueries({ queryKey: ['user'] })
+			// very dirty hack to reset the password fields as react query doesn't seem to trigger the useEffect when only password is changed not entirely sure why it works that way
+			editForm.setValues({
+				oldPassword: '',
+				newPassword: '',
+			})
 			notifications.show({ message: data.message, color: 'green' })
 		},
 		onError: (err) => {
@@ -60,7 +64,9 @@ const EditProfile = () => {
 				newPassword: '',
 			})
 		}
-	})
+		// disable eslint exhaustive deps as we don't want to run this effect when editForm changes
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [userQuery.data])
 
 	if (userQuery.isPending) return <div>Loading...</div>
 
