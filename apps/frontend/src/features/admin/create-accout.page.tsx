@@ -7,8 +7,13 @@ import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 
 const CreateAccount = () => {
-	const createForm = useForm<{ email: string; role: Role; shopName: string }>({
-		initialValues: { email: '', role: Role.STUDENT, shopName: '' },
+	const createForm = useForm<{
+		email: string
+		role: Role
+		mobile: string
+		shopName: string
+	}>({
+		initialValues: { email: '', role: Role.STUDENT, shopName: '', mobile: '' },
 		validate: {
 			email: (value) =>
 				value.length > 0
@@ -22,6 +27,8 @@ const CreateAccount = () => {
 						? null
 						: 'Shop name cannot be empty for vendor'
 					: null,
+			mobile: (value) =>
+				value.length > 0 ? null : 'Mobile number cannot be empty',
 		},
 	})
 
@@ -52,6 +59,12 @@ const CreateAccount = () => {
 				placeholder='Eg., john@john.com'
 				{...createForm.getInputProps('email')}
 			/>
+			<TextInput
+				label='Mobile Number'
+				description='Mobile number of the account to be created'
+				placeholder='Eg., 9876543210'
+				{...createForm.getInputProps('mobile')}
+			/>
 			<Select
 				label='Role'
 				description='Role of the account to be created (Student/Vendor)'
@@ -59,6 +72,7 @@ const CreateAccount = () => {
 					{ value: Role.STUDENT, label: 'Student' },
 					{ value: Role.VENDOR, label: 'Vendor' },
 				]}
+				allowDeselect={false}
 				{...createForm.getInputProps('role')}
 			/>
 			{createForm.values.role === Role.VENDOR && (

@@ -1,17 +1,45 @@
 import { RequestHandler } from 'express'
-import { body, param } from 'express-validator'
+import { body, param, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
-import { Forbidden, NotFound } from '../../errors/CustomErrors'
+import { BadRequest, Forbidden, NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
+import { intOrNaN } from './transactions.utils'
 
+export const viewTransactionHistoryValidator = [
+	query('items').trim().optional(),
+	query('page').trim().optional(),
+]
 export const viewTransactionHistory: RequestHandler = async (
 	req,
 	res,
 	next,
 ) => {
 	try {
+		const { items, page } = validateRequest<{
+			items: string | undefined
+			page: string | undefined
+		}>(req)
+
+		let numberOfItems = intOrNaN(items)
+		let currentPage = intOrNaN(page)
+
+		if (isNaN(numberOfItems)) {
+			numberOfItems = 10
+		}
+		if (isNaN(currentPage)) {
+			currentPage = 1
+		}
+		currentPage -= 1
+
+		if (numberOfItems < 1) {
+			throw new BadRequest('Invalid number of items')
+		}
+		if (currentPage < 0) {
+			throw new BadRequest('Invalid page number')
+		}
+
 		const user = getAuthorizedUser(req)
 		const debitTransactions = await prisma.transaction.findMany({
 			where: {
@@ -81,7 +109,16 @@ export const viewTransactionHistory: RequestHandler = async (
 			return b.createdAt.getTime() - a.createdAt.getTime()
 		})
 
-		return res.status(StatusCodes.OK).json(allTransactions)
+		return res.status(StatusCodes.OK).json({
+			transactions: allTransactions.slice(
+				numberOfItems * currentPage,
+				numberOfItems * currentPage + numberOfItems,
+			),
+			totalPages: Math.ceil(
+				allTransactions.length /
+					Math.min(numberOfItems, allTransactions.length),
+			),
+		})
 	} catch (err) {
 		next(err)
 	}

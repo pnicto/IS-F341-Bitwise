@@ -8,7 +8,7 @@ import { useState } from 'react'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 
-type NewAccount = Pick<User, 'email' | 'role' | 'shopName'>
+type NewAccount = Pick<User, 'email' | 'role' | 'mobile' | 'shopName'>
 
 const CreateAccountsBulk = () => {
 	const [csvFile, setCsvFile] = useState<File | null>(null)
@@ -103,15 +103,17 @@ const CreateAccountsBulk = () => {
 									<Table.Th className='!text-center'>Email</Table.Th>
 									<Table.Th className='!text-center'>Role</Table.Th>
 									<Table.Th className='!text-center'>Shop Name</Table.Th>
+									<Table.Th className='!text-center'>Mobile Number</Table.Th>
 								</Table.Tr>
 							</Table.Thead>
 							<Table.Tbody>
-								{previewCsvData.map(({ email, role, shopName }, i) => {
+								{previewCsvData.map(({ email, role, shopName, mobile }, i) => {
 									return (
 										<Table.Tr key={i}>
 											<Table.Td>{email}</Table.Td>
 											<Table.Td>{role}</Table.Td>
 											<Table.Td>{shopName}</Table.Td>
+											<Table.Td>{mobile}</Table.Td>
 										</Table.Tr>
 									)
 								})}
