@@ -148,7 +148,20 @@ export const searchProducts: RequestHandler = async (req, res, next) => {
 			},
 		})
 
-		return res.status(StatusCodes.OK).json({ products })
+		const productCount = await prisma.product.count({
+			where: {
+				name: { contains: name, mode: 'insensitive' },
+				// prisma with field undefined will discard the filter on that field. so when the category is ''it will only filter by name
+				categoryName: category === '' ? undefined : category,
+			},
+		})
+
+		return res.status(StatusCodes.OK).json({
+			products: products,
+			totalPages: Math.ceil(
+				productCount / Math.min(numberOfItems, productCount),
+			),
+		})
 	} catch (err) {
 		next(err)
 	}
