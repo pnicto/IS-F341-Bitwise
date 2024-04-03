@@ -33,7 +33,7 @@ const TransactionItemCard = ({
 						className={`${
 							type === 'NONE'
 								? ''
-								: type === 'DEPOSIT' || type === 'DEBIT'
+								: type === 'DEPOSIT' || type === 'CREDIT'
 								? 'text-green-500'
 								: 'text-red-500'
 						} font-bold`}
