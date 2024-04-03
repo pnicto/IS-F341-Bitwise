@@ -1,6 +1,7 @@
-import { SimpleGrid } from '@mantine/core'
+import { Pagination, SimpleGrid } from '@mantine/core'
 import { Product } from '@prisma/client'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import axios from '../../lib/axios'
 import ProductCard from '../../shared/product-card'
@@ -10,12 +11,24 @@ const SearchProduct = () => {
 	const productName = searchParams.get('name')
 	const categoryName = searchParams.get('category')
 
+	const [currentPage, setCurrentPage] = useState(1)
+
+	const queryClient = useQueryClient()
+
 	const searchQuery = useQuery({
-		queryKey: ['search-product', productName, categoryName],
+		queryKey: [
+			'search-product',
+			productName,
+			categoryName,
+			{ page: currentPage },
+		],
 		queryFn: async () => {
 			const response = await axios.get<{
 				products: Product[]
-			}>(`/products/search?name=${productName}&category=${categoryName}`)
+				totalPages: number
+			}>(
+				`/products/search?name=${productName}&category=${categoryName}&items=6&page=${currentPage}`,
+			)
 			return response.data
 		},
 		enabled: !!productName || !!categoryName,
@@ -50,7 +63,8 @@ const SearchProduct = () => {
 		<>
 			<div className='text-lg pb-5'>
 				<p className='inline'>
-					Showing {searchQuery.data.products.length} results for "
+					Showing results {(currentPage - 1) * 6 + 1} -{' '}
+					{(currentPage - 1) * 6 + searchQuery.data.products.length} for "
 					<em>{productName}</em>"
 				</p>
 				{categoryName && (
@@ -74,6 +88,24 @@ const SearchProduct = () => {
 					<ProductCard key={product.id} {...product} showVendorDetails={true} />
 				))}
 			</SimpleGrid>
+			<div className='flex flex-col items-center'>
+				<Pagination
+					total={searchQuery.data.totalPages}
+					value={currentPage}
+					onChange={(value: number) => {
+						setCurrentPage(value)
+						queryClient.invalidateQueries({
+							queryKey: [
+								'search-product',
+								productName,
+								categoryName,
+								{ page: currentPage },
+							],
+						})
+					}}
+					mt='sm'
+				/>
+			</div>
 		</>
 	)
 }
