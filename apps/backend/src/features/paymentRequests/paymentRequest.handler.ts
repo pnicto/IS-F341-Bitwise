@@ -60,12 +60,16 @@ export const validateSplitRequest = [
 	body('requesteeUsernames')
 		.isArray({ min: 1 })
 		.withMessage('At least one requestee is required'),
+	body('includeSelf')
+		.isBoolean()
+		.withMessage('Include self field must be a boolean'),
 ]
 export const splitPaymentRequest: RequestHandler = async (req, res, next) => {
 	try {
-		const { id, requesteeUsernames } = validateRequest<{
+		const { id, requesteeUsernames, includeSelf } = validateRequest<{
 			id: string
 			requesteeUsernames: string[]
+			includeSelf: boolean
 		}>(req)
 		const requester = getAuthorizedUser(req)
 
@@ -77,6 +81,9 @@ export const splitPaymentRequest: RequestHandler = async (req, res, next) => {
 		}
 		if (transaction.senderUsername !== requester.username) {
 			throw new Forbidden('User is not the person who paid for the transaction')
+		}
+		if (transaction.senderUsername in requesteeUsernames) {
+			throw new BadRequest('Cannot request payment from self')
 		}
 		const isAdminInRequestees = await prisma.user.findFirst({
 			where: { username: { in: requesteeUsernames }, role: 'ADMIN' },
@@ -101,8 +108,11 @@ export const splitPaymentRequest: RequestHandler = async (req, res, next) => {
 				)}`,
 			)
 		}
-		const amountPerRequestee =
-			transaction.amount / requesteeUsernamesFound.length
+		let amountPerRequestee = transaction.amount / requesteeUsernamesFound.length
+		if (includeSelf) {
+			amountPerRequestee =
+				transaction.amount / (requesteeUsernamesFound.length + 1)
+		}
 		const paymentRequests = requesteeUsernamesFound.map(
 			(requesteeUsername) => ({
 				requesterUsername: requester.username,
