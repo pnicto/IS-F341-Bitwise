@@ -7,6 +7,9 @@ import { Forbidden, Unauthorized } from '../../errors/CustomErrors'
 import { generateAccessToken } from '../../utils/generateToken'
 import { verifyPassword } from '../../utils/password'
 import { validateRequest } from '../../utils/validateRequest'
+import { sendPaswordResetMail } from './auth.utils'
+import { hashPassword } from '../../utils/password'
+import crypto from 'crypto'
 
 export const validateLogin = [
 	body('email').trim().isEmail().withMessage('Invalid email'),
@@ -61,6 +64,35 @@ export const logout: RequestHandler = async (_req, res, next) => {
 				sameSite: 'none',
 			})
 			.send({ message: 'Logged out successfully', redirect: '/login' })
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const validateForgotPassword = [
+	body('email').trim().isEmail().withMessage('Invalid email'),
+]
+export const forgotPassword: RequestHandler = async (req, res, next) => {
+	try {
+		const { email } = validateRequest<Pick<User, 'email'>>(req)
+		const user = await prisma.user.findUnique({
+			where: { email },
+		})
+
+		if (!user) {
+			throw new Unauthorized('Invalid email')
+		}
+
+		const password = crypto.randomBytes(4).toString('hex')
+		const hashedPassword = await hashPassword(password)
+		await prisma.user.update({
+			where: { email },
+			data: { password: hashedPassword },
+		})
+		await sendPaswordResetMail(user, password)
+		return res.status(StatusCodes.OK).json({
+			message: 'Password reset email sent',
+		})
 	} catch (err) {
 		next(err)
 	}
