@@ -3,7 +3,10 @@ import { transporter } from '../../config/mailer'
 
 const SENDER_EMAIL = process.env.GOOGLE_MAIL_USER as string
 
-export const sendPaswordResetMail = async (user: User, rawPassword: string) => {
+export const sendPasswordResetMail = async (
+	user: User,
+	rawPassword: string,
+) => {
 	const msg = {
 		from: SENDER_EMAIL,
 		to: user.email,

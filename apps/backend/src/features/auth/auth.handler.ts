@@ -1,15 +1,14 @@
 import { User } from '@prisma/client'
+import crypto from 'crypto'
 import { RequestHandler } from 'express'
 import { body } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
 import { Forbidden, Unauthorized } from '../../errors/CustomErrors'
 import { generateAccessToken } from '../../utils/generateToken'
-import { verifyPassword } from '../../utils/password'
+import { hashPassword, verifyPassword } from '../../utils/password'
 import { validateRequest } from '../../utils/validateRequest'
-import { sendPaswordResetMail } from './auth.utils'
-import { hashPassword } from '../../utils/password'
-import crypto from 'crypto'
+import { sendPasswordResetMail } from './auth.utils'
 
 export const validateLogin = [
 	body('email').trim().isEmail().withMessage('Invalid email'),
@@ -69,10 +68,10 @@ export const logout: RequestHandler = async (_req, res, next) => {
 	}
 }
 
-export const validateForgotPassword = [
+export const validateResetPassword = [
 	body('email').trim().isEmail().withMessage('Invalid email'),
 ]
-export const forgotPassword: RequestHandler = async (req, res, next) => {
+export const resetPassword: RequestHandler = async (req, res, next) => {
 	try {
 		const { email } = validateRequest<Pick<User, 'email'>>(req)
 		const user = await prisma.user.findUnique({
@@ -89,7 +88,7 @@ export const forgotPassword: RequestHandler = async (req, res, next) => {
 			where: { email },
 			data: { password: hashedPassword },
 		})
-		await sendPaswordResetMail(user, password)
+		await sendPasswordResetMail(user, password)
 		return res.status(StatusCodes.OK).json({
 			message: 'Password reset email sent',
 		})

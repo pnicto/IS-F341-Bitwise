@@ -3,9 +3,9 @@ import passport from '../../config/passport'
 import {
 	login,
 	logout,
+	resetPassword,
 	validateLogin,
-	validateForgotPassword,
-	forgotPassword,
+	validateResetPassword,
 } from './auth.handler'
 
 const passportJWT = passport.authenticate('jwt', { session: false })
@@ -14,4 +14,4 @@ export const authRouter = express.Router()
 
 authRouter.post('/login', validateLogin, login)
 authRouter.post('/logout', passportJWT, logout)
-authRouter.post('/forgot-password', validateForgotPassword, forgotPassword)
+authRouter.post('/reset-password', validateResetPassword, resetPassword)
