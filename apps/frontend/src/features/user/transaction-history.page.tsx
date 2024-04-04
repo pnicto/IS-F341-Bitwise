@@ -48,6 +48,8 @@ const optionsFilter: OptionsFilter = ({ options, search }) => {
 }
 
 const TransactionHistory = () => {
+	const numberOfItems = 5
+
 	const updateTransactionTagsForm = useForm<{
 		id: string
 		tags: string[]
@@ -58,7 +60,6 @@ const TransactionHistory = () => {
 		},
 	})
 
-	const numberOfItems = 5
 	const [currentPage, setCurrentPage] = useState(1)
 	const [modalIsOpen, modalHandlers] = useDisclosure(false)
 

@@ -8,6 +8,7 @@ import ProductCard from '../../shared/product-card'
 
 const SearchProduct = () => {
 	const numberOfItems = 6
+	
 	const [searchParams] = useSearchParams()
 	const productName = searchParams.get('name')
 	const categoryName = searchParams.get('category')
