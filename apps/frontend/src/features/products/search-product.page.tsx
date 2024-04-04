@@ -100,7 +100,7 @@ const SearchProduct = () => {
 								'search-product',
 								productName,
 								categoryName,
-								{ page: currentPage },
+								{ page: value },
 							],
 						})
 					}}

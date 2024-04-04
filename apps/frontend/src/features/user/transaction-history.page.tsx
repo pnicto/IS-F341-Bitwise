@@ -195,7 +195,7 @@ const TransactionHistory = () => {
 					onChange={(value: number) => {
 						setCurrentPage(value)
 						queryClient.invalidateQueries({
-							queryKey: ['transactions', { page: currentPage }],
+							queryKey: ['transactions', { page: value }],
 						})
 					}}
 					mt='sm'
