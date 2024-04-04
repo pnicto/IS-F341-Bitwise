@@ -88,7 +88,15 @@ export const resetPassword: RequestHandler = async (req, res, next) => {
 			where: { email },
 			data: { password: hashedPassword },
 		})
-		await sendPasswordResetMail(user, password)
+
+		// send account creation emails only in production
+		if (process.env.NODE_ENV === 'production') {
+			await sendPasswordResetMail(user, password)
+		} else {
+			console.log('DEV LOG: Emails will only be sent in production')
+			console.log(`DEV LOG: User: ${email}, Password: ${password}`)
+		}
+
 		return res.status(StatusCodes.OK).json({
 			message: 'Password reset email sent',
 		})
