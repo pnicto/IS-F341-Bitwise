@@ -48,6 +48,8 @@ const optionsFilter: OptionsFilter = ({ options, search }) => {
 }
 
 const TransactionHistory = () => {
+	const numberOfItems = 5
+
 	const updateTransactionTagsForm = useForm<{
 		id: string
 		tags: string[]
@@ -89,7 +91,7 @@ const TransactionHistory = () => {
 			const response = await axios.get<{
 				transactions: HistoryItem[]
 				totalPages: number
-			}>(`/transactions/view?items=5&page=${currentPage}`)
+			}>(`/transactions/view?items=${numberOfItems}&page=${currentPage}`)
 			return response.data
 		},
 		select: (data) => {
@@ -194,7 +196,7 @@ const TransactionHistory = () => {
 					onChange={(value: number) => {
 						setCurrentPage(value)
 						queryClient.invalidateQueries({
-							queryKey: ['transactions', { page: currentPage }],
+							queryKey: ['transactions', { page: value }],
 						})
 					}}
 					mt='sm'

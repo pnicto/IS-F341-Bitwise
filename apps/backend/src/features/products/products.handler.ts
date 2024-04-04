@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
 import { BadRequest, Forbidden, NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
+import { intOrNaN } from '../../utils/intOrNaN'
 import { validateRequest } from '../../utils/validateRequest'
 
 export const validateNewProduct = [
@@ -106,16 +107,40 @@ export const getProducts: RequestHandler = async (req, res, next) => {
 export const validateSearchProduct = [
 	query('name').trim().notEmpty().withMessage('Product name is required'),
 	query('category').trim().optional(),
+	query('items').trim().optional(),
+	query('page').trim().optional(),
 ]
 
 export const searchProducts: RequestHandler = async (req, res, next) => {
 	try {
-		const { name, category } = validateRequest<{
+		const { name, category, items, page } = validateRequest<{
 			name: string
 			category?: Product['categoryName']
+			items: string | undefined
+			page: undefined
 		}>(req)
 
+		let numberOfItems = intOrNaN(items)
+		let currentPage = intOrNaN(page)
+
+		if (isNaN(numberOfItems)) {
+			numberOfItems = 10
+		}
+		if (isNaN(currentPage)) {
+			currentPage = 1
+		}
+		currentPage -= 1
+
+		if (numberOfItems < 1) {
+			throw new BadRequest('Invalid number of items')
+		}
+		if (currentPage < 0) {
+			throw new BadRequest('Invalid page number')
+		}
+
 		const products = await prisma.product.findMany({
+			skip: numberOfItems * currentPage,
+			take: numberOfItems,
 			where: {
 				name: { contains: name, mode: 'insensitive' },
 				// prisma with field undefined will discard the filter on that field. so when the category is ''it will only filter by name
@@ -123,7 +148,20 @@ export const searchProducts: RequestHandler = async (req, res, next) => {
 			},
 		})
 
-		return res.status(StatusCodes.OK).json({ products })
+		const productCount = await prisma.product.count({
+			where: {
+				name: { contains: name, mode: 'insensitive' },
+				// prisma with field undefined will discard the filter on that field. so when the category is ''it will only filter by name
+				categoryName: category === '' ? undefined : category,
+			},
+		})
+
+		return res.status(StatusCodes.OK).json({
+			products: products,
+			totalPages: Math.ceil(
+				productCount / Math.min(numberOfItems, productCount),
+			),
+		})
 	} catch (err) {
 		next(err)
 	}

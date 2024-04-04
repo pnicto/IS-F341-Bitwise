@@ -5,7 +5,7 @@ import { prisma } from '../../config/prisma'
 import { BadRequest, Forbidden, NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
-import { intOrNaN } from './transactions.utils'
+import { intOrNaN } from '../../utils/intOrNaN'
 
 export const viewTransactionHistoryValidator = [
 	query('items').trim().optional(),
