@@ -3,12 +3,14 @@ import {
 	ActionIcon,
 	Badge,
 	Button,
+	Center,
 	ComboboxItem,
 	Loader,
 	Modal,
 	OptionsFilter,
 	Pagination,
 	Stack,
+	Switch,
 	TagsInput,
 	TextInput,
 } from '@mantine/core'
@@ -65,10 +67,12 @@ const TransactionHistory = () => {
 	const splitTransactionForm = useForm<{
 		id: string
 		requesteeUsernames: string[]
+		includeSelf: boolean
 	}>({
 		initialValues: {
 			id: '',
 			requesteeUsernames: [],
+			includeSelf: false,
 		},
 		validate: {
 			requesteeUsernames: (value) => {
@@ -107,10 +111,13 @@ const TransactionHistory = () => {
 	})
 
 	const splitTransaction = useMutation({
-		mutationFn: (transaction: { id: string; requesteeUsernames: string[] }) => {
+		mutationFn: (transaction: typeof splitTransactionForm.values) => {
 			return axios.post<{ message: string }>(
 				`/requests/${transaction.id}/split`,
-				{ requesteeUsernames: transaction.requesteeUsernames },
+				{
+					requesteeUsernames: transaction.requesteeUsernames,
+					includeSelf: transaction.includeSelf,
+				},
 			)
 		},
 		onSuccess: ({ data }) => {
@@ -234,6 +241,12 @@ const TransactionHistory = () => {
 							}
 						/>
 					))}
+					<Center>
+						<Switch
+							label='Include self?'
+							{...splitTransactionForm.getInputProps('includeSelf')}
+						/>
+					</Center>
 					<Button
 						onClick={() => {
 							splitTransactionForm.insertListItem('requesteeUsernames', '')
