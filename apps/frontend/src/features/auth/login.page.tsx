@@ -25,7 +25,7 @@ export async function loginLoader() {
 
 const Login = () => {
 	const navigate = useNavigate()
-	const [opened, { open, close }] = useDisclosure(false)
+	const [modalIsOpen, modalHandlers] = useDisclosure(false)
 
 	const loginForm = useForm({
 		initialValues: {
@@ -82,7 +82,7 @@ const Login = () => {
 		onSuccess: ({ data }) => {
 			notifications.show({ message: data.message, color: 'green' })
 			resetPasswordForm.reset()
-			close()
+			modalHandlers.close()
 		},
 		onError: (err) => {
 			handleAxiosErrors(err)
@@ -91,7 +91,11 @@ const Login = () => {
 
 	return (
 		<>
-			<Modal opened={opened} onClose={close} title='Reset Password'>
+			<Modal
+				opened={modalIsOpen}
+				onClose={modalHandlers.close}
+				title='Reset Password'
+			>
 				<form
 					onSubmit={resetPasswordForm.onSubmit((values) =>
 						resetPassword.mutate(values),
@@ -151,7 +155,12 @@ const Login = () => {
 				<Button type='submit'>Login</Button>
 				<p className='text-center text-sm'>
 					Click{' '}
-					<Anchor component='button' size='sm' onClick={open} type='button'>
+					<Anchor
+						component='button'
+						size='sm'
+						onClick={modalHandlers.open}
+						type='button'
+					>
 						here
 					</Anchor>{' '}
 					to reset your password

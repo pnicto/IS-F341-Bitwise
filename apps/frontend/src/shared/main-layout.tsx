@@ -30,7 +30,7 @@ import { handleAxiosErrors } from '../notifications/utils'
 
 const MainLayout = () => {
 	const data = useRouteLoaderData('protected-layout') as { user: User }
-	const [opened, { open, close }] = useDisclosure(false)
+	const [modalIsOpen, modalHandlers] = useDisclosure(false)
 	const queryClient = useQueryClient()
 	const [isFilterPopoverOpen, setIsFilterPopoverOpen] = useState(false)
 	const categoriesQuery = useCategoriesQuery()
@@ -62,7 +62,7 @@ const MainLayout = () => {
 			queryClient.invalidateQueries({ queryKey: ['paymentRequests'] })
 			notifications.show({ message: data.message, color: 'green' })
 			paymentRequestForm.reset()
-			close()
+			modalHandlers.close()
 		},
 		onError: (err) => {
 			handleAxiosErrors(err)
@@ -203,7 +203,7 @@ const MainLayout = () => {
 						)}
 						{currentRoute.pathname === '/payment-requests' && (
 							<Button
-								onClick={open}
+								onClick={modalHandlers.open}
 								color='green'
 								radius='xl'
 								size='compact-md'
@@ -236,7 +236,11 @@ const MainLayout = () => {
 				</nav>
 			)}
 			<main className='px-10 py-4 mx-auto sm:px-32 md:px-40 max-w-7xl'>
-				<Modal opened={opened} onClose={close} title='New Payment Request'>
+				<Modal
+					opened={modalIsOpen}
+					onClose={modalHandlers.close}
+					title='New Payment Request'
+				>
 					<form
 						onSubmit={paymentRequestForm.onSubmit((values) =>
 							paymentRequest.mutate(values),
