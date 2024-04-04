@@ -126,7 +126,7 @@ async function main() {
 
 	const vendors = await prisma.user.findMany({ where: { role: 'VENDOR' } })
 	for (const v of vendors) {
-		for (let i = 0; i < 10; i++) {
+		for (let i = 0; i < 25; i++) {
 			const productDate = faker.date.between({
 				from: '2024-01-01T00:00:00.000Z',
 				to: '2024-02-29T00:00:00.000Z',
