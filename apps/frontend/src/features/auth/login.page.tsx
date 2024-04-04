@@ -1,9 +1,10 @@
-import { Anchor, Button, PasswordInput, TextInput } from '@mantine/core'
+import { Anchor, Button, Modal, PasswordInput, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
+import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { User } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
-import { Link, redirect, useNavigate } from 'react-router-dom'
+import { redirect, useNavigate } from 'react-router-dom'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 
@@ -24,8 +25,9 @@ export async function loginLoader() {
 
 const Login = () => {
 	const navigate = useNavigate()
+	const [opened, { open, close }] = useDisclosure(false)
 
-	const form = useForm({
+	const loginForm = useForm({
 		initialValues: {
 			email: '',
 			password: '',
@@ -39,6 +41,20 @@ const Login = () => {
 					: 'Email cannot be empty',
 			password: (value) =>
 				value.length > 0 ? null : 'Password cannot be empty',
+		},
+	})
+
+	const resetPasswordForm = useForm({
+		initialValues: {
+			email: '',
+		},
+		validate: {
+			email: (value) =>
+				value.length > 0
+					? /^\S+@\S+$/.test(value)
+						? null
+						: 'Invalid email'
+					: 'Email cannot be empty',
 		},
 	})
 
@@ -59,8 +75,46 @@ const Login = () => {
 		},
 	})
 
+	const resetPassword = useMutation({
+		mutationFn: (body: { email: string }) => {
+			return axios.post<{ message: string }>('/auth/reset-password', body)
+		},
+		onSuccess: ({ data }) => {
+			notifications.show({ message: data.message, color: 'green' })
+			resetPasswordForm.reset()
+			close()
+		},
+		onError: (err) => {
+			handleAxiosErrors(err)
+		},
+	})
+
 	return (
 		<>
+			<Modal opened={opened} onClose={close} title='Reset Password'>
+				<form
+					onSubmit={resetPasswordForm.onSubmit((values) =>
+						resetPassword.mutate(values),
+					)}
+				>
+					<p className='text-md font-bold'>
+						Note: You must have an account previously to reset password. If this
+						is the first time, contact the administrator at{' '}
+						<Anchor href='mailto:john@email.com'>john@email.com</Anchor> create
+						an account first.
+					</p>
+					<TextInput
+						label='Email'
+						placeholder='Enter your email'
+						type='email'
+						{...resetPasswordForm.getInputProps('email')}
+					/>
+					<Button type='submit' loading={resetPassword.isPending}>
+						Reset Password
+					</Button>
+				</form>
+			</Modal>
+
 			<div className='ml-[-1.5em] mt-36'>
 				<span className='mx-auto flex justify-center items-center'>
 					{/* the bitcoin symbol which is used as B in Bitwise */}
@@ -79,7 +133,7 @@ const Login = () => {
 				</span>
 			</div>
 			<form
-				onSubmit={form.onSubmit((values) => {
+				onSubmit={loginForm.onSubmit((values) => {
 					login.mutate(values)
 				})}
 			>
@@ -87,17 +141,17 @@ const Login = () => {
 					label='Email'
 					placeholder='Enter your email'
 					type='email'
-					{...form.getInputProps('email')}
+					{...loginForm.getInputProps('email')}
 				/>
 				<PasswordInput
 					label='Password'
 					placeholder='Enter your password'
-					{...form.getInputProps('password')}
+					{...loginForm.getInputProps('password')}
 				/>
 				<Button type='submit'>Login</Button>
 				<p className='text-center text-sm'>
 					Click{' '}
-					<Anchor component={Link} to='/forgot-password' size='sm'>
+					<Anchor component='button' size='sm' onClick={open} type='button'>
 						here
 					</Anchor>{' '}
 					to reset your password
