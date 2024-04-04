@@ -120,6 +120,7 @@ async function main() {
 	console.log('Seeded users')
 
 	await prisma.category.createMany({ data: categories })
+	console.log('Seeded categories')
 
 	const products: Omit<Product, 'id'>[] = []
 
