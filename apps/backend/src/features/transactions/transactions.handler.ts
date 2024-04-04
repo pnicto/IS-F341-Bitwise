@@ -175,3 +175,36 @@ export const updateTransactionTags: RequestHandler = async (req, res, next) => {
 		next(err)
 	}
 }
+
+export const validateTransactionFilters = [
+	query('transactionType').trim().isIn(['DEBIT', 'CREDIT']).optional(),
+]
+export const filterTransactionHistory: RequestHandler = async (
+	req,
+	res,
+	next,
+) => {
+	try {
+		const { transactionType } = validateRequest<{
+			transactionType: string | null
+		}>(req)
+		let filtered
+		const user = getAuthorizedUser(req)
+		if (transactionType === 'DEBIT') {
+			filtered = await prisma.transaction.findMany({
+				where: {
+					senderUsername: user.username,
+				},
+			})
+		} else {
+			filtered = await prisma.transaction.findMany({
+				where: {
+					receiverUsername: user.username,
+				},
+			})
+		}
+		return res.status(StatusCodes.OK).json({ filtered })
+	} catch (err) {
+		next(err)
+	}
+}

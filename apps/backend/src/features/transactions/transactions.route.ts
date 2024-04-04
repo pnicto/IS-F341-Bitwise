@@ -1,8 +1,10 @@
-import express from 'express'
 import { Role } from '@prisma/client'
+import express from 'express'
 import { authorize } from '../../middleware/authorize'
 import {
+	filterTransactionHistory,
 	updateTransactionTags,
+	validateTransactionFilters,
 	validateUpdatedTags,
 	viewTransactionHistory,
 	viewTransactionHistoryValidator,
@@ -21,4 +23,10 @@ transactionRouter.post(
 	authorize(Role.STUDENT, Role.VENDOR),
 	validateUpdatedTags,
 	updateTransactionTags,
+)
+
+transactionRouter.get(
+	'/filter',
+	validateTransactionFilters,
+	filterTransactionHistory,
 )
