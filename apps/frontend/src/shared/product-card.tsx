@@ -35,15 +35,16 @@ const ProductCard = ({
 						{categoryName && <Badge>{categoryName}</Badge>}
 					</Grid.Col>
 				</Grid>
-				{showVendorDetails && sellerDetails.shopName !== null ? (
-					<p>
-						Sold by: <b>{sellerDetails.shopName}</b>
-					</p>
-				) : (
-					<p>
-						Sold by: <b>{sellerDetails.username}</b>
-					</p>
-				)}
+				{showVendorDetails &&
+					(sellerDetails.shopName !== null ? (
+						<p>
+							Sold by: <b>{sellerDetails.shopName}</b>
+						</p>
+					) : (
+						<p>
+							Sold by: <b>{sellerDetails.username}</b>
+						</p>
+					))}
 
 				<p>{description}</p>
 
