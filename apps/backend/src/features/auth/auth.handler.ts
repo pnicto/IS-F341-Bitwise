@@ -4,7 +4,7 @@ import { RequestHandler } from 'express'
 import { body } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
-import { Forbidden, Unauthorized } from '../../errors/CustomErrors'
+import { Forbidden, NotFound, Unauthorized } from '../../errors/CustomErrors'
 import { generateAccessToken } from '../../utils/generateToken'
 import { hashPassword, verifyPassword } from '../../utils/password'
 import { validateRequest } from '../../utils/validateRequest'
@@ -79,9 +79,8 @@ export const resetPassword: RequestHandler = async (req, res, next) => {
 		})
 
 		if (!user) {
-			throw new Unauthorized('Invalid email')
+			throw new NotFound('Invalid email')
 		}
-
 		const password = crypto.randomBytes(4).toString('hex')
 		const hashedPassword = await hashPassword(password)
 		await prisma.user.update({
