@@ -58,6 +58,7 @@ const TransactionHistory = () => {
 		},
 	})
 
+	const numberOfItems = 5
 	const [currentPage, setCurrentPage] = useState(1)
 	const [modalIsOpen, modalHandlers] = useDisclosure(false)
 
@@ -89,7 +90,7 @@ const TransactionHistory = () => {
 			const response = await axios.get<{
 				transactions: HistoryItem[]
 				totalPages: number
-			}>(`/transactions/view?items=5&page=${currentPage}`)
+			}>(`/transactions/view?items=${numberOfItems}&page=${currentPage}`)
 			return response.data
 		},
 		select: (data) => {

@@ -7,6 +7,7 @@ import axios from '../../lib/axios'
 import ProductCard from '../../shared/product-card'
 
 const SearchProduct = () => {
+	const numberOfItems = 6
 	const [searchParams] = useSearchParams()
 	const productName = searchParams.get('name')
 	const categoryName = searchParams.get('category')
@@ -27,7 +28,7 @@ const SearchProduct = () => {
 				products: Product[]
 				totalPages: number
 			}>(
-				`/products/search?name=${productName}&category=${categoryName}&items=6&page=${currentPage}`,
+				`/products/search?name=${productName}&category=${categoryName}&items=${numberOfItems}&page=${currentPage}`,
 			)
 			return response.data
 		},
@@ -63,9 +64,9 @@ const SearchProduct = () => {
 		<>
 			<div className='text-lg pb-5'>
 				<p className='inline'>
-					Showing results {(currentPage - 1) * 6 + 1} -{' '}
-					{(currentPage - 1) * 6 + searchQuery.data.products.length} for "
-					<em>{productName}</em>"
+					Showing results {(currentPage - 1) * numberOfItems + 1} -{' '}
+					{(currentPage - 1) * numberOfItems + searchQuery.data.products.length}{' '}
+					for "<em>{productName}</em>"
 				</p>
 				{categoryName && (
 					<p className='inline'>
