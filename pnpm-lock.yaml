@@ -56,9 +56,6 @@ dependencies:
   imagekit:
     specifier: ^5.0.0
     version: 5.0.0
-  imagekitio-react:
-    specifier: ^4.0.0
-    version: 4.0.0(react-dom@18.2.0)(react@18.2.0)
   jsonwebtoken:
     specifier: ^9.0.2
     version: 9.0.2
@@ -7917,10 +7914,6 @@ packages:
     dev: true
     optional: true
 
-  /imagekit-javascript@3.0.0:
-    resolution: {integrity: sha512-39Q54v1fwRlCYnVyalfRi9UFuUq4t+vnktWUzqjBHRguOB+wLNnAEuPbNbm0NUBJAUw5He4C1k/0vbNLOvU/4g==}
-    dev: false
-
   /imagekit@5.0.0:
     resolution: {integrity: sha512-BrWk2/16xcL1/p9SuphsDPlIV5U8165ZnhaVL87ze00dIf+1lyKXAFCImGYqSjtgjn2gQnrNmFaCSyWNaHvmhQ==}
     engines: {node: '>=12.0.0'}
@@ -7933,18 +7926,6 @@ packages:
       uuid: 8.3.2
     transitivePeerDependencies:
       - debug
-    dev: false
-
-  /imagekitio-react@4.0.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-O7dsPnAb92JCtHsl8RqOAYq8uhJR98VgC+ddHXNStaS6Frj6u4pQ4ftdtISfh8AMnZj/celnsdv0qOuj81RHhw==}
-    peerDependencies:
-      react: ^16.13.1 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.13.1 || ^17.0.0 || ^18.0.0
-    dependencies:
-      imagekit-javascript: 3.0.0
-      prop-types: 15.8.1
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /immutable@4.3.5:

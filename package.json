@@ -29,7 +29,6 @@
 		"express-validator": "^7.0.1",
 		"http-status-codes": "^2.3.0",
 		"imagekit": "^5.0.0",
-		"imagekitio-react": "^4.0.0",
 		"jsonwebtoken": "^9.0.2",
 		"morgan": "^1.10.0",
 		"multer": "1.4.5-lts.1",
