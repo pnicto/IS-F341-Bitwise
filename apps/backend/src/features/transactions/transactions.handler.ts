@@ -1,3 +1,4 @@
+import { Transaction } from '@prisma/client'
 import { RequestHandler } from 'express'
 import { body, param, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
@@ -178,6 +179,8 @@ export const updateTransactionTags: RequestHandler = async (req, res, next) => {
 
 export const validateTransactionFilters = [
 	query('transactionType').trim().isIn(['DEBIT', 'CREDIT']).optional(),
+	query('from').trim().optional(),
+	query('to').trim().optional(),
 ]
 export const filterTransactionHistory: RequestHandler = async (
 	req,
@@ -185,24 +188,59 @@ export const filterTransactionHistory: RequestHandler = async (
 	next,
 ) => {
 	try {
-		const { transactionType } = validateRequest<{
+		const filterList = Object.keys(req.query)
+		if (filterList.length === 0)
+			throw new BadRequest('Use at least one filter.')
+		const { transactionType, from, to } = validateRequest<{
 			transactionType: string | null
+			from: Transaction['senderUsername']
+			to: Transaction['receiverUsername']
 		}>(req)
-		let filtered
-		const user = getAuthorizedUser(req)
-		if (transactionType === 'DEBIT') {
-			filtered = await prisma.transaction.findMany({
-				where: {
-					senderUsername: user.username,
-				},
-			})
-		} else {
-			filtered = await prisma.transaction.findMany({
-				where: {
-					receiverUsername: user.username,
-				},
-			})
+		if (from && to) {
+			throw new BadRequest('Cannot filter with from and to')
 		}
+		const user = getAuthorizedUser(req)
+		let filter = ''
+		for (const k in filterList) {
+			const f = filterList[k]
+			switch (f) {
+				case 'transactionType':
+					if (transactionType === 'DEBIT') {
+						filter += 'senderUsername: user.username,'
+					} else {
+						filter += 'receiverUsername: user.username,'
+					}
+					break
+				case 'from':
+					if (!transactionType) {
+						filter += 'senderUsername: from,receiverUsername: user.username,'
+					} else {
+						if (transactionType === 'CREDIT') {
+							filter += 'senderUsername: from,'
+						} else {
+							throw new BadRequest('Cannot filter with from and DEBIT')
+						}
+					}
+					break
+				case 'to':
+					if (!transactionType) {
+						filter += 'senderUsername: user.username,receiverUsername: to,'
+					} else {
+						if (transactionType === 'DEBIT') {
+							filter += 'receiverUsername: to,'
+						} else {
+							throw new BadRequest('Cannot filter with to and CREDIT')
+						}
+					}
+					break
+				default:
+					break
+			}
+		}
+		console.log(filter)
+		const filterObject = eval('({' + filter + '})')
+		console.log(filterObject)
+		const filtered = await prisma.transaction.findMany({ where: filterObject })
 		return res.status(StatusCodes.OK).json({ filtered })
 	} catch (err) {
 		next(err)
