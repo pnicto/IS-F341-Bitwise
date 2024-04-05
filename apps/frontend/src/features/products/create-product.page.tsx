@@ -130,7 +130,7 @@ const CreateProduct = () => {
 			/>
 			{form.values.image === null ? (
 				<Dropzone
-					accept={[MIME_TYPES.png, MIME_TYPES.jpeg, MIME_TYPES.svg]}
+					accept={[MIME_TYPES.png, MIME_TYPES.jpeg]}
 					onDrop={(files) => {
 						setImageURL(URL.createObjectURL(files[0]))
 						form.setFieldValue('image', files[0])
@@ -161,7 +161,7 @@ const CreateProduct = () => {
 					</div>
 				</Dropzone>
 			) : (
-				<div className=''>
+				<>
 					<Image
 						src={imageURL}
 						onLoad={() => URL.revokeObjectURL(imageURL)}
@@ -170,6 +170,7 @@ const CreateProduct = () => {
 						className='m-auto'
 					/>
 					<div className='flex flex-col pt-4'>
+						{/* TODO: figure out how to replace with a cross button on top right of image */}
 						<Button
 							size='s'
 							onClick={() => {
@@ -181,7 +182,7 @@ const CreateProduct = () => {
 							Remove Image
 						</Button>
 					</div>
-				</div>
+				</>
 			)}
 			{form.errors.image && (
 				<Text c='red' mt={5}>

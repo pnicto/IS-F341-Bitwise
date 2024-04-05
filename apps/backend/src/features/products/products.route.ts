@@ -35,7 +35,13 @@ productRouter.post(
 	validateNewProduct,
 	createProduct,
 )
-productRouter.post('/update/:id', validateUpdatedProduct, updateProduct)
+productRouter.post(
+	'/update/:id',
+	upload.single('image'),
+	unpackProductJSON,
+	validateUpdatedProduct,
+	updateProduct,
+)
 productRouter.post('/delete/:id', validateDeletedProduct, deleteProduct)
 productRouter.get('/', validateProductQuery, getProducts)
 productRouter.get('/search', validateSearchProduct, searchProducts)

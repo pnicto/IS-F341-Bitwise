@@ -61,7 +61,16 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 		}
 
 		const vendor = getAuthorizedUser(req)
-		const newProduct = await prisma.product.create({
+
+		// TODO: Handle errors in uploading image
+		const uploadResponse = await imagekit.upload({
+			file: image.buffer,
+			fileName: name,
+			useUniqueFileName: true,
+			folder: '/bitwise',
+		})
+
+		await prisma.product.create({
 			data: {
 				name,
 				description,
@@ -74,15 +83,9 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 					mobile: vendor.mobile,
 					shopName: vendor.shopName,
 				},
+				imageId: uploadResponse.fileId,
+				imagePath: uploadResponse.filePath,
 			},
-		})
-
-		// TODO: Handle errors in uploading image
-		await imagekit.upload({
-			file: image.buffer,
-			fileName: newProduct.id,
-			useUniqueFileName: false,
-			folder: '/bitwise',
 		})
 
 		return res
@@ -183,6 +186,8 @@ export const updateProduct: RequestHandler = async (req, res, next) => {
 				Pick<Product, 'name' | 'description' | 'price' | 'categoryName' | 'id'>
 			>(req)
 
+		const image = req.file
+
 		if (categoryName) {
 			const category = await prisma.category.findUnique({
 				where: { name: categoryName },
@@ -203,9 +208,48 @@ export const updateProduct: RequestHandler = async (req, res, next) => {
 			throw new Forbidden('The user does not own this product')
 		}
 
+		let imageId = product.imageId
+		let imagePath = product.imagePath
+
+		if (image !== undefined) {
+			// TODO: figure out what other mime types to support
+			if (!['image/jpeg', 'image/png'].includes(image.mimetype)) {
+				throw new BadRequest('Product image must be a PNG or JPG')
+			}
+
+			// TODO: figure out what max size of image to allow (if changed, frontend will also need updating)
+			if (image.size > 5 * 1024 ** 2) {
+				throw new BadRequest('Product image must not be larger than 5 MB')
+			}
+
+			// TODO: Handle errors in deleting and uploading image
+			try {
+				await imagekit.deleteFile(product.imageId)
+			} catch (err) {
+				console.log(err)
+			}
+
+			const uploadResponse = await imagekit.upload({
+				file: image.buffer,
+				fileName: product.name,
+				useUniqueFileName: true,
+				folder: 'bitwise',
+			})
+
+			imageId = uploadResponse.fileId
+			imagePath = uploadResponse.filePath
+		}
+
 		await prisma.product.update({
 			where: { id: id },
-			data: { name, description, price, categoryName: categoryName || null },
+			data: {
+				name,
+				description,
+				price,
+				categoryName: categoryName || null,
+				imageId,
+				imagePath,
+			},
 		})
 		return res
 			.status(StatusCodes.OK)

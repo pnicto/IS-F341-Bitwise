@@ -69,6 +69,8 @@ model Product {
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
   sellerDetails SellerContactInfo
+  imageId       String
+  imagePath     String
 
   @@unique([name, vendorId])
 }

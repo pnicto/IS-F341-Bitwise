@@ -21,6 +21,8 @@ const ProductCard = ({
 	allowEdit = false,
 	editComponent,
 	deleteComponent,
+	imageId,
+	imagePath,
 }: Props) => {
 	return (
 		// TODO: show image
@@ -38,8 +40,8 @@ const ProductCard = ({
 				</Grid>
 				<p>{description}</p>
 				<Image
-					src={`${import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT}/bitwise/${id}`}
-					fallbackSrc='https://placehold.co/600x400?text=Image+Not+Found&font=roboto'
+					src={`${import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT}${imagePath}`}
+					fallbackSrc='/fallbackProductImage.png'
 				/>
 				{vendor && showVendorDetails && (
 					<Group>

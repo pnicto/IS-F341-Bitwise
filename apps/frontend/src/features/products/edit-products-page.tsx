@@ -1,19 +1,23 @@
 import { Icon } from '@iconify/react'
 import {
 	Button,
+	Image,
 	Loader,
 	Modal,
 	NumberInput,
 	Select,
 	SimpleGrid,
+	Text,
 	TextInput,
 	Textarea,
 } from '@mantine/core'
+import { Dropzone, FileWithPath, MIME_TYPES } from '@mantine/dropzone'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { Product } from '@prisma/client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 import ProductCard from '../../shared/product-card'
@@ -26,6 +30,8 @@ const EditProducts = () => {
 	const categoriesQuery = useCategoriesQuery()
 
 	const vendorId = userQuery.data?.user.id
+
+	const [imageURL, setImageURL] = useState('')
 
 	const shopProductsQuery = useQuery({
 		queryKey: ['shopProducts', vendorId],
@@ -44,6 +50,9 @@ const EditProducts = () => {
 		description: string
 		price: number
 		categoryName: string
+		image: FileWithPath | null
+		imageWasEdited: boolean
+		imagePath: string
 	}>({
 		initialValues: {
 			id: '',
@@ -51,12 +60,17 @@ const EditProducts = () => {
 			description: '',
 			price: 100,
 			categoryName: '',
+			image: null,
+			imageWasEdited: false,
+			imagePath: '',
 		},
 		validate: {
 			name: (value) => (value.length > 0 ? null : 'Name cannot be empty'),
 			description: (value) =>
 				value.length > 0 ? null : 'Description cannot be empty',
 			price: (value) => (value > 0 ? null : 'Invalid price'),
+			image: (value, values) =>
+				values.imageWasEdited && value === null ? 'Image is required' : null,
 		},
 	})
 
@@ -68,12 +82,31 @@ const EditProducts = () => {
 		mutationFn: (
 			newProduct: Pick<
 				Product,
-				'id' | 'name' | 'description' | 'price' | 'categoryName'
-			>,
+				'id' | 'name' | 'description' | 'price' | 'categoryName' | 'imagePath'
+			> & { image: FileWithPath | null; imageWasEdited: boolean },
 		) => {
+			const formData = new FormData()
+
+			const productJSON = JSON.stringify({
+				name: newProduct.name,
+				description: newProduct.description,
+				price: newProduct.price,
+				categoryName: newProduct.categoryName,
+			})
+
+			formData.append('product', productJSON)
+			if (newProduct.imageWasEdited) {
+				formData.append('image', newProduct.image as FileWithPath)
+			}
+
 			return axios.post<{ message: string }>(
 				`/products/update/${newProduct.id}`,
-				newProduct,
+				formData,
+				{
+					headers: {
+						'Content-Type': `multipart/form-data`,
+					},
+				},
 			)
 		},
 		onSuccess: ({ data }) => {
@@ -165,6 +198,97 @@ const EditProducts = () => {
 						placeholder='40'
 						{...updateProductForm.getInputProps('price')}
 					/>
+					{!updateProductForm.values.imageWasEdited ? (
+						<div>
+							<Image
+								src={`${import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT}${
+									updateProductForm.values.imagePath
+								}`}
+								fallbackSrc='/fallbackProductImage.png'
+							/>
+							<div className='flex flex-col py-4'>
+								{/* TODO: figure out how to replace with an edit on top image, or if that's even needed */}
+								<Button
+									size='s'
+									onClick={() => {
+										updateProductForm.setFieldValue('imageWasEdited', true)
+									}}
+								>
+									Replace Image
+								</Button>
+							</div>
+						</div>
+					) : updateProductForm.values.image === null ? (
+						<Dropzone
+							accept={[MIME_TYPES.png, MIME_TYPES.jpeg]}
+							onDrop={(files) => {
+								setImageURL(URL.createObjectURL(files[0]))
+								updateProductForm.setFieldValue('image', files[0])
+							}}
+							onReject={() =>
+								updateProductForm.setFieldError(
+									'image',
+									'File must be an image no larger than 5MB',
+								)
+							}
+							maxSize={5 * 1024 ** 2}
+						>
+							<div className='flex gap-4 justify-center items-center'>
+								<Dropzone.Idle>
+									<Icon icon='tabler:upload' width={24} height={24} />
+								</Dropzone.Idle>
+								<span>
+									<Text size='xl' inline>
+										Upload product image
+									</Text>
+									<Text size='sm' c='dimmed' inline mt={7}>
+										The image size should not exceed 5MB.
+									</Text>
+									<Text size='sm' c='dimmed' inline mt={7}>
+										Formats accepted: .png, .jpeg
+									</Text>
+								</span>
+							</div>
+						</Dropzone>
+					) : (
+						<>
+							<Image
+								src={imageURL}
+								onLoad={() => URL.revokeObjectURL(imageURL)}
+								h={200}
+								w={'auto'}
+								className='m-auto'
+							/>
+							<div className='flex flex-col pt-4'>
+								{/* TODO: figure out how to replace with a cross button on top right of image */}
+								<Button
+									size='s'
+									onClick={() => {
+										updateProductForm.setFieldValue('image', null)
+										setImageURL('')
+									}}
+									color='red'
+								>
+									Remove Image
+								</Button>
+							</div>
+						</>
+					)}
+					{updateProductForm.errors.image && (
+						<Text c='red' mt={5}>
+							{updateProductForm.errors.image}
+						</Text>
+					)}
+					<Button
+						size='s'
+						onClick={() => {
+							updateProductForm.setFieldValue('imageWasEdited', false)
+							updateProductForm.setFieldValue('image', null)
+							setImageURL('')
+						}}
+					>
+						Cancel Image Replacement
+					</Button>
 					<Button type='submit' loading={updateProduct.isPending}>
 						Update
 					</Button>
