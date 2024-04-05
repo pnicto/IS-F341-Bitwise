@@ -191,6 +191,28 @@ export const validateTransactionFilters = [
 	query('toUser').trim().optional(),
 	query('fromDate').trim().optional(),
 	query('toDate').trim().optional(),
+	query('minAmount')
+		.trim()
+		.optional()
+		.isInt()
+		.toInt()
+		.withMessage('Minimum amount must be a number'),
+	query('maxAmount')
+		.trim()
+		.optional()
+		.isInt()
+		.toInt()
+		.withMessage('Maximum amount must be a number'),
+	query().custom((value, { req }) => {
+		const { minAmount, maxAmount } = req.query as {
+			minAmount: number
+			maxAmount: number
+		}
+		if (minAmount && maxAmount && minAmount > maxAmount) {
+			throw new Error('Minimum amount must be less than maximum amount')
+		}
+		return true
+	}),
 ]
 export const filterTransactionHistory: RequestHandler = async (
 	req,
@@ -198,22 +220,33 @@ export const filterTransactionHistory: RequestHandler = async (
 	next,
 ) => {
 	try {
-		const { items, page, transactionType, fromUser, toUser, fromDate, toDate } =
-			validateRequest<{
-				items: string | undefined
-				page: string | undefined
-				transactionType:
-					| 'DEBIT'
-					| 'CREDIT'
-					| 'DEPOSIT'
-					| 'WITHDRAWAL'
-					| ''
-					| undefined
-				fromUser: string | undefined
-				toUser: string | undefined
-				fromDate: string | undefined
-				toDate: string | undefined
-			}>(req)
+		const {
+			items,
+			page,
+			transactionType,
+			fromUser,
+			toUser,
+			fromDate,
+			toDate,
+			minAmount,
+			maxAmount,
+		} = validateRequest<{
+			items: string | undefined
+			page: string | undefined
+			transactionType:
+				| 'DEBIT'
+				| 'CREDIT'
+				| 'DEPOSIT'
+				| 'WITHDRAWAL'
+				| ''
+				| undefined
+			fromUser: string | undefined
+			toUser: string | undefined
+			fromDate: string | undefined
+			toDate: string | undefined
+			minAmount: number | undefined
+			maxAmount: number | undefined
+		}>(req)
 
 		let numberOfItems = intOrNaN(items)
 		let currentPage = intOrNaN(page)
@@ -246,6 +279,10 @@ export const filterTransactionHistory: RequestHandler = async (
 						gte: fromDate ? fromDate : undefined,
 						lte: toDate ? toDate : undefined,
 					},
+					amount: {
+						gte: minAmount ? minAmount : undefined,
+						lte: maxAmount ? maxAmount : undefined,
+					},
 				},
 				select: {
 					id: true,
@@ -273,6 +310,10 @@ export const filterTransactionHistory: RequestHandler = async (
 					createdAt: {
 						gte: fromDate ? fromDate : undefined,
 						lte: toDate ? toDate : undefined,
+					},
+					amount: {
+						gte: minAmount ? minAmount : undefined,
+						lte: maxAmount ? maxAmount : undefined,
 					},
 				},
 				select: {
@@ -306,6 +347,10 @@ export const filterTransactionHistory: RequestHandler = async (
 							gte: fromDate ? fromDate : undefined,
 							lte: toDate ? toDate : undefined,
 						},
+						amount: {
+							gte: minAmount ? minAmount : undefined,
+							lte: maxAmount ? maxAmount : undefined,
+						},
 					},
 					select: {
 						id: true,
@@ -336,6 +381,10 @@ export const filterTransactionHistory: RequestHandler = async (
 						createdAt: {
 							gte: fromDate ? fromDate : undefined,
 							lte: toDate ? toDate : undefined,
+						},
+						amount: {
+							gte: minAmount ? minAmount : undefined,
+							lte: maxAmount ? maxAmount : undefined,
 						},
 					},
 					select: {
