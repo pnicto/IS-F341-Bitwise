@@ -62,7 +62,7 @@ export const validateSplitRequest = [
 		.withMessage('At least one requestee is required'),
 	body('includeSelf')
 		.isBoolean()
-		.withMessage('Include self field must be a boolean'),
+		.withMessage('Include self is a required field and must be a boolean'),
 ]
 export const splitPaymentRequest: RequestHandler = async (req, res, next) => {
 	try {
