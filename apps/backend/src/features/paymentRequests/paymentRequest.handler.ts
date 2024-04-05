@@ -86,6 +86,11 @@ export const splitPaymentRequest: RequestHandler = async (req, res, next) => {
 		if (requesteeUsernames.includes(transaction.senderUsername)) {
 			throw new BadRequest('Cannot request payment from self')
 		}
+		if (requesteeUsernames.includes(transaction.receiverUsername)) {
+			throw new BadRequest(
+				'Cannot split request with receiver of the transaction',
+			)
+		}
 		const isAdminInRequestees = await prisma.user.findFirst({
 			where: { username: { in: requesteeUsernames }, role: 'ADMIN' },
 		})
