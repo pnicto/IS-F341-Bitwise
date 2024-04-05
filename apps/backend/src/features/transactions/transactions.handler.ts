@@ -1,12 +1,12 @@
-import { Transaction } from '@prisma/client'
+import { WalletTransactionType } from '@prisma/client'
 import { RequestHandler } from 'express'
 import { body, param, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
 import { BadRequest, Forbidden, NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
-import { validateRequest } from '../../utils/validateRequest'
 import { intOrNaN } from '../../utils/intOrNaN'
+import { validateRequest } from '../../utils/validateRequest'
 
 export const viewTransactionHistoryValidator = [
 	query('items').trim().optional(),
@@ -178,12 +178,19 @@ export const updateTransactionTags: RequestHandler = async (req, res, next) => {
 }
 
 export const validateTransactionFilters = [
-	query('transactionType').trim().isIn(['DEBIT', 'CREDIT']).optional(),
-	query('from').trim().optional(),
-	query('to').trim().optional(),
-	query('amountUpperLimit').isInt().toInt().optional(),
-	query('amountLowerLimit').isInt().toInt().optional(),
-	query('amount').isInt().toInt().optional(),
+	query('items').trim().optional(),
+	query('page').trim().optional(),
+	query('transactionType')
+		.trim()
+		.isIn([...Object.values(WalletTransactionType), 'DEBIT', 'CREDIT', ''])
+		.withMessage(
+			"transaction Type must be one of 'DEBIT', 'CREDIT', 'DEPOSIT', 'WITHDRAW'",
+		)
+		.optional(),
+	query('fromUser').trim().optional(),
+	query('toUser').trim().optional(),
+	query('fromDate').trim().optional(),
+	query('toDate').trim().optional(),
 ]
 export const filterTransactionHistory: RequestHandler = async (
 	req,
@@ -191,74 +198,177 @@ export const filterTransactionHistory: RequestHandler = async (
 	next,
 ) => {
 	try {
-		const filterList = Object.keys(req.query)
-		if (filterList.length === 0) {
-			throw new BadRequest('Use at least one filter.')
+		const { items, page, transactionType, fromUser, toUser, fromDate, toDate } =
+			validateRequest<{
+				items: string | undefined
+				page: string | undefined
+				transactionType:
+					| 'DEBIT'
+					| 'CREDIT'
+					| 'DEPOSIT'
+					| 'WITHDRAWAL'
+					| ''
+					| undefined
+				fromUser: string | undefined
+				toUser: string | undefined
+				fromDate: string | undefined
+				toDate: string | undefined
+			}>(req)
+
+		let numberOfItems = intOrNaN(items)
+		let currentPage = intOrNaN(page)
+
+		if (isNaN(numberOfItems)) {
+			numberOfItems = 10
 		}
-		const {
-			transactionType,
-			from,
-			to,
-			amountUpperLimit,
-			amountLowerLimit,
-			amount,
-		} = validateRequest<{
-			transactionType: string | null
-			from: Transaction['senderUsername']
-			to: Transaction['receiverUsername']
-			amountUpperLimit: Transaction['amount']
-			amountLowerLimit: Transaction['amount']
-			amount: Transaction['amount']
-		}>(req)
-		if (from && to) {
-			throw new BadRequest('Cannot filter with from and to')
+		if (isNaN(currentPage)) {
+			currentPage = 1
 		}
-		if (transactionType === 'DEBIT' && from) {
-			throw new BadRequest('Cannot filter with from and DEBIT')
+		currentPage -= 1
+
+		if (numberOfItems < 1) {
+			throw new BadRequest('Invalid number of items')
 		}
-		if (transactionType === 'CREDIT' && to) {
-			throw new BadRequest('Cannot filter with to and CREDIT')
+		if (currentPage < 0) {
+			throw new BadRequest('Invalid page number')
 		}
-		if (amountLowerLimit >= amountUpperLimit) {
-			throw new BadRequest(
-				'The minimum amount cannot be more than the maximum amount',
-			)
-		}
-		if (amountLowerLimit === amountUpperLimit - 1) {
-			throw new BadRequest(
-				'There cannot be any transactions with this amount range',
-			)
-		}
-		if (amount && (amountLowerLimit || amountUpperLimit)) {
-			throw new BadRequest('Cannot filter with an exact amount and a range')
-		}
+
 		const user = getAuthorizedUser(req)
-		const filtered = await prisma.transaction.findMany({
-			where: {
-				senderUsername:
-					transactionType === 'DEBIT' || to
-						? user.username
-						: from
-						? from
-						: undefined,
-				receiverUsername:
-					transactionType === 'CREDIT' || from
-						? user.username
-						: to
-						? to
-						: undefined,
-				amount: amountLowerLimit
-					? amountUpperLimit
-						? { lt: amountUpperLimit, gt: amountLowerLimit }
-						: { gt: amountLowerLimit }
-					: amountUpperLimit
-					? { lt: amountUpperLimit }
-					: amount
-					? amount
-					: undefined,
-			},
+
+		const allTransactions = []
+
+		if (!fromUser && (transactionType === 'DEBIT' || !transactionType)) {
+			const debitTransactions = await prisma.transaction.findMany({
+				where: {
+					senderUsername: user.username,
+					receiverUsername: toUser ? toUser : undefined,
+					createdAt: {
+						gte: fromDate ? fromDate : undefined,
+						lte: toDate ? toDate : undefined,
+					},
+				},
+				select: {
+					id: true,
+					amount: true,
+					senderUsername: true,
+					receiverUsername: true,
+					senderTags: true,
+					createdAt: true,
+				},
+			})
+			const debitHistory = debitTransactions.map((transaction) => {
+				return {
+					...transaction,
+					type: 'DEBIT',
+				}
+			})
+			allTransactions.push(...debitHistory)
+		}
+
+		if (!toUser && (transactionType === 'CREDIT' || !transactionType)) {
+			const creditTransactions = await prisma.transaction.findMany({
+				where: {
+					senderUsername: fromUser ? fromUser : undefined,
+					receiverUsername: user.username,
+					createdAt: {
+						gte: fromDate ? fromDate : undefined,
+						lte: toDate ? toDate : undefined,
+					},
+				},
+				select: {
+					id: true,
+					amount: true,
+					senderUsername: true,
+					receiverUsername: true,
+					recieverTags: true,
+					createdAt: true,
+				},
+			})
+			const creditHistory = creditTransactions.map((transaction) => {
+				return {
+					...transaction,
+					type: 'CREDIT',
+				}
+			})
+			allTransactions.push(...creditHistory)
+		}
+
+		if (
+			!(fromUser || toUser) &&
+			(transactionType === 'DEPOSIT' || !transactionType)
+		) {
+			const depositTransactions =
+				await prisma.walletTransactionHistory.findMany({
+					where: {
+						userId: user.id,
+						type: WalletTransactionType.DEPOSIT,
+						createdAt: {
+							gte: fromDate ? fromDate : undefined,
+							lte: toDate ? toDate : undefined,
+						},
+					},
+					select: {
+						id: true,
+						amount: true,
+						type: true,
+						createdAt: true,
+					},
+				})
+			const depositHistory = depositTransactions.map((transaction) => {
+				return {
+					...transaction,
+					senderUsername: '-',
+					receiverUsername: '-',
+				}
+			})
+			allTransactions.push(...depositHistory)
+		}
+
+		if (
+			!(fromUser || toUser) &&
+			(transactionType === 'WITHDRAWAL' || !transactionType)
+		) {
+			const withdrawTransactions =
+				await prisma.walletTransactionHistory.findMany({
+					where: {
+						userId: user.id,
+						type: WalletTransactionType.WITHDRAWAL,
+						createdAt: {
+							gte: fromDate ? fromDate : undefined,
+							lte: toDate ? toDate : undefined,
+						},
+					},
+					select: {
+						id: true,
+						amount: true,
+						type: true,
+						createdAt: true,
+					},
+				})
+			const withdrawHistory = withdrawTransactions.map((transaction) => {
+				return {
+					...transaction,
+					senderUsername: '-',
+					receiverUsername: '-',
+				}
+			})
+			allTransactions.push(...withdrawHistory)
+		}
+
+		allTransactions.sort((a, b) => {
+			return b.createdAt.getTime() - a.createdAt.getTime()
 		})
-		return res.status(StatusCodes.OK).json({ filtered })
+
+		return res.status(StatusCodes.OK).json({
+			transactions: allTransactions.slice(
+				numberOfItems * currentPage,
+				numberOfItems * currentPage + numberOfItems,
+			),
+			totalPages: Math.ceil(
+				allTransactions.length /
+					Math.min(numberOfItems, allTransactions.length),
+			),
+		})
 	} catch (err) {
 		next(err)
 	}
