@@ -59,7 +59,9 @@ export const validateSplitRequest = [
 	param('id').trim().notEmpty().withMessage('Transaction ID is required'),
 	body('requesteeUsernames')
 		.isArray({ min: 1 })
-		.withMessage('At least one requestee is required'),
+		.withMessage('At least one requestee is required')
+		.isString()
+		.withMessage('Requestee usernames must be strings'),
 	body('includeSelf')
 		.isBoolean()
 		.withMessage('Include self is a required field and must be a boolean'),
