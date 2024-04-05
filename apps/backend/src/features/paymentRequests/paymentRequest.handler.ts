@@ -116,6 +116,11 @@ export const splitPaymentRequest: RequestHandler = async (req, res, next) => {
 				)}`,
 			)
 		}
+		if (transaction.amount < requesteeUsernamesFound.length) {
+			throw new BadRequest(
+				`Cannot split amount: ${transaction.amount} with ${requesteeUsernamesFound.length} people. Please choose fewer people than the amount.`,
+			)
+		}
 		let amountPerRequestee = transaction.amount / requesteeUsernamesFound.length
 		if (includeSelf) {
 			amountPerRequestee =
