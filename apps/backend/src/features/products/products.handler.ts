@@ -321,7 +321,7 @@ export const addCategory: RequestHandler = async (req, res, next) => {
 		await prisma.category.create({ data: { name } })
 		return res
 			.status(StatusCodes.CREATED)
-			.json({ message: 'Product successfully created' })
+			.json({ message: 'Category successfully created' })
 	} catch (err) {
 		next(err)
 	}
