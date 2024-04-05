@@ -4,6 +4,7 @@ import { body, param, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import ImageKit from 'imagekit'
 import { prisma } from '../../config/prisma'
+import { CustomError } from '../../errors/BaseCustomError'
 import { BadRequest, Forbidden, NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
@@ -61,14 +62,19 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 		}
 
 		const vendor = getAuthorizedUser(req)
+		let uploadResponse
 
-		// TODO: Handle errors in uploading image
-		const uploadResponse = await imagekit.upload({
-			file: image.buffer,
-			fileName: name,
-			useUniqueFileName: true,
-			folder: '/bitwise',
-		})
+		// TODO: Properly handle errors in uploading image
+		try {
+			uploadResponse = await imagekit.upload({
+				file: image.buffer,
+				fileName: name,
+				useUniqueFileName: true,
+				folder: '/bitwise',
+			})
+		} catch (err) {
+			throw new CustomError('Error updating product image', 500)
+		}
 
 		await prisma.product.create({
 			data: {
@@ -222,22 +228,28 @@ export const updateProduct: RequestHandler = async (req, res, next) => {
 				throw new BadRequest('Product image must not be larger than 5 MB')
 			}
 
-			// TODO: Handle errors in deleting and uploading image
+			// TODO: Properly handle errors in deleting and uploading image
 			try {
 				await imagekit.deleteFile(product.imageId)
 			} catch (err) {
+				// We don't want to always throw an error here because even if delete failed (probably due to the image not existing) we still want the update to go through
 				console.log(err)
 			}
+			try {
+				const uploadResponse = await imagekit.upload({
+					file: image.buffer,
+					fileName: product.name,
+					useUniqueFileName: true,
+					folder: 'bitwise',
+				})
 
-			const uploadResponse = await imagekit.upload({
-				file: image.buffer,
-				fileName: product.name,
-				useUniqueFileName: true,
-				folder: 'bitwise',
-			})
+				imageId = uploadResponse.fileId
+				imagePath = uploadResponse.filePath
+			} catch (err) {
+				console.log(err)
 
-			imageId = uploadResponse.fileId
-			imagePath = uploadResponse.filePath
+				throw new CustomError('Error updating product image', 500)
+			}
 		}
 
 		await prisma.product.update({
