@@ -181,6 +181,9 @@ export const validateTransactionFilters = [
 	query('transactionType').trim().isIn(['DEBIT', 'CREDIT']).optional(),
 	query('from').trim().optional(),
 	query('to').trim().optional(),
+	query('amountUpperLimit').isInt().toInt().optional(),
+	query('amountLowerLimit').isInt().toInt().optional(),
+	query('amount').isInt().toInt().optional(),
 ]
 export const filterTransactionHistory: RequestHandler = async (
 	req,
@@ -192,10 +195,20 @@ export const filterTransactionHistory: RequestHandler = async (
 		if (filterList.length === 0) {
 			throw new BadRequest('Use at least one filter.')
 		}
-		const { transactionType, from, to } = validateRequest<{
+		const {
+			transactionType,
+			from,
+			to,
+			amountUpperLimit,
+			amountLowerLimit,
+			amount,
+		} = validateRequest<{
 			transactionType: string | null
 			from: Transaction['senderUsername']
 			to: Transaction['receiverUsername']
+			amountUpperLimit: Transaction['amount']
+			amountLowerLimit: Transaction['amount']
+			amount: Transaction['amount']
 		}>(req)
 		if (from && to) {
 			throw new BadRequest('Cannot filter with from and to')
@@ -206,50 +219,20 @@ export const filterTransactionHistory: RequestHandler = async (
 		if (transactionType === 'CREDIT' && to) {
 			throw new BadRequest('Cannot filter with to and CREDIT')
 		}
+		if (amountLowerLimit >= amountUpperLimit) {
+			throw new BadRequest(
+				'The minimum amount cannot be more than the maximum amount',
+			)
+		}
+		if (amountLowerLimit === amountUpperLimit - 1) {
+			throw new BadRequest(
+				'There cannot be any transactions with this amount range',
+			)
+		}
+		if (amount && (amountLowerLimit || amountUpperLimit)) {
+			throw new BadRequest('Cannot filter with an exact amount and a range')
+		}
 		const user = getAuthorizedUser(req)
-		// let filter = ''
-		// for (const k in filterList) {
-		// 	const f = filterList[k]
-		// 	switch (f) {
-		// 		case 'transactionType':
-		// 			if (transactionType === 'DEBIT') {
-		// 				filter += 'senderUsername: user.username,'
-		// 			} else {
-		// 				filter += 'receiverUsername: user.username,'
-		// 			}
-		// 			break
-		// 		case 'from':
-		// 			if (!transactionType) {
-		// 				filter += 'senderUsername: from,receiverUsername: user.username,'
-		// 			} else {
-		// 				if (transactionType === 'CREDIT') {
-		// 					filter += 'senderUsername: from,'
-		// 				} else {
-		// 					throw new BadRequest('Cannot filter with from and DEBIT')
-		// 				}
-		// 			}
-		// 			break
-		// 		case 'to':
-		// 			if (!transactionType) {
-		// 				filter += 'senderUsername: user.username,receiverUsername: to,'
-		// 			} else {
-		// 				if (transactionType === 'DEBIT') {
-		// 					filter += 'receiverUsername: to,'
-		// 				} else {
-		// 					throw new BadRequest('Cannot filter with to and CREDIT')
-		// 				}
-		// 			}
-		// 			break
-		// 		case 'amount':
-
-		// 			break
-		// 		default:
-		// 			break
-		// 	}
-		// }
-		// console.log(filter)
-		// const filterObject = eval('({' + filter + '})')
-		// console.log(filterObject)
 		const filtered = await prisma.transaction.findMany({
 			where: {
 				senderUsername:
@@ -264,6 +247,15 @@ export const filterTransactionHistory: RequestHandler = async (
 						: to
 						? to
 						: undefined,
+				amount: amountLowerLimit
+					? amountUpperLimit
+						? { lt: amountUpperLimit, gt: amountLowerLimit }
+						: { gt: amountLowerLimit }
+					: amountUpperLimit
+					? { lt: amountUpperLimit }
+					: amount
+					? amount
+					: undefined,
 			},
 		})
 		return res.status(StatusCodes.OK).json({ filtered })
