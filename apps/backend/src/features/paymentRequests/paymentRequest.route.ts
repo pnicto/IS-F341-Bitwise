@@ -53,7 +53,7 @@ paymentRequestRouter.post(
 
 paymentRequestRouter.post(
 	'/:id/split',
-	authorize(Role.STUDENT),
+	authorize(Role.STUDENT, Role.VENDOR),
 	validateSplitRequest,
 	splitPaymentRequest,
 )
