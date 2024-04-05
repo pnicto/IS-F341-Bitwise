@@ -1,13 +1,18 @@
+import { Icon } from '@iconify/react'
 import {
+	ActionIcon,
 	Badge,
 	Button,
+	Center,
 	ComboboxItem,
 	Loader,
 	Modal,
 	OptionsFilter,
 	Pagination,
 	Stack,
+	Switch,
 	TagsInput,
+	TextInput,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
@@ -61,7 +66,31 @@ const TransactionHistory = () => {
 	})
 
 	const [currentPage, setCurrentPage] = useState(1)
-	const [modalIsOpen, modalHandlers] = useDisclosure(false)
+	const splitTransactionForm = useForm<{
+		id: string
+		requesteeUsernames: string[]
+		includeSelf: boolean
+	}>({
+		initialValues: {
+			id: '',
+			requesteeUsernames: [],
+			includeSelf: false,
+		},
+		validate: {
+			requesteeUsernames: (value) => {
+				if (value.length === 0) {
+					return 'At least one username must be filled'
+				}
+				if (value.some((username) => username.length === 0)) {
+					return 'All usernames must be filled'
+				}
+				return null
+			},
+		},
+	})
+
+	const [tagsModalIsOpen, tagsModalHandlers] = useDisclosure(false)
+	const [splitsModalIsOpen, splitsModalHandlers] = useDisclosure(false)
 
 	const queryClient = useQueryClient()
 
@@ -75,7 +104,28 @@ const TransactionHistory = () => {
 		onSuccess: ({ data }) => {
 			queryClient.invalidateQueries({ queryKey: ['transactions'] })
 			updateTransactionTagsForm.reset()
-			modalHandlers.close()
+			tagsModalHandlers.close()
+			notifications.show({ message: data.message, color: 'green' })
+		},
+		onError: (err) => {
+			handleAxiosErrors(err)
+		},
+	})
+
+	const splitTransaction = useMutation({
+		mutationFn: (transaction: typeof splitTransactionForm.values) => {
+			return axios.post<{ message: string }>(
+				`/requests/${transaction.id}/split`,
+				{
+					requesteeUsernames: transaction.requesteeUsernames,
+					includeSelf: transaction.includeSelf,
+				},
+			)
+		},
+		onSuccess: ({ data }) => {
+			queryClient.invalidateQueries({ queryKey: ['transactions'] })
+			splitTransactionForm.reset()
+			splitsModalHandlers.close()
 			notifications.show({ message: data.message, color: 'green' })
 		},
 		onError: (err) => {
@@ -122,7 +172,7 @@ const TransactionHistory = () => {
 
 	return (
 		<>
-			<Modal opened={modalIsOpen} onClose={modalHandlers.close}>
+			<Modal opened={tagsModalIsOpen} onClose={tagsModalHandlers.close}>
 				<form
 					onSubmit={updateTransactionTagsForm.onSubmit((values) => {
 						updateTransactionTags.mutate(values)
@@ -142,6 +192,72 @@ const TransactionHistory = () => {
 					/>
 					<Button type='submit' loading={updateTransactionTags.isPending}>
 						Update tags
+					</Button>
+				</form>
+			</Modal>
+			<Modal
+				opened={splitsModalIsOpen}
+				onClose={() => {
+					splitTransactionForm.reset()
+					splitsModalHandlers.close()
+				}}
+			>
+				<form
+					onSubmit={splitTransactionForm.onSubmit(
+						(values) => {
+							splitTransaction.mutate(values)
+						},
+						(errors: typeof splitTransactionForm.errors) => {
+							if (errors.requesteeUsernames) {
+								notifications.show({
+									message: errors.requesteeUsernames,
+									color: 'red',
+								})
+							}
+						},
+					)}
+				>
+					{splitTransactionForm.values.requesteeUsernames.map((_, index) => (
+						<TextInput
+							required
+							key={index}
+							label={`Enter username ${index + 1}`}
+							placeholder='john420'
+							{...splitTransactionForm.getInputProps(
+								`requesteeUsernames.${index}`,
+							)}
+							rightSection={
+								index === 0 ? null : (
+									<ActionIcon
+										color='red'
+										onClick={() =>
+											splitTransactionForm.removeListItem(
+												'requesteeUsernames',
+												index,
+											)
+										}
+									>
+										<Icon icon='lucide:trash-2' />
+									</ActionIcon>
+								)
+							}
+						/>
+					))}
+					<Center>
+						<Switch
+							label='Include self?'
+							{...splitTransactionForm.getInputProps('includeSelf')}
+						/>
+					</Center>
+					<Button
+						onClick={() => {
+							splitTransactionForm.insertListItem('requesteeUsernames', '')
+						}}
+					>
+						Add User
+					</Button>
+					<Button type='submit' color='green'>
+						Split
 					</Button>
 				</form>
 			</Modal>
@@ -167,24 +283,40 @@ const TransactionHistory = () => {
 								: null
 						}
 						bottomRight={
-							transaction.type === 'DEBIT' || transaction.type === 'CREDIT' ? (
-								<Button
-									onClick={() => {
-										updateTransactionTagsForm.setValues({
-											id: transaction.id,
-											tags:
-												transaction.type === 'DEBIT'
-													? transaction.senderTags
-													: transaction.type === 'CREDIT'
-													? transaction.recieverTags
-													: [],
-										})
-										modalHandlers.open()
-									}}
-								>
-									Add tags
-								</Button>
-							) : null
+							<>
+								{transaction.type === 'DEBIT' ||
+								transaction.type === 'CREDIT' ? (
+									<Button
+										onClick={() => {
+											updateTransactionTagsForm.setValues({
+												id: transaction.id,
+												tags:
+													transaction.type === 'DEBIT'
+														? transaction.senderTags
+														: transaction.type === 'CREDIT'
+														? transaction.recieverTags
+														: [],
+											})
+											tagsModalHandlers.open()
+										}}
+									>
+										Add tags
+									</Button>
+								) : null}
+								{transaction.type === 'DEBIT' && (
+									<Button
+										onClick={() => {
+											splitTransactionForm.setValues({
+												id: transaction.id,
+												requesteeUsernames: [''],
+											})
+											splitsModalHandlers.open()
+										}}
+									>
+										Split
+									</Button>
+								)}
+							</>
 						}
 					/>
 				))}
