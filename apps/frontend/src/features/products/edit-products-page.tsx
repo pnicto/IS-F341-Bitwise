@@ -227,6 +227,12 @@ const EditProducts = () => {
 								<Dropzone.Idle>
 									<Icon icon='tabler:upload' width={24} height={24} />
 								</Dropzone.Idle>
+								<Dropzone.Accept>
+									<Icon icon='tabler:check' width={24} height={24} />
+								</Dropzone.Accept>
+								<Dropzone.Reject>
+									<Icon icon='tabler:x' width='24' height='24' color='red' />
+								</Dropzone.Reject>
 								<span>
 									<Text size='xl' inline>
 										Upload product image
