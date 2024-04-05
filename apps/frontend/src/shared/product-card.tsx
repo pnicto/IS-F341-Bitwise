@@ -1,4 +1,4 @@
-import { Badge, Card, Grid, Group, Stack } from '@mantine/core'
+import { Badge, Card, Grid, Group, Image, Stack } from '@mantine/core'
 import { Product, User } from '@prisma/client'
 import { ReactNode } from 'react'
 
@@ -37,7 +37,10 @@ const ProductCard = ({
 					</Grid.Col>
 				</Grid>
 				<p>{description}</p>
-
+				<Image
+					src={`${import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT}/bitwise/${id}`}
+					fallbackSrc='https://placehold.co/600x400?text=Image+Not+Found&font=roboto'
+				/>
 				{vendor && showVendorDetails && (
 					<Group>
 						<p>Sold by: {vendor.username}</p>
