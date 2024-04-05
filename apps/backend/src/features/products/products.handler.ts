@@ -288,6 +288,14 @@ export const deleteProduct: RequestHandler = async (req, res, next) => {
 			throw new Forbidden('The user does not own this product')
 		}
 
+		// TODO: Properly handle errors in deleting image
+		try {
+			await imagekit.deleteFile(product.imageId)
+		} catch (err) {
+			// We don't want to always throw an error here because even if delete failed (probably due to the image not existing) we still want the product deletion to go through
+			console.log(err)
+		}
+
 		await prisma.product.delete({
 			where: { id: id },
 		})
