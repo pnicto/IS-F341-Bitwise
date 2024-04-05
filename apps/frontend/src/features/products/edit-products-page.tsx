@@ -7,6 +7,7 @@ import {
 	NumberInput,
 	Select,
 	SimpleGrid,
+	Switch,
 	Text,
 	TextInput,
 	Textarea,
@@ -206,17 +207,6 @@ const EditProducts = () => {
 								}`}
 								fallbackSrc='/fallbackProductImage.png'
 							/>
-							<div className='flex flex-col py-4'>
-								{/* TODO: figure out how to replace with an edit on top image, or if that's even needed */}
-								<Button
-									size='s'
-									onClick={() => {
-										updateProductForm.setFieldValue('imageWasEdited', true)
-									}}
-								>
-									Replace Image
-								</Button>
-							</div>
 						</div>
 					) : updateProductForm.values.image === null ? (
 						<Dropzone
@@ -279,16 +269,10 @@ const EditProducts = () => {
 							{updateProductForm.errors.image}
 						</Text>
 					)}
-					<Button
-						size='s'
-						onClick={() => {
-							updateProductForm.setFieldValue('imageWasEdited', false)
-							updateProductForm.setFieldValue('image', null)
-							setImageURL('')
-						}}
-					>
-						Cancel Image Replacement
-					</Button>
+					<Switch
+						label='Replace Image'
+						{...updateProductForm.getInputProps('imageWasEdited')}
+					/>
 					<Button type='submit' loading={updateProduct.isPending}>
 						Update
 					</Button>
