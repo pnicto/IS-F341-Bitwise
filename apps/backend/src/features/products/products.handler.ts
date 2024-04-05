@@ -2,10 +2,23 @@ import { Category, Product, Role } from '@prisma/client'
 import { RequestHandler } from 'express'
 import { body, param, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
+import ImageKit from 'imagekit'
 import { prisma } from '../../config/prisma'
 import { BadRequest, Forbidden, NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
+
+const imagekit = new ImageKit({
+	urlEndpoint: process.env.VITE_IMAGEKIT_URL_ENDPOINT as string,
+	publicKey: process.env.VITE_IMAGEKIT_PUBLIC_KEY as string,
+	privateKey: process.env.IMAGEKIT_PRIVATE_KEY as string,
+})
+
+export const unpackProductJSON: RequestHandler = (req, res, next) => {
+	if (req.body.product)
+		req.body = { ...req.body, ...JSON.parse(req.body.product) }
+	next()
+}
 
 export const validateNewProduct = [
 	body('name').trim().notEmpty().withMessage('Product name is required'),
@@ -23,6 +36,21 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 				Pick<Product, 'name' | 'description' | 'price' | 'categoryName'>
 			>(req)
 
+		const image = req.file
+		if (image === undefined) {
+			throw new BadRequest('Product image is required')
+		}
+
+		// TODO: figure out what other mime types to support
+		if (!['image/jpeg', 'image/png'].includes(image.mimetype)) {
+			throw new BadRequest('Product image must be a PNG or JPG')
+		}
+
+		// TODO: figure out what max size of image to allow (if changed, frontend will also need updating)
+		if (image.size > 5 * 1024 ** 2) {
+			throw new BadRequest('Product image must not be larger than 5 MB')
+		}
+
 		if (categoryName) {
 			const category = await prisma.category.findUnique({
 				where: { name: categoryName },
@@ -33,7 +61,7 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 		}
 
 		const vendor = getAuthorizedUser(req)
-		await prisma.product.create({
+		const newProduct = await prisma.product.create({
 			data: {
 				name,
 				description,
@@ -48,6 +76,15 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 				},
 			},
 		})
+
+		// TODO: Handle errors in uploading image
+		await imagekit.upload({
+			file: image.buffer,
+			fileName: newProduct.id,
+			useUniqueFileName: false,
+			folder: '/bitwise',
+		})
+
 		return res
 			.status(StatusCodes.CREATED)
 			.json({ message: 'Product successfully created' })
