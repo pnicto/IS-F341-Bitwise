@@ -49,7 +49,7 @@ export const requestPayment: RequestHandler = async (req, res, next) => {
 		})
 		return res
 			.status(StatusCodes.CREATED)
-			.json({ message: 'Payment request created successfully' })
+			.json({ msg: 'Payment request created successfully' })
 	} catch (err) {
 		next(err)
 	}
@@ -139,7 +139,7 @@ export const splitPaymentRequest: RequestHandler = async (req, res, next) => {
 		})
 		return res
 			.status(StatusCodes.CREATED)
-			.json({ message: 'Split request created successfully' })
+			.json({ msg: 'Split request created successfully' })
 	} catch (err) {
 		next(err)
 	}
@@ -274,7 +274,7 @@ export const respondToPaymentRequest: RequestHandler = async (
 			}
 			return res
 				.status(StatusCodes.OK)
-				.json({ message: 'Payment request accepted' })
+				.json({ msg: 'Payment request accepted' })
 		} else {
 			await prisma.paymentRequest.update({
 				where: { id },
@@ -282,7 +282,7 @@ export const respondToPaymentRequest: RequestHandler = async (
 			})
 			return res
 				.status(StatusCodes.OK)
-				.json({ message: 'Payment request rejected' })
+				.json({ msg: 'Payment request rejected' })
 		}
 	} catch (err) {
 		next(err)
@@ -321,9 +321,7 @@ export const cancelPaymentRequest: RequestHandler = async (req, res, next) => {
 			where: { id },
 			data: { status: 'CANCELLED' },
 		})
-		return res
-			.status(StatusCodes.OK)
-			.json({ message: 'Payment request cancelled' })
+		return res.status(StatusCodes.OK).json({ msg: 'Payment request cancelled' })
 	} catch (err) {
 		next(err)
 	}

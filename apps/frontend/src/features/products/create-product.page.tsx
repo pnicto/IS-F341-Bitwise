@@ -66,7 +66,7 @@ const CreateProduct = () => {
 			formData.append('product', productJSON)
 			formData.append('image', newProduct.image as FileWithPath)
 
-			return axios.post<{ message: string }>('/products/new', formData, {
+			return axios.post<{ msg: string }>('/products/new', formData, {
 				headers: {
 					'Content-Type': `multipart/form-data`,
 				},
@@ -74,7 +74,7 @@ const CreateProduct = () => {
 		},
 		onSuccess: ({ data }) => {
 			form.reset()
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 		},
 		onError: (err) => {
 			handleAxiosErrors(err)

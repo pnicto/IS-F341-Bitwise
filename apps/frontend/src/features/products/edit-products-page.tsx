@@ -101,7 +101,7 @@ const EditProducts = () => {
 				formData.append('image', newProduct.image as FileWithPath)
 			}
 
-			return axios.post<{ message: string }>(
+			return axios.post<{ msg: string }>(
 				`/products/update/${newProduct.id}`,
 				formData,
 				{
@@ -115,7 +115,7 @@ const EditProducts = () => {
 			queryClient.invalidateQueries({ queryKey: ['shopProducts', vendorId] })
 			updateProductForm.reset()
 			modalHandlers.close()
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 		},
 		onError: (err) => {
 			handleAxiosErrors(err)
@@ -124,11 +124,11 @@ const EditProducts = () => {
 
 	const deleteProduct = useMutation({
 		mutationFn: (product: Pick<Product, 'id'>) => {
-			return axios.post<{ message: string }>(`/products/delete/${product.id}`)
+			return axios.post<{ msg: string }>(`/products/delete/${product.id}`)
 		},
 		onSuccess: ({ data }) => {
 			queryClient.invalidateQueries({ queryKey: ['shopProducts', vendorId] })
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 		},
 		onError: (err) => {
 			handleAxiosErrors(err)

@@ -71,7 +71,7 @@ export const editUserDetails: RequestHandler = async (req, res, next) => {
 			where: { id: authorizedUser.id },
 		})
 
-		return res.status(StatusCodes.OK).json({ message: 'Details updated' })
+		return res.status(StatusCodes.OK).json({ msg: 'Details updated' })
 	} catch (err) {
 		next(err)
 	}
@@ -90,7 +90,7 @@ export const disableAccount: RequestHandler = async (req, res, next) => {
 		})
 		return res
 			.status(StatusCodes.OK)
-			.json({ message: 'Account disabled successfully' })
+			.json({ msg: 'Account disabled successfully' })
 	} catch (err) {
 		next(err)
 	}
@@ -126,7 +126,7 @@ export const createNewTag: RequestHandler = async (req, res, next) => {
 
 		return res
 			.status(StatusCodes.OK)
-			.json({ message: `Tag ${name} added successfully` })
+			.json({ msg: `Tag ${name} added successfully` })
 	} catch (err) {
 		next(err)
 	}
@@ -163,9 +163,7 @@ export const editTag: RequestHandler = async (req, res, next) => {
 			},
 		})
 
-		return res
-			.status(StatusCodes.OK)
-			.send({ message: 'Tag updated successfully' })
+		return res.status(StatusCodes.OK).send({ msg: 'Tag updated successfully' })
 	} catch (err) {
 		next(err)
 	}
@@ -197,7 +195,7 @@ export const deleteTag: RequestHandler = async (req, res, next) => {
 
 		return res
 			.status(StatusCodes.OK)
-			.send({ message: `Tag ${name} deleted successfully` })
+			.send({ msg: `Tag ${name} deleted successfully` })
 	} catch (err) {
 		next(err)
 	}

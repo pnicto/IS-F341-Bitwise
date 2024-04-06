@@ -38,12 +38,12 @@ const MainLayout = () => {
 	const navigate = useNavigate()
 	const logout = useMutation({
 		mutationFn: () => {
-			return axios.post<{ message: string }>('/auth/logout')
+			return axios.post<{ msg: string }>('/auth/logout')
 		},
 		onSuccess: ({ data }) => {
 			queryClient.clear()
 			notifications.show({
-				message: data.message,
+				message: data.msg,
 				color: 'green',
 			})
 			navigate('/login', { replace: true })
@@ -56,11 +56,11 @@ const MainLayout = () => {
 
 	const paymentRequest = useMutation({
 		mutationFn: (body: { requesteeUsername: string; amount: number }) => {
-			return axios.post<{ message: string }>('/requests', body)
+			return axios.post<{ msg: string }>('/requests', body)
 		},
 		onSuccess: ({ data }) => {
 			queryClient.invalidateQueries({ queryKey: ['paymentRequests'] })
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 			paymentRequestForm.reset()
 			modalHandlers.close()
 		},

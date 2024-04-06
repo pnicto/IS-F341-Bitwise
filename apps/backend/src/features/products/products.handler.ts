@@ -95,7 +95,7 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 
 		return res
 			.status(StatusCodes.CREATED)
-			.json({ message: 'Product successfully created' })
+			.json({ msg: 'Product successfully created' })
 	} catch (err) {
 		next(err)
 	}
@@ -310,7 +310,7 @@ export const updateProduct: RequestHandler = async (req, res, next) => {
 		})
 		return res
 			.status(StatusCodes.OK)
-			.json({ message: 'Product successfully updated' })
+			.json({ msg: 'Product successfully updated' })
 	} catch (err) {
 		next(err)
 	}
@@ -355,7 +355,7 @@ export const deleteProduct: RequestHandler = async (req, res, next) => {
 		})
 		return res
 			.status(StatusCodes.OK)
-			.json({ message: 'Product successfully deleted' })
+			.json({ msg: 'Product successfully deleted' })
 	} catch (err) {
 		next(err)
 	}
@@ -383,7 +383,7 @@ export const addCategory: RequestHandler = async (req, res, next) => {
 		await prisma.category.create({ data: { name } })
 		return res
 			.status(StatusCodes.CREATED)
-			.json({ message: 'Category successfully created' })
+			.json({ msg: 'Category successfully created' })
 	} catch (err) {
 		next(err)
 	}
@@ -413,7 +413,7 @@ export const deleteCategory: RequestHandler = async (req, res, next) => {
 
 		return res
 			.status(StatusCodes.OK)
-			.json({ message: 'Category successfully deleted' })
+			.json({ msg: 'Category successfully deleted' })
 	} catch (err) {
 		next(err)
 	}
@@ -442,7 +442,7 @@ export const updateCategory: RequestHandler = async (req, res, next) => {
 
 		return res
 			.status(StatusCodes.OK)
-			.json({ message: 'Category successfully updated' })
+			.json({ msg: 'Category successfully updated' })
 	} catch (err) {
 		next(err)
 	}

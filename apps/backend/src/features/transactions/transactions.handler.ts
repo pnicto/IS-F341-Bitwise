@@ -54,7 +54,7 @@ export const updateTransactionTags: RequestHandler = async (req, res, next) => {
 
 		return res
 			.status(StatusCodes.OK)
-			.json({ message: 'Transaction updated successfully' })
+			.json({ msg: 'Transaction updated successfully' })
 	} catch (err) {
 		next(err)
 	}

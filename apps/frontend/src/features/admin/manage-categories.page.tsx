@@ -35,11 +35,11 @@ const ManageCategories = () => {
 
 	const createCategory = useMutation({
 		mutationFn: (body: { name: string }) => {
-			return axios.post<{ message: string }>('/products/categories/new', body)
+			return axios.post<{ msg: string }>('/products/categories/new', body)
 		},
 		onSuccess: ({ data }) => {
 			createCategoryForm.reset()
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 			queryClient.invalidateQueries({ queryKey: ['categories'] })
 		},
 		onError: (error) => {
@@ -62,14 +62,14 @@ const ManageCategories = () => {
 
 	const updateCategory = useMutation({
 		mutationFn: (category: Category) => {
-			return axios.post<{ message: string }>(
+			return axios.post<{ msg: string }>(
 				`/products/categories/update/${category.id}`,
 				{ name: category.name },
 			)
 		},
 		onSuccess: ({ data }) => {
 			createCategoryForm.reset()
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 			queryClient.invalidateQueries({ queryKey: ['categories'] })
 			modalHandlers.close()
 		},
@@ -80,13 +80,13 @@ const ManageCategories = () => {
 
 	const deleteCategory = useMutation({
 		mutationFn: (category: { id: string }) => {
-			return axios.post<{ message: string }>(
+			return axios.post<{ msg: string }>(
 				`/products/categories/delete/${category.id}`,
 			)
 		},
 		onSuccess: ({ data }) => {
 			createCategoryForm.reset()
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 			queryClient.invalidateQueries({ queryKey: ['categories'] })
 		},
 		onError: (error) => {

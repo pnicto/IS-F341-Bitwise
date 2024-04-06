@@ -22,11 +22,11 @@ const ManageTags = () => {
 
 	const createTag = useMutation({
 		mutationFn: (body: { name: string }) => {
-			return axios.post<{ message: string }>('/user/tags/create', body)
+			return axios.post<{ msg: string }>('/user/tags/create', body)
 		},
 		onSuccess: ({ data }) => {
 			createTagForm.reset()
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 			queryClient.invalidateQueries({ queryKey: ['user'] })
 		},
 		onError: (error) => {
@@ -46,11 +46,11 @@ const ManageTags = () => {
 
 	const updateTag = useMutation({
 		mutationFn: (body: { oldName: string; newName: string }) => {
-			return axios.post<{ message: string }>(`/user/tags/edit`, body)
+			return axios.post<{ msg: string }>(`/user/tags/edit`, body)
 		},
 		onSuccess: ({ data }) => {
 			updateTagForm.reset()
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 			queryClient.invalidateQueries({ queryKey: ['user'] })
 			modalHandlers.close()
 		},
@@ -61,10 +61,10 @@ const ManageTags = () => {
 
 	const deleteTag = useMutation({
 		mutationFn: (body: { name: string }) => {
-			return axios.post<{ message: string }>(`/user/tags/delete`, body)
+			return axios.post<{ msg: string }>(`/user/tags/delete`, body)
 		},
 		onSuccess: ({ data }) => {
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 			queryClient.invalidateQueries({ queryKey: ['user'] })
 		},
 		onError: (error) => {

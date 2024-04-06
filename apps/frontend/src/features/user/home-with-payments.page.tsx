@@ -76,11 +76,11 @@ const HomeWithPayments = () => {
 		mutationFn: (
 			transactionDetails: Pick<Transaction, 'receiverUsername' | 'amount'>,
 		) => {
-			return axios.post<{ message: string }>('/pay', transactionDetails)
+			return axios.post<{ msg: string }>('/pay', transactionDetails)
 		},
 		onSuccess: ({ data }) => {
 			form.reset()
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 		},
 		onError: (error) => {
 			handleAxiosErrors(error)

@@ -2,36 +2,36 @@ import { StatusCodes } from 'http-status-codes'
 import { CustomError } from './BaseCustomError'
 
 export class NotFound extends CustomError {
-	constructor(message: string) {
-		super(message, StatusCodes.NOT_FOUND)
+	constructor(msg: string) {
+		super(msg, StatusCodes.NOT_FOUND)
 		Object.setPrototypeOf(this, NotFound.prototype)
 	}
 }
 
 export class BadRequest extends CustomError {
-	constructor(message: string) {
-		super(message, StatusCodes.BAD_REQUEST)
+	constructor(msg: string) {
+		super(msg, StatusCodes.BAD_REQUEST)
 		Object.setPrototypeOf(this, BadRequest.prototype)
 	}
 }
 
 export class Unauthorized extends CustomError {
-	constructor(message: string) {
-		super(message, StatusCodes.UNAUTHORIZED)
+	constructor(msg: string) {
+		super(msg, StatusCodes.UNAUTHORIZED)
 		Object.setPrototypeOf(this, Unauthorized.prototype)
 	}
 }
 
 export class Forbidden extends CustomError {
-	constructor(message: string) {
-		super(message, StatusCodes.FORBIDDEN)
+	constructor(msg: string) {
+		super(msg, StatusCodes.FORBIDDEN)
 		Object.setPrototypeOf(this, Forbidden.prototype)
 	}
 }
 
 export class InternalServerError extends CustomError {
-	constructor(message: string) {
-		super(message, StatusCodes.INTERNAL_SERVER_ERROR)
+	constructor(msg: string) {
+		super(msg, StatusCodes.INTERNAL_SERVER_ERROR)
 		Object.setPrototypeOf(this, InternalServerError.prototype)
 	}
 }

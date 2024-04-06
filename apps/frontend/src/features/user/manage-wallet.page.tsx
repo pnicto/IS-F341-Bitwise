@@ -23,12 +23,12 @@ const ManageWallet = () => {
 
 	const updateWallet = useMutation({
 		mutationFn: (body: Pick<Transaction, 'amount'>) => {
-			return axios.post<{ message: string }>('/wallet/update', body)
+			return axios.post<{ msg: string }>('/wallet/update', body)
 		},
 		onSuccess: async ({ data }) => {
 			await queryClient.invalidateQueries({ queryKey: ['user'] })
 			form.reset()
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 		},
 		onError: (error) => {
 			handleAxiosErrors(error)

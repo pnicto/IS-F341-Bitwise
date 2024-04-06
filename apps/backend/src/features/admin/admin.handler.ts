@@ -69,7 +69,7 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 
 		return res
 			.status(StatusCodes.CREATED)
-			.json({ message: 'User created successfully' })
+			.json({ msg: 'User created successfully' })
 	} catch (err) {
 		next(err)
 	}
@@ -129,7 +129,7 @@ export const updateUserStatus: RequestHandler = async (req, res, next) => {
 		const returnMessage = enabled
 			? 'Account enabled successfully'
 			: 'Account disabled successfully'
-		return res.status(StatusCodes.OK).json({ message: returnMessage })
+		return res.status(StatusCodes.OK).json({ msg: returnMessage })
 	} catch (err) {
 		next(err)
 	}
@@ -226,7 +226,7 @@ export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
 
 		return res
 			.status(StatusCodes.CREATED)
-			.json({ message: 'Users created successfully', errors: skippedErrors })
+			.json({ msg: 'Users created successfully', errors: skippedErrors })
 	} catch (err) {
 		next(err)
 	}

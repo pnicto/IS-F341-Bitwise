@@ -55,7 +55,7 @@ export const transact: RequestHandler = async (req, res, next) => {
 		])
 		return res
 			.status(StatusCodes.CREATED)
-			.json({ message: 'Transaction successful' })
+			.json({ msg: 'Transaction successful' })
 	} catch (err) {
 		next(err)
 	}

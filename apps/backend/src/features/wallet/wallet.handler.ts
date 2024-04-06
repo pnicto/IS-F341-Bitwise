@@ -55,7 +55,7 @@ export const modifyWalletBalance: RequestHandler = async (req, res, next) => {
 			])
 		}
 		const returnMessage = amount < 0 ? 'Amount withdrawn' : 'Amount added'
-		return res.status(StatusCodes.OK).json({ message: returnMessage })
+		return res.status(StatusCodes.OK).json({ msg: returnMessage })
 	} catch (err) {
 		next(err)
 	}

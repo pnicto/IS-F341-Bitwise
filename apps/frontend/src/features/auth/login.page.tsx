@@ -60,7 +60,7 @@ const Login = () => {
 
 	const login = useMutation({
 		mutationFn: (body: { email: string; password: string }) => {
-			return axios.post<{ message: string; user: Pick<User, 'role'> }>(
+			return axios.post<{ msg: string; user: Pick<User, 'role'> }>(
 				'/auth/login',
 				body,
 			)
@@ -68,7 +68,7 @@ const Login = () => {
 		onSuccess: ({ data }) => {
 			if (data.user.role !== 'ADMIN') navigate('/', { replace: true })
 			else navigate('/admin', { replace: true })
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 		},
 		onError: (err) => {
 			handleAxiosErrors(err)
@@ -77,10 +77,10 @@ const Login = () => {
 
 	const resetPassword = useMutation({
 		mutationFn: (body: { email: string }) => {
-			return axios.post<{ message: string }>('/auth/reset-password', body)
+			return axios.post<{ msg: string }>('/auth/reset-password', body)
 		},
 		onSuccess: ({ data }) => {
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 			resetPasswordForm.reset()
 			modalHandlers.close()
 		},

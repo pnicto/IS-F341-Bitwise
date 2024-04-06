@@ -10,13 +10,13 @@ import { CustomError } from './errors/BaseCustomError'
 import { ValidationError } from './errors/CustomErrors'
 import { adminRouter } from './features/admin/admin.route'
 import { authRouter } from './features/auth/auth.route'
+import { paymentRequestRouter } from './features/paymentRequests/paymentRequest.route'
 import { paymentRouter } from './features/payments/payment.route'
 import { productRouter } from './features/products/products.route'
 import { shopRouter } from './features/shops/shops.route'
+import { transactionRouter } from './features/transactions/transactions.route'
 import { userRouter } from './features/users/user.route'
 import { walletRouter } from './features/wallet/wallet.route'
-import { transactionRouter } from './features/transactions/transactions.route'
-import { paymentRequestRouter } from './features/paymentRequests/paymentRequest.route'
 import { authorize } from './middleware/authorize'
 
 const app = express()
@@ -53,7 +53,7 @@ function root(url: string) {
 
 // routes
 app.get(root(''), async (_req, res) => {
-	return res.send({ message: 'Welcome to bitwise!' })
+	return res.send({ msg: 'Welcome to bitwise!' })
 })
 
 // routes

@@ -118,7 +118,7 @@ const TransactionHistory = () => {
 
 	const updateTransactionTags = useMutation({
 		mutationFn: (transaction: { id: string; tags: string[] }) => {
-			return axios.post<{ message: string }>(
+			return axios.post<{ msg: string }>(
 				`/transactions/update/${transaction.id}`,
 				{ tags: transaction.tags },
 			)
@@ -127,7 +127,7 @@ const TransactionHistory = () => {
 			queryClient.invalidateQueries({ queryKey: ['transactions'] })
 			updateTransactionTagsForm.reset()
 			tagsModalHandlers.close()
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 		},
 		onError: (err) => {
 			handleAxiosErrors(err)
@@ -136,19 +136,16 @@ const TransactionHistory = () => {
 
 	const splitTransaction = useMutation({
 		mutationFn: (transaction: typeof splitTransactionForm.values) => {
-			return axios.post<{ message: string }>(
-				`/requests/${transaction.id}/split`,
-				{
-					requesteeUsernames: transaction.requesteeUsernames,
-					includeSelf: transaction.includeSelf,
-				},
-			)
+			return axios.post<{ msg: string }>(`/requests/${transaction.id}/split`, {
+				requesteeUsernames: transaction.requesteeUsernames,
+				includeSelf: transaction.includeSelf,
+			})
 		},
 		onSuccess: ({ data }) => {
 			queryClient.invalidateQueries({ queryKey: ['transactions'] })
 			splitTransactionForm.reset()
 			splitsModalHandlers.close()
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 		},
 		onError: (err) => {
 			handleAxiosErrors(err)

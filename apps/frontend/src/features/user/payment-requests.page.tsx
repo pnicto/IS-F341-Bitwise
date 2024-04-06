@@ -31,13 +31,13 @@ const PaymentRequests = () => {
 
 	const respondMutation = useMutation({
 		mutationFn: async ({ id, accept }: { id: string; accept: boolean }) => {
-			return axios.post<{ message: string }>(`/requests/respond/${id}`, {
+			return axios.post<{ msg: string }>(`/requests/respond/${id}`, {
 				accept,
 			})
 		},
 		onSuccess: ({ data }) => {
 			paymentRequestsQuery.refetch()
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 		},
 		onError: (error) => {
 			handleAxiosErrors(error)
@@ -50,7 +50,7 @@ const PaymentRequests = () => {
 		},
 		onSuccess: ({ data }) => {
 			paymentRequestsQuery.refetch()
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 		},
 		onError: (error) => {
 			handleAxiosErrors(error)

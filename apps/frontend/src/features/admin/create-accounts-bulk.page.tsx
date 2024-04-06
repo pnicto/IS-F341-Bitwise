@@ -45,14 +45,14 @@ const CreateAccountsBulk = () => {
 
 	const createAccountInBulk = useMutation({
 		mutationFn: (body: NewAccount[]) => {
-			return axios.post<{ message: string; errors: { msg: string }[] }>(
+			return axios.post<{ msg: string; errors: { msg: string }[] }>(
 				'/admin/create/bulk',
 				body,
 			)
 		},
 		onSuccess: ({ data }) => {
 			resetInput()
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 
 			// TODO: Discuss if these errors should be shown as list instead of notifications or more importantly should these be errors or warnings, where we just tell them x number of accounts were skipped
 			for (const error of data.errors) {

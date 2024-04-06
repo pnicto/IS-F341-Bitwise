@@ -88,11 +88,11 @@ const HomeWithCreateAndUpdateAccount = () => {
 
 	const updateAccount = useMutation({
 		mutationFn: (body: { email: string; enabled: boolean }) => {
-			return axios.post<{ message: string }>('/admin/user/update-status', body)
+			return axios.post<{ msg: string }>('/admin/user/update-status', body)
 		},
 		onSuccess: ({ data }, variables) => {
 			queryClient.invalidateQueries({ queryKey: ['user', variables.email] })
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 			userDetailsQueryResult.refetch()
 		},
 		onError: (error) => {

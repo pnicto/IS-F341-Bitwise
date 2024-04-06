@@ -38,7 +38,7 @@ const EditProfile = () => {
 				oldPassword: '',
 				newPassword: '',
 			})
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 		},
 		onError: (err) => {
 			handleAxiosErrors(err)
@@ -48,7 +48,7 @@ const EditProfile = () => {
 		mutationFn: () => axios.post('/user/disable-account'),
 		onSuccess: async ({ data }) => {
 			await queryClient.invalidateQueries({ queryKey: ['user'] })
-			notifications.show({ message: data.message, color: 'green' })
+			notifications.show({ message: data.msg, color: 'green' })
 			navigate('/login', { replace: true })
 		},
 		onError: (err) => {

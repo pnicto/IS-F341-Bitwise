@@ -45,7 +45,7 @@ export const login: RequestHandler = async (req, res, next) => {
 				sameSite: 'none',
 			})
 			.json({
-				message: 'Logged in successfully',
+				msg: 'Logged in successfully',
 				user: { role: user.role },
 			})
 	} catch (err) {
@@ -62,7 +62,7 @@ export const logout: RequestHandler = async (_req, res, next) => {
 				secure: true,
 				sameSite: 'none',
 			})
-			.send({ message: 'Logged out successfully', redirect: '/login' })
+			.send({ msg: 'Logged out successfully', redirect: '/login' })
 	} catch (err) {
 		next(err)
 	}
@@ -97,7 +97,7 @@ export const resetPassword: RequestHandler = async (req, res, next) => {
 		}
 
 		return res.status(StatusCodes.OK).json({
-			message: 'Password reset email sent',
+			msg: 'Password reset email sent',
 		})
 	} catch (err) {
 		next(err)
