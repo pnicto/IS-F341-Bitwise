@@ -194,15 +194,37 @@ export const validateTransactionFilters = [
 	query('minAmount')
 		.trim()
 		.optional()
-		.isInt()
-		.toInt()
-		.withMessage('Minimum amount must be a number'),
+		.custom((value) => {
+			if (value !== undefined && value !== '') {
+				if (!Number.isInteger(parseInt(value))) {
+					throw new Error('Minimum amount must be a number')
+				}
+			}
+			return true
+		})
+		.customSanitizer((value) => {
+			if (value === '') {
+				return undefined
+			}
+			return parseInt(value)
+		}),
 	query('maxAmount')
 		.trim()
 		.optional()
-		.isInt()
-		.toInt()
-		.withMessage('Maximum amount must be a number'),
+		.custom((value) => {
+			if (value !== undefined && value !== '') {
+				if (!Number.isInteger(parseInt(value))) {
+					throw new Error('Minimum amount must be a number')
+				}
+			}
+			return true
+		})
+		.customSanitizer((value) => {
+			if (value === '') {
+				return undefined
+			}
+			return parseInt(value)
+		}),
 	query().custom((value, { req }) => {
 		const { minAmount, maxAmount } = req.query as {
 			minAmount: number
