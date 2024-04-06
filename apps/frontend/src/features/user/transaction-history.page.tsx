@@ -360,6 +360,7 @@ const TransactionHistory = () => {
 			<CustomLoader
 				errorMessage={"Couldn't get your transactions"}
 				query={transactionsQuery}
+				arrayKey='transactions'
 			>
 				{(data) => (
 					<>
