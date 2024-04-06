@@ -1,9 +1,11 @@
 import { fakerEN_IN as faker } from '@faker-js/faker'
 import { PrismaClient, Product, Transaction, User } from '@prisma/client'
+import ImageKit from 'imagekit'
+import { CustomError } from '../apps/backend/src/errors/BaseCustomError'
 import { extractUsernameFromEmail } from '../apps/backend/src/features/admin/admin.utils'
 import { hashPassword } from '../apps/backend/src/utils/password'
 
-faker.seed(23)
+faker.seed(2323)
 const prisma = new PrismaClient()
 
 const SHOP_NAMES = [
@@ -30,7 +32,11 @@ const CATEGORY_NAMES = [
 	'Cosmetics',
 	'Misc',
 ]
-
+const imagekit = new ImageKit({
+	urlEndpoint: process.env.VITE_IMAGEKIT_URL_ENDPOINT as string,
+	publicKey: process.env.VITE_IMAGEKIT_PUBLIC_KEY as string,
+	privateKey: process.env.IMAGEKIT_PRIVATE_KEY as string,
+})
 const categories = CATEGORY_NAMES.map((categoryName) => {
 	return { name: categoryName }
 })
@@ -130,8 +136,20 @@ async function main() {
 				from: '2024-01-01T00:00:00.000Z',
 				to: '2024-02-29T00:00:00.000Z',
 			})
+			let uploadResponse
+			const name = faker.commerce.productName()
+			try {
+				uploadResponse = await imagekit.upload({
+					file: faker.image.urlPicsumPhotos(),
+					fileName: name,
+					useUniqueFileName: true,
+					folder: '/bitwise',
+				})
+			} catch (err) {
+				throw new CustomError('Error creating product image', 500)
+			}
 			products.push({
-				name: faker.commerce.productName(),
+				name: name,
 				description: faker.commerce.productDescription(),
 				price: parseInt(faker.commerce.price({ min: 10, max: 1000, dec: 0 })),
 				vendorId: v['id'],
@@ -145,8 +163,8 @@ async function main() {
 					username: v.username,
 				},
 				// TODO: give images to faker products
-				imageId: 'placeholder',
-				imagePath: 'placeholder',
+				imageId: uploadResponse.fileId,
+				imagePath: uploadResponse.filePath,
 			})
 		}
 	}
