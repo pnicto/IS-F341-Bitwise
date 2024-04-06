@@ -4,8 +4,12 @@ import { body, param, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { imagekit } from '../../config/imagekit'
 import { prisma } from '../../config/prisma'
-import { CustomError } from '../../errors/BaseCustomError'
-import { BadRequest, Forbidden, NotFound } from '../../errors/CustomErrors'
+import {
+	BadRequest,
+	Forbidden,
+	InternalServerError,
+	NotFound,
+} from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 
@@ -67,7 +71,7 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 				folder: '/bitwise',
 			})
 		} catch (err) {
-			throw new CustomError('Error updating product image', 500)
+			throw new InternalServerError('Error updating product image')
 		}
 
 		await prisma.product.create({
@@ -242,7 +246,7 @@ export const updateProduct: RequestHandler = async (req, res, next) => {
 			} catch (err) {
 				console.log(err)
 
-				throw new CustomError('Error updating product image', 500)
+				throw new InternalServerError('Error updating product image')
 			}
 		}
 
