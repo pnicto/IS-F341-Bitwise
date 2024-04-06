@@ -214,7 +214,7 @@ export const validateTransactionFilters = [
 		.custom((value) => {
 			if (value !== undefined && value !== '') {
 				if (!Number.isInteger(parseInt(value))) {
-					throw new Error('Minimum amount must be a number')
+					throw new Error('Maximum amount must be a number')
 				}
 			}
 			return true
