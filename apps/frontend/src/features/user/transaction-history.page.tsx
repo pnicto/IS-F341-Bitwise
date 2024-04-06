@@ -6,7 +6,6 @@ import {
 	Center,
 	ComboboxItem,
 	Group,
-	Loader,
 	Modal,
 	NumberInput,
 	OptionsFilter,
@@ -26,6 +25,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
+import CustomLoader from '../../shared/loader'
 import TransactionItemCard from '../../shared/transaction-item-card'
 import { useUserQuery } from './queries'
 
@@ -193,19 +193,19 @@ const TransactionHistory = () => {
 		},
 	})
 
-	if (userQuery.isPending || transactionsQuery.isPending) {
-		return (
-			// TODO: Extract this loader to a separate component and make it better
-			<div className='text-center'>
-				<Loader />
-			</div>
-		)
-	}
+	// if (userQuery.isPending || transactionsQuery.isPending) {
+	// 	return (
+	// 		// TODO: Extract this loader to a separate component and make it better
+	// 		<div className='text-center'>
+	// 			<Loader />
+	// 		</div>
+	// 	)
+	// }
 
-	if (userQuery.isError || transactionsQuery.isError) {
-		// TODO: Replace with a better error component
-		return <div>Error fetching user data</div>
-	}
+	// if (userQuery.isError || transactionsQuery.isError) {
+	// 	// TODO: Replace with a better error component
+	// 	return <div>Error fetching user data</div>
+	// }
 
 	return (
 		<>
@@ -216,17 +216,24 @@ const TransactionHistory = () => {
 					})}
 					className='flex flex-col gap-2'
 				>
-					<TagsInput
-						label='Select Tags'
-						placeholder='Pick value or enter anything'
-						data={userQuery.data.user.tags}
-						filter={optionsFilter}
-						comboboxProps={{
-							transitionProps: { transition: 'pop', duration: 200 },
-						}}
-						{...updateTransactionTagsForm.getInputProps('tags')}
-						clearable
-					/>
+					<CustomLoader
+						errorComponent={<div>Error fetching user tags</div>}
+						query={userQuery}
+					>
+						{(data) => (
+							<TagsInput
+								label='Select Tags'
+								placeholder='Pick value or enter anything'
+								data={data.user.tags}
+								filter={optionsFilter}
+								comboboxProps={{
+									transitionProps: { transition: 'pop', duration: 200 },
+								}}
+								{...updateTransactionTagsForm.getInputProps('tags')}
+								clearable
+							/>
+						)}
+					</CustomLoader>
 					<Button type='submit' loading={updateTransactionTags.isPending}>
 						Update tags
 					</Button>
@@ -349,79 +356,88 @@ const TransactionHistory = () => {
 					/>
 				</Group>
 			</Stack>
-			<Stack>
-				{transactionsQuery.data.transactions.map((transaction) => (
-					<TransactionItemCard
-						key={transaction.id}
-						{...transaction}
-						username={getPersonName(transaction)}
-						bottomLeft={
-							transaction.type === 'DEBIT'
-								? transaction.senderTags
-									? transaction.senderTags.map((tag, id) => (
-											<Badge key={id}>{tag}</Badge>
-									  ))
-									: null
-								: transaction.type === 'CREDIT'
-								? transaction.recieverTags
-									? transaction.recieverTags.map((tag, id) => (
-											<Badge key={id}>{tag}</Badge>
-									  ))
-									: null
-								: null
-						}
-						bottomRight={
-							<>
-								{transaction.type === 'DEBIT' ||
-								transaction.type === 'CREDIT' ? (
-									<Button
-										onClick={() => {
-											updateTransactionTagsForm.setValues({
-												id: transaction.id,
-												tags:
-													transaction.type === 'DEBIT'
-														? transaction.senderTags
-														: transaction.type === 'CREDIT'
-														? transaction.recieverTags
-														: [],
-											})
-											tagsModalHandlers.open()
-										}}
-									>
-										Add tags
-									</Button>
-								) : null}
-								{transaction.type === 'DEBIT' && (
-									<Button
-										onClick={() => {
-											splitTransactionForm.setValues({
-												id: transaction.id,
-												requesteeUsernames: [''],
-											})
-											splitsModalHandlers.open()
-										}}
-									>
-										Split
-									</Button>
-								)}
-							</>
-						}
-					/>
-				))}
-			</Stack>
-			<div className='flex flex-col items-center'>
-				<Pagination
-					total={transactionsQuery.data.totalPages}
-					value={currentPage}
-					onChange={(value: number) => {
-						setCurrentPage(value)
-						queryClient.invalidateQueries({
-							queryKey: ['transactions', { page: value }],
-						})
-					}}
-					mt='sm'
-				/>
-			</div>
+			<CustomLoader
+				errorComponent={<div>Error fetching transactions</div>}
+				query={transactionsQuery}
+			>
+				{(data) => (
+					<>
+						<Stack>
+							{data.transactions.map((transaction) => (
+								<TransactionItemCard
+									key={transaction.id}
+									{...transaction}
+									username={getPersonName(transaction)}
+									bottomLeft={
+										transaction.type === 'DEBIT'
+											? transaction.senderTags
+												? transaction.senderTags.map((tag, id) => (
+														<Badge key={id}>{tag}</Badge>
+												  ))
+												: null
+											: transaction.type === 'CREDIT'
+											? transaction.recieverTags
+												? transaction.recieverTags.map((tag, id) => (
+														<Badge key={id}>{tag}</Badge>
+												  ))
+												: null
+											: null
+									}
+									bottomRight={
+										<>
+											{transaction.type === 'DEBIT' ||
+											transaction.type === 'CREDIT' ? (
+												<Button
+													onClick={() => {
+														updateTransactionTagsForm.setValues({
+															id: transaction.id,
+															tags:
+																transaction.type === 'DEBIT'
+																	? transaction.senderTags
+																	: transaction.type === 'CREDIT'
+																	? transaction.recieverTags
+																	: [],
+														})
+														tagsModalHandlers.open()
+													}}
+												>
+													Add tags
+												</Button>
+											) : null}
+											{transaction.type === 'DEBIT' && (
+												<Button
+													onClick={() => {
+														splitTransactionForm.setValues({
+															id: transaction.id,
+															requesteeUsernames: [''],
+														})
+														splitsModalHandlers.open()
+													}}
+												>
+													Split
+												</Button>
+											)}
+										</>
+									}
+								/>
+							))}
+						</Stack>
+						<div className='flex flex-col items-center'>
+							<Pagination
+								total={data.totalPages}
+								value={currentPage}
+								onChange={(value: number) => {
+									setCurrentPage(value)
+									queryClient.invalidateQueries({
+										queryKey: ['transactions', { page: value }],
+									})
+								}}
+								mt='sm'
+							/>
+						</div>
+					</>
+				)}
+			</CustomLoader>
 		</>
 	)
 }
