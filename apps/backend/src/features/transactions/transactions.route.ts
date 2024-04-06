@@ -6,27 +6,18 @@ import {
 	updateTransactionTags,
 	validateTransactionFilters,
 	validateUpdatedTags,
-	viewTransactionHistory,
-	viewTransactionHistoryValidator,
 } from './transactions.handler'
 
 export const transactionRouter = express.Router()
-
 transactionRouter.get(
 	'/view',
 	authorize(Role.STUDENT, Role.VENDOR),
-	viewTransactionHistoryValidator,
-	viewTransactionHistory,
+	validateTransactionFilters,
+	filterTransactionHistory,
 )
 transactionRouter.post(
 	'/update/:id',
 	authorize(Role.STUDENT, Role.VENDOR),
 	validateUpdatedTags,
 	updateTransactionTags,
-)
-
-transactionRouter.get(
-	'/filter',
-	validateTransactionFilters,
-	filterTransactionHistory,
 )
