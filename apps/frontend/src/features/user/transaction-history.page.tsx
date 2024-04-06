@@ -193,20 +193,6 @@ const TransactionHistory = () => {
 		},
 	})
 
-	// if (userQuery.isPending || transactionsQuery.isPending) {
-	// 	return (
-	// 		// TODO: Extract this loader to a separate component and make it better
-	// 		<div className='text-center'>
-	// 			<Loader />
-	// 		</div>
-	// 	)
-	// }
-
-	// if (userQuery.isError || transactionsQuery.isError) {
-	// 	// TODO: Replace with a better error component
-	// 	return <div>Error fetching user data</div>
-	// }
-
 	return (
 		<>
 			<Modal opened={tagsModalIsOpen} onClose={tagsModalHandlers.close}>
