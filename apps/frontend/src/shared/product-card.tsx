@@ -1,5 +1,5 @@
 import { Badge, Card, Grid, Group, Image, Stack } from '@mantine/core'
-import { Product, User } from '@prisma/client'
+import { Product } from '@prisma/client'
 import { ReactNode } from 'react'
 
 type Props = Product & {
@@ -48,7 +48,7 @@ const ProductCard = ({
 						</p>
 					))}
 
-				<p>{description}</p
+				<p>{description}</p>
 				<Image
 					src={`${import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT}${imagePath}`}
 					fallbackSrc='/fallbackProductImage.png'
