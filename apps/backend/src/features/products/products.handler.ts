@@ -2,18 +2,12 @@ import { Category, Product, Role } from '@prisma/client'
 import { RequestHandler } from 'express'
 import { body, param, query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
-import ImageKit from 'imagekit'
+import { imagekit } from '../../config/imagekit'
 import { prisma } from '../../config/prisma'
 import { CustomError } from '../../errors/BaseCustomError'
 import { BadRequest, Forbidden, NotFound } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
-
-const imagekit = new ImageKit({
-	urlEndpoint: process.env.VITE_IMAGEKIT_URL_ENDPOINT as string,
-	publicKey: process.env.VITE_IMAGEKIT_PUBLIC_KEY as string,
-	privateKey: process.env.IMAGEKIT_PRIVATE_KEY as string,
-})
 
 export const unpackProductJSON: RequestHandler = (req, res, next) => {
 	if (req.body.product)
