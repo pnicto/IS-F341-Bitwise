@@ -207,7 +207,7 @@ const TransactionHistory = () => {
 					className='flex flex-col gap-2'
 				>
 					<CustomLoader
-						errorComponent={"Couldn't get your tags"}
+						errorMessage={"Couldn't get your tags"}
 						query={userQuery}
 					>
 						{(data) => (
@@ -358,7 +358,7 @@ const TransactionHistory = () => {
 			</Collapse>
 
 			<CustomLoader
-				errorComponent={"Couldn't get your transactions"}
+				errorMessage={"Couldn't get your transactions"}
 				query={transactionsQuery}
 			>
 				{(data) => (

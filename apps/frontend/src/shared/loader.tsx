@@ -3,25 +3,21 @@ import { UseQueryResult } from '@tanstack/react-query'
 
 type Props<T> = {
 	children: (data: T) => React.ReactNode
-	errorComponent: string
+	errorMessage: string
 	query: UseQueryResult<T, unknown>
 }
 
-const CustomLoader = <T,>({
-	children: component,
-	errorComponent,
-	query,
-}: Props<T>) => {
+const CustomLoader = <T,>({ children, errorMessage, query }: Props<T>) => {
 	if (query.isError)
 		return (
 			<div className='flex flex-col items-center justify-center text-center'>
-				<h1 className='text-2xl font-bold text-gray-800'>{errorComponent}</h1>
+				<h1 className='text-2xl font-bold text-gray-800'>{errorMessage}</h1>
 				<p className='text-lg text-gray-600'>
 					We couldn't fetch the data you requested. Please try again later.
 				</p>
 				<img
 					src='/undraw_blank_canvas.svg'
-					alt='lost'
+					alt='blank canvas'
 					className='md:max-w-xl md:max-h-[30rem]'
 				/>
 			</div>
@@ -34,7 +30,7 @@ const CustomLoader = <T,>({
 			</div>
 		)
 
-	return component(query.data)
+	return children(query.data)
 }
 
 export default CustomLoader
