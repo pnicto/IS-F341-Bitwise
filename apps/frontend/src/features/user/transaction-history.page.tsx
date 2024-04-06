@@ -3,17 +3,22 @@ import {
 	ActionIcon,
 	Badge,
 	Button,
+	Card,
 	Center,
+	Collapse,
 	ComboboxItem,
-	Loader,
+	Group,
 	Modal,
+	NumberInput,
 	OptionsFilter,
 	Pagination,
+	Select,
 	Stack,
 	Switch,
 	TagsInput,
 	TextInput,
 } from '@mantine/core'
+import { DateTimePicker } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
@@ -22,6 +27,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
+import CustomLoader from '../../shared/loader'
 import TransactionItemCard from '../../shared/transaction-item-card'
 import { useUserQuery } from './queries'
 
@@ -89,6 +95,22 @@ const TransactionHistory = () => {
 		},
 	})
 
+	const filterForm = useForm({
+		initialValues: {
+			transactionType: '',
+			fromUser: '',
+			toUser: '',
+			fromDate: '',
+			toDate: '',
+			minAmount: '',
+			maxAmount: '',
+		},
+		transformValues: (values) => ({
+			fromDate: values.fromDate ? new Date(values.fromDate).toISOString() : '',
+			toDate: values.toDate ? new Date(values.toDate).toISOString() : '',
+		}),
+	})
+
 	const [tagsModalIsOpen, tagsModalHandlers] = useDisclosure(false)
 	const [splitsModalIsOpen, splitsModalHandlers] = useDisclosure(false)
 
@@ -135,13 +157,30 @@ const TransactionHistory = () => {
 
 	const userQuery = useUserQuery()
 
+	const filterFormValues = filterForm.values
+	const filterFormTransformedValues = filterForm.getTransformedValues()
+
 	const transactionsQuery = useQuery({
-		queryKey: ['transactions', { page: currentPage }],
+		queryKey: [
+			'transactions',
+			{
+				page: currentPage,
+				transactionType: filterFormValues.transactionType,
+				fromUser: filterFormValues.fromUser,
+				toUser: filterFormValues.toUser,
+				fromDate: filterFormTransformedValues.fromDate,
+				toDate: filterFormTransformedValues.toDate,
+				minAmount: filterFormValues.minAmount,
+				maxAmount: filterFormValues.maxAmount,
+			},
+		],
 		queryFn: async () => {
 			const response = await axios.get<{
 				transactions: HistoryItem[]
 				totalPages: number
-			}>(`/transactions/view?items=${numberOfItems}&page=${currentPage}`)
+			}>(
+				`/transactions/view?items=${numberOfItems}&page=${currentPage}&transactionType=${filterFormValues.transactionType}&fromUser=${filterFormValues.fromUser}&toUser=${filterFormValues.toUser}&fromDate=${filterFormTransformedValues.fromDate}&toDate=${filterFormTransformedValues.toDate}&minAmount=${filterFormValues.minAmount}&maxAmount=${filterFormValues.maxAmount}`,
+			)
 			return response.data
 		},
 		select: (data) => {
@@ -156,19 +195,7 @@ const TransactionHistory = () => {
 		},
 	})
 
-	if (userQuery.isPending || transactionsQuery.isPending) {
-		return (
-			// TODO: Extract this loader to a separate component and make it better
-			<div className='text-center'>
-				<Loader />
-			</div>
-		)
-	}
-
-	if (userQuery.isError || transactionsQuery.isError) {
-		// TODO: Replace with a better error component
-		return <div>Error fetching user data</div>
-	}
+	const [filtersIsOpen, { toggle: filtersToggle }] = useDisclosure(false)
 
 	return (
 		<>
@@ -179,17 +206,24 @@ const TransactionHistory = () => {
 					})}
 					className='flex flex-col gap-2'
 				>
-					<TagsInput
-						label='Select Tags'
-						placeholder='Pick value or enter anything'
-						data={userQuery.data.user.tags}
-						filter={optionsFilter}
-						comboboxProps={{
-							transitionProps: { transition: 'pop', duration: 200 },
-						}}
-						{...updateTransactionTagsForm.getInputProps('tags')}
-						clearable
-					/>
+					<CustomLoader
+						errorMessage={"Couldn't get your tags"}
+						query={userQuery}
+					>
+						{(data) => (
+							<TagsInput
+								label='Select Tags'
+								placeholder='Pick value or enter anything'
+								data={data.user.tags}
+								filter={optionsFilter}
+								comboboxProps={{
+									transitionProps: { transition: 'pop', duration: 200 },
+								}}
+								{...updateTransactionTagsForm.getInputProps('tags')}
+								clearable
+							/>
+						)}
+					</CustomLoader>
 					<Button type='submit' loading={updateTransactionTags.isPending}>
 						Update tags
 					</Button>
@@ -261,79 +295,151 @@ const TransactionHistory = () => {
 					</Button>
 				</form>
 			</Modal>
-			<Stack>
-				{transactionsQuery.data.transactions.map((transaction) => (
-					<TransactionItemCard
-						key={transaction.id}
-						{...transaction}
-						username={getPersonName(transaction)}
-						bottomLeft={
-							transaction.type === 'DEBIT'
-								? transaction.senderTags
-									? transaction.senderTags.map((tag, id) => (
-											<Badge key={id}>{tag}</Badge>
-									  ))
-									: null
-								: transaction.type === 'CREDIT'
-								? transaction.recieverTags
-									? transaction.recieverTags.map((tag, id) => (
-											<Badge key={id}>{tag}</Badge>
-									  ))
-									: null
-								: null
-						}
-						bottomRight={
-							<>
-								{transaction.type === 'DEBIT' ||
-								transaction.type === 'CREDIT' ? (
-									<Button
-										onClick={() => {
-											updateTransactionTagsForm.setValues({
-												id: transaction.id,
-												tags:
-													transaction.type === 'DEBIT'
-														? transaction.senderTags
-														: transaction.type === 'CREDIT'
-														? transaction.recieverTags
-														: [],
-											})
-											tagsModalHandlers.open()
-										}}
-									>
-										Add tags
-									</Button>
-								) : null}
-								{transaction.type === 'DEBIT' && (
-									<Button
-										onClick={() => {
-											splitTransactionForm.setValues({
-												id: transaction.id,
-												requesteeUsernames: [''],
-											})
-											splitsModalHandlers.open()
-										}}
-									>
-										Split
-									</Button>
-								)}
-							</>
-						}
-					/>
-				))}
-			</Stack>
-			<div className='flex flex-col items-center'>
-				<Pagination
-					total={transactionsQuery.data.totalPages}
-					value={currentPage}
-					onChange={(value: number) => {
-						setCurrentPage(value)
-						queryClient.invalidateQueries({
-							queryKey: ['transactions', { page: value }],
-						})
-					}}
-					mt='sm'
-				/>
-			</div>
+			<Group justify='right' className='pb-5'>
+				<Button onClick={filtersToggle}>
+					{filtersIsOpen ? 'Hide' : 'Show'} Filters
+				</Button>
+			</Group>
+			<Collapse in={filtersIsOpen}>
+				<Card className='mb-5'>
+					<Stack>
+						<Group justify='center'>
+							<Select
+								label='Transaction Type'
+								defaultValue=''
+								data={[
+									{ value: '', label: 'All' },
+									{ value: 'CREDIT', label: 'Credit' },
+									{ value: 'DEBIT', label: 'Debit' },
+									{ value: 'DEPOSIT', label: 'Deposit' },
+									{ value: 'WITHDRAWAL', label: 'Withdrawal' },
+								]}
+								allowDeselect={false}
+								{...filterForm.getInputProps('transactionType')}
+							/>
+							<TextInput
+								label='From User'
+								placeholder='john420'
+								{...filterForm.getInputProps('fromUser')}
+							/>
+							<TextInput
+								label='To User'
+								placeholder='john420'
+								{...filterForm.getInputProps('toUser')}
+							/>
+							<DateTimePicker
+								label='From date and time'
+								placeholder='Pick date and time'
+								clearable
+								{...filterForm.getInputProps('fromDate')}
+							/>
+							<DateTimePicker
+								label='To date and time'
+								placeholder='Pick date and time'
+								clearable
+								{...filterForm.getInputProps('toDate')}
+							/>
+							<NumberInput
+								label='Minimum Amount (INR)'
+								placeholder='40'
+								leftSection={<Icon icon='lucide:indian-rupee' />}
+								{...filterForm.getInputProps('minAmount')}
+							/>
+							<NumberInput
+								label='Maximum Amount (INR)'
+								placeholder='40'
+								leftSection={<Icon icon='lucide:indian-rupee' />}
+								{...filterForm.getInputProps('maxAmount')}
+							/>
+							<Button onClick={filterForm.reset}>Clear All Filters</Button>
+						</Group>
+					</Stack>
+				</Card>
+			</Collapse>
+
+			<CustomLoader
+				errorMessage={"Couldn't get your transactions"}
+				query={transactionsQuery}
+				arrayKey='transactions'
+			>
+				{(data) => (
+					<>
+						<Stack>
+							{data.transactions.map((transaction) => (
+								<TransactionItemCard
+									key={transaction.id}
+									{...transaction}
+									username={getPersonName(transaction)}
+									bottomLeft={
+										transaction.type === 'DEBIT'
+											? transaction.senderTags
+												? transaction.senderTags.map((tag, id) => (
+														<Badge key={id}>{tag}</Badge>
+												  ))
+												: null
+											: transaction.type === 'CREDIT'
+											? transaction.recieverTags
+												? transaction.recieverTags.map((tag, id) => (
+														<Badge key={id}>{tag}</Badge>
+												  ))
+												: null
+											: null
+									}
+									bottomRight={
+										<>
+											{transaction.type === 'DEBIT' ||
+											transaction.type === 'CREDIT' ? (
+												<Button
+													onClick={() => {
+														updateTransactionTagsForm.setValues({
+															id: transaction.id,
+															tags:
+																transaction.type === 'DEBIT'
+																	? transaction.senderTags
+																	: transaction.type === 'CREDIT'
+																	? transaction.recieverTags
+																	: [],
+														})
+														tagsModalHandlers.open()
+													}}
+												>
+													Add tags
+												</Button>
+											) : null}
+											{transaction.type === 'DEBIT' && (
+												<Button
+													onClick={() => {
+														splitTransactionForm.setValues({
+															id: transaction.id,
+															requesteeUsernames: [''],
+														})
+														splitsModalHandlers.open()
+													}}
+												>
+													Split
+												</Button>
+											)}
+										</>
+									}
+								/>
+							))}
+						</Stack>
+						<div className='flex flex-col items-center'>
+							<Pagination
+								total={data.totalPages}
+								value={currentPage}
+								onChange={(value: number) => {
+									setCurrentPage(value)
+									queryClient.invalidateQueries({
+										queryKey: ['transactions', { page: value }],
+									})
+								}}
+								mt='sm'
+							/>
+						</div>
+					</>
+				)}
+			</CustomLoader>
 		</>
 	)
 }
