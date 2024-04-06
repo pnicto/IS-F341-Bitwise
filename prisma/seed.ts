@@ -145,6 +145,9 @@ async function main() {
 					shopName: v.shopName,
 					username: v.username,
 				},
+				// TODO: give images to faker products
+				imageId: 'placeholder',
+				imagePath: 'placeholder',
 			})
 		}
 	}
