@@ -227,18 +227,27 @@ export const updateProduct: RequestHandler = async (req, res, next) => {
 			}
 
 			// TODO: Properly handle errors in deleting and uploading image
+			let fileExists
 			try {
-				await imagekit.deleteFile(product.imageId)
+				fileExists = await imagekit.getFileDetails(product.imageId)
 			} catch (err) {
-				// We don't want to always throw an error here because even if delete failed (probably due to the image not existing) we still want the update to go through
+				// We don't want to throw an error here because the request most likely failed due to the image not existing, in which case we still want the update to go through
 				console.log(err)
+			}
+
+			if (fileExists !== undefined) {
+				try {
+					await imagekit.deleteFile(product.imageId)
+				} catch (err) {
+					throw new InternalServerError('Error deleting the old product image')
+				}
 			}
 			try {
 				const uploadResponse = await imagekit.upload({
 					file: image.buffer,
 					fileName: product.name,
 					useUniqueFileName: true,
-					folder: 'bitwise',
+					folder: '/bitwise',
 				})
 
 				imageId = uploadResponse.fileId
@@ -287,11 +296,20 @@ export const deleteProduct: RequestHandler = async (req, res, next) => {
 		}
 
 		// TODO: Properly handle errors in deleting image
+		let fileExists
 		try {
-			await imagekit.deleteFile(product.imageId)
+			fileExists = await imagekit.getFileDetails(product.imageId)
 		} catch (err) {
-			// We don't want to always throw an error here because even if delete failed (probably due to the image not existing) we still want the product deletion to go through
+			// We don't want to throw an error here because the request most likely failed due to the image not existing, in which case we still want the product deletion to go through
 			console.log(err)
+		}
+
+		if (fileExists !== undefined) {
+			try {
+				await imagekit.deleteFile(product.imageId)
+			} catch (err) {
+				throw new InternalServerError('Error deleting the product image')
+			}
 		}
 
 		await prisma.product.delete({
