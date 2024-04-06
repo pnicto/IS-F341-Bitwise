@@ -32,7 +32,7 @@ export class Forbidden extends CustomError {
 export class InternalServerError extends CustomError {
 	constructor(message: string) {
 		super(message, StatusCodes.INTERNAL_SERVER_ERROR)
-		Object.setPrototypeOf(this, Forbidden.prototype)
+		Object.setPrototypeOf(this, InternalServerError.prototype)
 	}
 }
 
