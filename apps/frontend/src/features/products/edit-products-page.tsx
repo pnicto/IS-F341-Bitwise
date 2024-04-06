@@ -247,16 +247,14 @@ const EditProducts = () => {
 							</div>
 						</Dropzone>
 					) : (
-						<>
+						<div className='relative m-auto'>
 							<Image
 								src={imageURL}
 								onLoad={() => URL.revokeObjectURL(imageURL)}
 								h={200}
 								w={'auto'}
-								className='m-auto'
 							/>
-							<div className='flex flex-col pt-4'>
-								{/* TODO: figure out how to replace with a cross button on top right of image */}
+							<div className='flex flex-col absolute -top-4 -right-8'>
 								<Button
 									size='s'
 									onClick={() => {
@@ -264,11 +262,18 @@ const EditProducts = () => {
 										setImageURL('')
 									}}
 									color='red'
+									variant='transparent'
+									radius={'xl'}
 								>
-									Remove Image
+									<Icon
+										icon='tabler:playstation-x'
+										color='red'
+										width={30}
+										height={30}
+									/>
 								</Button>
 							</div>
-						</>
+						</div>
 					)}
 					{updateProductForm.errors.image && (
 						<Text c='red' mt={5}>
