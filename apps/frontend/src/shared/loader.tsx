@@ -15,10 +15,10 @@ const CustomLoader = <T,>({
 	query,
 	arrayKey,
 }: Props<T>) => {
-	if (query.isError) {
+	if (query.isError || query.failureReason) {
 		const errors: { msg: string }[] = []
-		if (query.error instanceof AxiosError) {
-			const requestError = query.error
+		const requestError = query.isError ? query.error : query.failureReason
+		if (requestError instanceof AxiosError) {
 			if (requestError.response && requestError.response.data.errors)
 				errors.push(...requestError.response.data.errors)
 			else errors.push({ msg: requestError.message })
