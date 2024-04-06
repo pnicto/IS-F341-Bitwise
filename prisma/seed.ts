@@ -157,7 +157,7 @@ async function main() {
 
 	const transactions: Omit<
 		Transaction,
-		'id' | 'senderTags' | 'recieverTags'
+		'id' | 'senderTags' | 'receiverTags'
 	>[] = []
 	const students = await prisma.user.findMany({ where: { role: 'STUDENT' } })
 	for (let i = 0; i < 50; i++) {

@@ -83,7 +83,7 @@ model Transaction {
   receiverUsername String
   amount           Int
   senderTags       String[] @default([])
-  recieverTags     String[] @default([])
+  receiverTags     String[] @default([])
   createdAt        DateTime @default(now())
 }
 

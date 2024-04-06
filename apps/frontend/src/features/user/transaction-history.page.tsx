@@ -378,8 +378,8 @@ const TransactionHistory = () => {
 												  ))
 												: null
 											: transaction.type === 'CREDIT'
-											? transaction.recieverTags
-												? transaction.recieverTags.map((tag, id) => (
+											? transaction.receiverTags
+												? transaction.receiverTags.map((tag, id) => (
 														<Badge key={id}>{tag}</Badge>
 												  ))
 												: null
@@ -397,7 +397,7 @@ const TransactionHistory = () => {
 																transaction.type === 'DEBIT'
 																	? transaction.senderTags
 																	: transaction.type === 'CREDIT'
-																	? transaction.recieverTags
+																	? transaction.receiverTags
 																	: [],
 														})
 														tagsModalHandlers.open()

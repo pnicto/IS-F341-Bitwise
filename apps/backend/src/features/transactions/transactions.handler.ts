@@ -47,7 +47,7 @@ export const updateTransactionTags: RequestHandler = async (req, res, next) => {
 			await prisma.transaction.update({
 				where: { id: transaction.id },
 				data: {
-					recieverTags: tags,
+					receiverTags: tags,
 				},
 			})
 		}
@@ -226,7 +226,7 @@ export const filterTransactionHistory: RequestHandler = async (
 					amount: true,
 					senderUsername: true,
 					receiverUsername: true,
-					recieverTags: true,
+					receiverTags: true,
 					createdAt: true,
 				},
 			})
