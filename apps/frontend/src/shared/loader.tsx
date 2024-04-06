@@ -1,5 +1,6 @@
 import { Loader } from '@mantine/core'
 import { UseQueryResult } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
 
 type Props<T> = {
 	children: (data: T) => React.ReactNode
@@ -14,10 +15,30 @@ const CustomLoader = <T,>({
 	query,
 	arrayKey,
 }: Props<T>) => {
-	if (query.isError)
+	if (query.isError) {
+		const errors: { msg: string }[] = []
+		if (query.error instanceof AxiosError) {
+			const requestError = query.error
+			if (requestError.response && requestError.response.data.errors)
+				errors.push(...requestError.response.data.errors)
+			else errors.push({ msg: requestError.message })
+		}
+
 		return (
 			<div className='flex flex-col items-center justify-center text-center'>
 				<p className='text-2xl font-bold text-gray-800'>{errorMessage}</p>
+				{errors.length > 0 && (
+					<>
+						<p className='text-xl font-bold text-gray-800'>
+							Here's a list of errors
+						</p>
+						{errors.map((err, i) => (
+							<p key={i} className='text-lg font-bold text-gray-800'>
+								{i + 1}. {err.msg}
+							</p>
+						))}
+					</>
+				)}
 				<p className='text-lg text-gray-600'>
 					We couldn't fetch the data you requested. Please try again later.
 				</p>
@@ -28,6 +49,7 @@ const CustomLoader = <T,>({
 				/>
 			</div>
 		)
+	}
 
 	if (query.isPending)
 		return (
