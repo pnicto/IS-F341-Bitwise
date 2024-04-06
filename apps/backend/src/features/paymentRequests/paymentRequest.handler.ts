@@ -55,6 +55,95 @@ export const requestPayment: RequestHandler = async (req, res, next) => {
 	}
 }
 
+export const validateSplitRequest = [
+	param('id').trim().notEmpty().withMessage('Transaction ID is required'),
+	body('requesteeUsernames')
+		.isArray({ min: 1 })
+		.withMessage('At least one requestee is required')
+		.isString()
+		.withMessage('Requestee usernames must be strings'),
+	body('includeSelf')
+		.isBoolean()
+		.withMessage('Include self is a required field and must be a boolean'),
+]
+export const splitPaymentRequest: RequestHandler = async (req, res, next) => {
+	try {
+		const { id, requesteeUsernames, includeSelf } = validateRequest<{
+			id: string
+			requesteeUsernames: string[]
+			includeSelf: boolean
+		}>(req)
+		const requester = getAuthorizedUser(req)
+
+		const transaction = await prisma.transaction.findUnique({
+			where: { id },
+		})
+		if (!transaction) {
+			throw new NotFound('Transaction not found')
+		}
+		if (transaction.senderUsername !== requester.username) {
+			throw new Forbidden('User is not the person who paid for the transaction')
+		}
+
+		if (requesteeUsernames.includes(transaction.senderUsername)) {
+			throw new BadRequest('Cannot request payment from self')
+		}
+		if (requesteeUsernames.includes(transaction.receiverUsername)) {
+			throw new BadRequest(
+				'Cannot split request with receiver of the transaction',
+			)
+		}
+		const isAdminInRequestees = await prisma.user.findFirst({
+			where: { username: { in: requesteeUsernames }, role: 'ADMIN' },
+		})
+		if (isAdminInRequestees) {
+			throw new BadRequest('Cannot request payment from admin')
+		}
+		const requestees = await prisma.user.findMany({
+			where: { username: { in: requesteeUsernames }, enabled: true },
+		})
+		const requesteeUsernamesFound = requestees.map(
+			(requestee) => requestee.username,
+		)
+		const requesteeUsernamesNotFound = requesteeUsernames.filter(
+			(requesteeUsername) =>
+				!requesteeUsernamesFound.includes(requesteeUsername),
+		)
+		if (requesteeUsernamesNotFound.length > 0) {
+			throw new BadRequest(
+				`Requestee(s) either not found or have their accounts disabled: ${requesteeUsernamesNotFound.join(
+					', ',
+				)}`,
+			)
+		}
+		if (transaction.amount < requesteeUsernamesFound.length) {
+			throw new BadRequest(
+				`Cannot split amount: ${transaction.amount} with ${requesteeUsernamesFound.length} people. Please choose fewer people than the amount.`,
+			)
+		}
+		let amountPerRequestee = transaction.amount / requesteeUsernamesFound.length
+		if (includeSelf) {
+			amountPerRequestee =
+				transaction.amount / (requesteeUsernamesFound.length + 1)
+		}
+		const paymentRequests = requesteeUsernamesFound.map(
+			(requesteeUsername) => ({
+				requesterUsername: requester.username,
+				requesteeUsername: requesteeUsername,
+				amount: amountPerRequestee,
+			}),
+		)
+		await prisma.paymentRequest.createMany({
+			data: paymentRequests,
+		})
+		return res
+			.status(StatusCodes.CREATED)
+			.json({ message: 'Split request created successfully' })
+	} catch (err) {
+		next(err)
+	}
+}
+
 export const getPaymentRequests: RequestHandler = async (req, res, next) => {
 	try {
 		const user = getAuthorizedUser(req)
@@ -170,6 +259,13 @@ export const respondToPaymentRequest: RequestHandler = async (
 					prisma.paymentRequest.update({
 						where: { id },
 						data: { status: 'COMPLETED' },
+					}),
+					prisma.transaction.create({
+						data: {
+							amount: request.amount,
+							senderUsername: request.requesteeUsername,
+							receiverUsername: request.requesterUsername,
+						},
 					}),
 				])
 			} else {

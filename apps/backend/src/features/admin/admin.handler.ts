@@ -15,6 +15,7 @@ export const validateNewUser = [
 		.trim()
 		.isIn([Role.STUDENT, Role.VENDOR])
 		.withMessage('Invalid role'),
+	body('mobile').isMobilePhone('en-IN').withMessage('Invalid mobile number'),
 	body('shopName')
 		.if(body('role').equals(Role.VENDOR))
 		.trim()
@@ -23,7 +24,8 @@ export const validateNewUser = [
 ]
 export const createAccount: RequestHandler = async (req, res, next) => {
 	try {
-		const { email, role } = validateRequest<Pick<User, 'email' | 'role'>>(req)
+		const { email, role, mobile } =
+			validateRequest<Pick<User, 'email' | 'role' | 'mobile'>>(req)
 
 		const username = extractUsernameFromEmail(email)
 		const password = crypto.randomBytes(4).toString('hex')
@@ -33,7 +35,7 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 
 		if (role === 'STUDENT') {
 			user = await prisma.user.create({
-				data: { username, email, password: hashedPassword, role },
+				data: { username, email, password: hashedPassword, role, mobile },
 			})
 		} else {
 			const { shopName } = validateRequest<Pick<User, 'shopName'>>(req)
@@ -46,7 +48,14 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 			}
 
 			user = await prisma.user.create({
-				data: { username, email, password: hashedPassword, role, shopName },
+				data: {
+					username,
+					email,
+					password: hashedPassword,
+					role,
+					shopName,
+					mobile,
+				},
 			})
 		}
 
@@ -129,6 +138,7 @@ export const updateUserStatus: RequestHandler = async (req, res, next) => {
 export const validateBulkUsers = [
 	body().isArray().withMessage('Invalid users'),
 	body('*.email').trim().isEmail().withMessage('Invalid email'),
+	body('*.mobile').isMobilePhone('en-IN').withMessage('Invalid mobile number'),
 	body('*.role')
 		.trim()
 		.isIn([Role.STUDENT, Role.VENDOR])
@@ -147,13 +157,15 @@ export const validateBulkUsers = [
 export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
 	try {
 		const userReq =
-			validateRequest<Pick<User, 'email' | 'role' | 'shopName'>[]>(req)
+			validateRequest<Pick<User, 'email' | 'role' | 'mobile' | 'shopName'>[]>(
+				req,
+			)
 		const userEmails: string[] = []
 		const users = []
 		const userPassword = new Map()
 		const skipped = []
 		for (let i = 0; i < req.body.length; i++) {
-			const { email, role, shopName } = userReq[i]
+			const { email, role, shopName, mobile } = userReq[i]
 			if (userEmails.includes(email)) {
 				skipped.push(`User with email ${email} already added in given request`)
 				continue
@@ -167,6 +179,7 @@ export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
 				users.push({
 					username,
 					email,
+					mobile,
 					password: hashedPassword,
 					role,
 				})
@@ -181,6 +194,7 @@ export const createAccountsInBulk: RequestHandler = async (req, res, next) => {
 				users.push({
 					username,
 					email,
+					mobile,
 					password: hashedPassword,
 					role,
 					shopName,

@@ -55,7 +55,7 @@ async function main() {
 			password: await hashPassword('password'),
 			balance: 0,
 			shopName: null,
-			mobile: null,
+			mobile: faker.phone.number().replace(/-/g, '').slice(3),
 		},
 		{
 			email: 'tron@email.com',
@@ -64,7 +64,7 @@ async function main() {
 			password: await hashPassword('password'),
 			balance: 1000,
 			shopName: null,
-			mobile: null,
+			mobile: faker.phone.number().replace(/-/g, '').slice(3),
 		},
 		{
 			email: 'lane@email.com',
@@ -73,7 +73,7 @@ async function main() {
 			password: await hashPassword('password'),
 			balance: 1000,
 			shopName: 'shoppy',
-			mobile: null,
+			mobile: faker.phone.number().replace(/-/g, '').slice(3),
 		},
 	]
 
@@ -86,7 +86,7 @@ async function main() {
 			password: await hashPassword('password'),
 			balance: faker.number.int({ min: 100, max: 10000 }),
 			shopName: null,
-			mobile: null,
+			mobile: faker.phone.number().replace(/-/g, '').slice(3),
 		})
 	}
 
@@ -120,12 +120,13 @@ async function main() {
 	console.log('Seeded users')
 
 	await prisma.category.createMany({ data: categories })
+	console.log('Seeded categories')
 
 	const products: Omit<Product, 'id'>[] = []
 
 	const vendors = await prisma.user.findMany({ where: { role: 'VENDOR' } })
 	for (const v of vendors) {
-		for (let i = 0; i < 10; i++) {
+		for (let i = 0; i < 25; i++) {
 			const productDate = faker.date.between({
 				from: '2024-01-01T00:00:00.000Z',
 				to: '2024-02-29T00:00:00.000Z',

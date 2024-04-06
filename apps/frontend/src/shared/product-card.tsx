@@ -4,7 +4,6 @@ import { ReactNode } from 'react'
 
 type Props = Product & {
 	showVendorDetails?: boolean
-	vendor?: Pick<User, 'mobile' | 'username'>
 	allowEdit?: boolean
 	editComponent?: ReactNode
 	deleteComponent?: ReactNode
@@ -16,7 +15,7 @@ const ProductCard = ({
 	description,
 	price,
 	categoryName,
-	vendor,
+	sellerDetails,
 	showVendorDetails = false,
 	allowEdit = false,
 	editComponent,
@@ -38,16 +37,27 @@ const ProductCard = ({
 						{categoryName && <Badge>{categoryName}</Badge>}
 					</Grid.Col>
 				</Grid>
-				<p>{description}</p>
+				{showVendorDetails &&
+					(sellerDetails.shopName !== null ? (
+						<p>
+							Sold by: <b>{sellerDetails.shopName}</b>
+						</p>
+					) : (
+						<p>
+							Sold by: <b>{sellerDetails.username}</b>
+						</p>
+					))}
+
+				<p>{description}</p
 				<Image
 					src={`${import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT}${imagePath}`}
 					fallbackSrc='/fallbackProductImage.png'
 				/>
-				{vendor && showVendorDetails && (
-					<Group>
-						<p>Sold by: {vendor.username}</p>
-						<p>Contact: {vendor.mobile}</p>
-					</Group>
+
+				{showVendorDetails && sellerDetails.shopName === null && (
+					<p>
+						Contact: <b>{sellerDetails.mobile}</b>
+					</p>
 				)}
 
 				{allowEdit && (
