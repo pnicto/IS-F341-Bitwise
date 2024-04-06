@@ -17,7 +17,7 @@ const CustomLoader = <T,>({
 	if (query.isError)
 		return (
 			<div className='flex flex-col items-center justify-center text-center'>
-				<h1 className='text-2xl font-bold text-gray-800'>{errorMessage}</h1>
+				<p className='text-2xl font-bold text-gray-800'>{errorMessage}</p>
 				<p className='text-lg text-gray-600'>
 					We couldn't fetch the data you requested. Please try again later.
 				</p>
@@ -44,9 +44,9 @@ const CustomLoader = <T,>({
 		if (Array.isArray(expectedArray) && expectedArray.length === 0) {
 			return (
 				<div className='flex flex-col items-center justify-center text-center'>
-					<h1 className='text-2xl font-bold text-gray-800'>
+					<p className='text-2xl font-bold text-gray-800'>
 						Hmm... It seems there's nothing to show here.
-					</h1>
+					</p>
 					<img
 						src='/undraw_empty.svg'
 						alt='lost'
