@@ -29,6 +29,13 @@ export class Forbidden extends CustomError {
 	}
 }
 
+export class InternalServerError extends CustomError {
+	constructor(message: string) {
+		super(message, StatusCodes.INTERNAL_SERVER_ERROR)
+		Object.setPrototypeOf(this, InternalServerError.prototype)
+	}
+}
+
 export class ValidationError extends BadRequest {
 	errors: { msg: string }[]
 	constructor(errors: { msg: string }[]) {

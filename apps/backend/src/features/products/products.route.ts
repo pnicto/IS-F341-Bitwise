@@ -1,5 +1,6 @@
 import { Role } from '@prisma/client'
 import express from 'express'
+import Multer from 'multer'
 import { authorize } from '../../middleware/authorize'
 import {
 	addCategory,
@@ -9,6 +10,7 @@ import {
 	getCategories,
 	getProducts,
 	searchProducts,
+	unpackProductJSON,
 	updateCategory,
 	updateProduct,
 	validateDeletedCategory,
@@ -21,15 +23,25 @@ import {
 	validateUpdatedProduct,
 } from './products.handler'
 
+const upload = Multer()
+
 export const productRouter = express.Router()
 
 productRouter.post(
 	'/new',
 	authorize(Role.VENDOR, Role.STUDENT),
+	upload.single('image'),
+	unpackProductJSON,
 	validateNewProduct,
 	createProduct,
 )
-productRouter.post('/update/:id', validateUpdatedProduct, updateProduct)
+productRouter.post(
+	'/update/:id',
+	upload.single('image'),
+	unpackProductJSON,
+	validateUpdatedProduct,
+	updateProduct,
+)
 productRouter.post('/delete/:id', validateDeletedProduct, deleteProduct)
 productRouter.get('/', validateProductQuery, getProducts)
 productRouter.get('/search', validateSearchProduct, searchProducts)

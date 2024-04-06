@@ -1,4 +1,4 @@
-import { Badge, Card, Grid, Group, Stack } from '@mantine/core'
+import { Badge, Card, Grid, Group, Image, Stack } from '@mantine/core'
 import { Product } from '@prisma/client'
 import { ReactNode } from 'react'
 
@@ -20,6 +20,8 @@ const ProductCard = ({
 	allowEdit = false,
 	editComponent,
 	deleteComponent,
+	imageId,
+	imagePath,
 }: Props) => {
 	return (
 		// TODO: show image
@@ -47,6 +49,10 @@ const ProductCard = ({
 					))}
 
 				<p>{description}</p>
+				<Image
+					src={`${import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT}${imagePath}`}
+					fallbackSrc='/fallbackProductImage.png'
+				/>
 
 				{showVendorDetails && sellerDetails.shopName === null && (
 					<p>
