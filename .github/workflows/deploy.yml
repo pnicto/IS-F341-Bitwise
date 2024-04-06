@@ -14,6 +14,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: frontend
-        run: flyctl deploy -c fly.frontend.toml --remote-only --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }}
+        run: flyctl deploy -c fly.frontend.toml --remote-only --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} --build-arg VITE_IMAGEKIT_URL_ENDPOINT=${{ secrets.VITE_IMAGEKIT_URL_ENDPOINT}} --build-arg VITE_IMAGEKIT_PUBLIC_KEY=${{ secrets.VITE_IMAGEKIT_PUBLIC_KEY}}
       - name: backend
         run: flyctl deploy -c fly.backend.toml
