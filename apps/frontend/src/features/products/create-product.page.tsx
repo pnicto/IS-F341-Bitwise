@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react'
 import {
+	ActionIcon,
 	Button,
 	Image,
 	Loader,
@@ -174,8 +175,8 @@ const CreateProduct = () => {
 						h={200}
 						w={'auto'}
 					/>
-					<div className='flex flex-col absolute -top-4 -right-8'>
-						<Button
+					<div className='flex flex-col absolute -top-4 -right-4'>
+						<ActionIcon
 							size='s'
 							onClick={() => {
 								form.setFieldValue('image', null)
@@ -191,7 +192,7 @@ const CreateProduct = () => {
 								width={30}
 								height={30}
 							/>
-						</Button>
+						</ActionIcon>
 					</div>
 				</div>
 			)}
