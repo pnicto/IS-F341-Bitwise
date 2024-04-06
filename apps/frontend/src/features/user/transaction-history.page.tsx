@@ -5,15 +5,19 @@ import {
 	Button,
 	Center,
 	ComboboxItem,
+	Group,
 	Loader,
 	Modal,
+	NumberInput,
 	OptionsFilter,
 	Pagination,
+	Select,
 	Stack,
 	Switch,
 	TagsInput,
 	TextInput,
 } from '@mantine/core'
+import { DateTimePicker } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
@@ -89,6 +93,22 @@ const TransactionHistory = () => {
 		},
 	})
 
+	const filterForm = useForm({
+		initialValues: {
+			transactionType: '',
+			fromUser: '',
+			toUser: '',
+			fromDate: '',
+			toDate: '',
+			minAmount: '',
+			maxAmount: '',
+		},
+		transformValues: (values) => ({
+			fromDate: values.fromDate ? new Date(values.fromDate).toISOString() : '',
+			toDate: values.toDate ? new Date(values.toDate).toISOString() : '',
+		}),
+	})
+
 	const [tagsModalIsOpen, tagsModalHandlers] = useDisclosure(false)
 	const [splitsModalIsOpen, splitsModalHandlers] = useDisclosure(false)
 
@@ -135,13 +155,30 @@ const TransactionHistory = () => {
 
 	const userQuery = useUserQuery()
 
+	const filterFormValues = filterForm.values
+	const filterFormTransformedValues = filterForm.getTransformedValues()
+
 	const transactionsQuery = useQuery({
-		queryKey: ['transactions', { page: currentPage }],
+		queryKey: [
+			'transactions',
+			{
+				page: currentPage,
+				transactionType: filterFormValues.transactionType,
+				fromUser: filterFormValues.fromUser,
+				toUser: filterFormValues.toUser,
+				fromDate: filterFormTransformedValues.fromDate,
+				toDate: filterFormTransformedValues.toDate,
+				minAmount: filterFormValues.minAmount,
+				maxAmount: filterFormValues.maxAmount,
+			},
+		],
 		queryFn: async () => {
 			const response = await axios.get<{
 				transactions: HistoryItem[]
 				totalPages: number
-			}>(`/transactions/view?items=${numberOfItems}&page=${currentPage}`)
+			}>(
+				`/transactions/view?items=${numberOfItems}&page=${currentPage}&transactionType=${filterFormValues.transactionType}&fromUser=${filterFormValues.fromUser}&toUser=${filterFormValues.toUser}&fromDate=${filterFormTransformedValues.fromDate}&toDate=${filterFormTransformedValues.toDate}&minAmount=${filterFormValues.minAmount}&maxAmount=${filterFormValues.maxAmount}`,
+			)
 			return response.data
 		},
 		select: (data) => {
@@ -261,6 +298,57 @@ const TransactionHistory = () => {
 					</Button>
 				</form>
 			</Modal>
+			<Stack>
+				<Group justify='center' className='pb-5'>
+					<Select
+						label='Transaction Type'
+						defaultValue=''
+						data={[
+							{ value: '', label: 'All' },
+							{ value: 'CREDIT', label: 'Credit' },
+							{ value: 'DEBIT', label: 'Debit' },
+							{ value: 'DEPOSIT', label: 'Deposit' },
+							{ value: 'WITHDRAWAL', label: 'Withdrawal' },
+						]}
+						allowDeselect={false}
+						{...filterForm.getInputProps('transactionType')}
+					/>
+					<TextInput
+						label='From User'
+						placeholder='john420'
+						{...filterForm.getInputProps('fromUser')}
+					/>
+					<TextInput
+						label='To User'
+						placeholder='john420'
+						{...filterForm.getInputProps('toUser')}
+					/>
+					<DateTimePicker
+						label='From date and time'
+						placeholder='Pick date and time'
+						clearable
+						{...filterForm.getInputProps('fromDate')}
+					/>
+					<DateTimePicker
+						label='To date and time'
+						placeholder='Pick date and time'
+						clearable
+						{...filterForm.getInputProps('toDate')}
+					/>
+					<NumberInput
+						label='Minimum Amount (INR)'
+						placeholder='40'
+						leftSection={<Icon icon='lucide:indian-rupee' />}
+						{...filterForm.getInputProps('minAmount')}
+					/>
+					<NumberInput
+						label='Maximum Amount (INR)'
+						placeholder='40'
+						leftSection={<Icon icon='lucide:indian-rupee' />}
+						{...filterForm.getInputProps('maxAmount')}
+					/>
+				</Group>
+			</Stack>
 			<Stack>
 				{transactionsQuery.data.transactions.map((transaction) => (
 					<TransactionItemCard
