@@ -1,9 +1,9 @@
 import { fakerEN_IN as faker } from '@faker-js/faker'
 import { PrismaClient, Product, Transaction, User } from '@prisma/client'
 import ImageKit from 'imagekit'
-import { CustomError } from '../apps/backend/src/errors/BaseCustomError'
 import { extractUsernameFromEmail } from '../apps/backend/src/features/admin/admin.utils'
 import { hashPassword } from '../apps/backend/src/utils/password'
+import imageData from './images'
 
 faker.seed(2323)
 const prisma = new PrismaClient()
@@ -41,6 +41,9 @@ const categories = CATEGORY_NAMES.map((categoryName) => {
 	return { name: categoryName }
 })
 
+// const images: any[] = []
+let imageIndex = 0
+
 async function main() {
 	await prisma.transaction.deleteMany({})
 	console.log('Transactions deleted')
@@ -53,7 +56,7 @@ async function main() {
 	await prisma.category.deleteMany({})
 	console.log('Categories deleted')
 
-	const users: Omit<User, 'id' | 'enabled' | 'tags'>[] = [
+	const users: Omit<User, 'id' | 'enabled' | 'tags' | 'shopBalance'>[] = [
 		{
 			email: 'john@email.com',
 			role: 'ADMIN',
@@ -137,18 +140,25 @@ async function main() {
 				from: '2024-01-01T00:00:00.000Z',
 				to: '2024-02-29T00:00:00.000Z',
 			})
-			let uploadResponse
 			const name = faker.commerce.productName()
-			try {
-				uploadResponse = await imagekit.upload({
-					file: faker.image.urlPicsumPhotos(),
-					fileName: name,
-					useUniqueFileName: true,
-					folder: '/bitwise',
-				})
-			} catch (err) {
-				throw new CustomError('Error creating product image', 500)
-			}
+
+			// let uploadResponse
+			// try {
+			// 	uploadResponse = await imagekit.upload({
+			// 		file: faker.image.urlPicsumPhotos(),
+			// 		fileName: name,
+			// 		useUniqueFileName: true,
+			// 		folder: '/bitwise',
+			// 	})
+			// 	images.push({
+			// 		fileId: uploadResponse.fileId,
+			// 		imagePath: uploadResponse.filePath,
+			// 	})
+			// } catch (err) {
+			// 	console.log(err)
+			// 	exit(1)
+			// }
+
 			products.push({
 				name: name,
 				description: faker.commerce.productDescription(),
@@ -163,10 +173,10 @@ async function main() {
 					shopName: v.shopName,
 					username: v.username,
 				},
-				// TODO: give images to faker products
-				imageId: uploadResponse.fileId,
-				imagePath: uploadResponse.filePath,
+				imageId: imageData[imageIndex].fileId,
+				imagePath: imageData[imageIndex].imagePath,
 			})
+			imageIndex++
 		}
 	}
 
@@ -203,6 +213,15 @@ async function main() {
 main()
 	.then(async () => {
 		await prisma.$disconnect()
+
+		// const jsonData = JSON.stringify(images, null, 2)
+		// fs.writeFile('images.json', jsonData, (err) => {
+		// 	if (err) {
+		// 		console.error('Error writing JSON file:', err)
+		// 	} else {
+		// 		console.log('Images logged to images.json')
+		// 	}
+		// })
 	})
 	.catch(async (e) => {
 		console.error(e)

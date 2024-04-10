@@ -27,15 +27,48 @@ export const transact: RequestHandler = async (req, res, next) => {
 		const receiver = await prisma.user.findUnique({
 			where: { username: receiverUsername },
 		})
+		const shop = await prisma.user.findFirst({
+			where: { shopName: receiverUsername },
+		})
+
+		if (shop && receiver) {
+			throw new BadRequest('Ambiguous receiver account')
+		}
+
+		if (sender.balance < amount) {
+			throw new BadRequest('Insufficient balance')
+		}
+
+		if (shop) {
+			await prisma.$transaction([
+				prisma.user.update({
+					where: { shopName: receiverUsername, email: shop.email },
+					data: { shopBalance: { increment: amount } },
+				}),
+				prisma.user.update({
+					where: { username: sender.username },
+					data: { balance: { decrement: amount } },
+				}),
+				prisma.transaction.create({
+					data: {
+						senderUsername: sender.username,
+						receiverUsername: receiverUsername,
+						amount,
+					},
+				}),
+			])
+			return res
+				.status(StatusCodes.CREATED)
+				.json({ msg: 'Transaction successful' })
+		}
+
 		if (!receiver) {
 			throw new NotFound('Receiver not found')
 		}
 		if (!receiver.enabled) {
 			throw new BadRequest('Receiver account is disabled')
 		}
-		if (sender.balance < amount) {
-			throw new BadRequest('Insufficient balance')
-		}
+
 		await prisma.$transaction([
 			prisma.user.update({
 				where: { username: sender.username },

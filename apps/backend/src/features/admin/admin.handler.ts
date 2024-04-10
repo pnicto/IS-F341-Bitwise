@@ -31,6 +31,13 @@ export const createAccount: RequestHandler = async (req, res, next) => {
 		const password = crypto.randomBytes(4).toString('hex')
 		const hashedPassword = await hashPassword(password)
 
+		const isShop = await prisma.user.findFirst({
+			where: { shopName: username },
+		})
+		if (isShop) {
+			throw new BadRequest('Username already exists')
+		}
+
 		let user
 
 		if (role === 'STUDENT') {
