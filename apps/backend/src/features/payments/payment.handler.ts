@@ -35,6 +35,10 @@ export const transact: RequestHandler = async (req, res, next) => {
 			throw new BadRequest('Ambiguous receiver account')
 		}
 
+		if (sender.balance < amount) {
+			throw new BadRequest('Insufficient balance')
+		}
+
 		if (shop) {
 			await prisma.$transaction([
 				prisma.user.update({
@@ -64,9 +68,7 @@ export const transact: RequestHandler = async (req, res, next) => {
 		if (!receiver.enabled) {
 			throw new BadRequest('Receiver account is disabled')
 		}
-		if (sender.balance < amount) {
-			throw new BadRequest('Insufficient balance')
-		}
+
 		await prisma.$transaction([
 			prisma.user.update({
 				where: { username: sender.username },
