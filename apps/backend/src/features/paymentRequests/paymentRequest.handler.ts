@@ -27,6 +27,13 @@ export const requestPayment: RequestHandler = async (req, res, next) => {
 			where: { username: requesteeUsername },
 		})
 
+		const isShop = await prisma.user.findFirst({
+			where: { shopName: requesteeUsername },
+		})
+		if (isShop) {
+			throw new BadRequest('Cannot request payment from shop')
+		}
+
 		if (requester.username === requesteeUsername) {
 			throw new BadRequest('Cannot request payment from self')
 		}
@@ -94,6 +101,14 @@ export const splitPaymentRequest: RequestHandler = async (req, res, next) => {
 				'Cannot split request with receiver of the transaction',
 			)
 		}
+
+		const isShopInRequestees = await prisma.user.findFirst({
+			where: { shopName: { in: requesteeUsernames } },
+		})
+		if (isShopInRequestees) {
+			throw new BadRequest('Cannot request payment from shop')
+		}
+
 		const isAdminInRequestees = await prisma.user.findFirst({
 			where: { username: { in: requesteeUsernames }, role: 'ADMIN' },
 		})
