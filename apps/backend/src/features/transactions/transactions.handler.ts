@@ -437,14 +437,12 @@ export const getShopTransactionHistory: RequestHandler = async (
 				createdAt: 'desc',
 			},
 		})
-		return res
-			.status(StatusCodes.OK)
-			.json({
-				transactions,
-				totalPages: Math.ceil(
-					transactions.length / Math.min(numberOfItems, transactions.length),
-				),
-			})
+		return res.status(StatusCodes.OK).json({
+			transactions,
+			totalPages: Math.ceil(
+				transactions.length / Math.min(numberOfItems, transactions.length),
+			),
+		})
 	} catch (err) {
 		next(err)
 	}
