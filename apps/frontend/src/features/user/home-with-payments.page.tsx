@@ -2,10 +2,10 @@ import { Icon } from '@iconify/react'
 import { Button, Card, NumberInput, SimpleGrid, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
-import { Transaction } from '@prisma/client'
+import { Role, Transaction, User } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useRouteLoaderData } from 'react-router-dom'
 import axios from '../../lib/axios'
 import { handleAxiosErrors } from '../../notifications/utils'
 
@@ -15,7 +15,7 @@ type RouteOption = {
 	path: string
 }
 
-const navigationOptions: RouteOption[] = [
+const commonOptions: RouteOption[] = [
 	{
 		icon: <Icon icon='lucide:wallet' />,
 		label: 'Wallet',
@@ -27,11 +27,6 @@ const navigationOptions: RouteOption[] = [
 		path: '/shops/view',
 	},
 	{
-		icon: <Icon icon='lucide:warehouse' />,
-		label: 'Catalogue',
-		path: '/catalogue',
-	},
-	{
 		icon: <Icon icon='lucide:history' />,
 		label: 'Transaction History',
 		path: '/txn-history',
@@ -40,6 +35,29 @@ const navigationOptions: RouteOption[] = [
 		icon: <Icon icon='uil:money-withdraw' />,
 		label: 'Payment Requests',
 		path: '/payment-requests',
+	},
+]
+
+const studentOptions: RouteOption[] = [
+	...commonOptions,
+	{
+		icon: <Icon icon='lucide:warehouse' />,
+		label: 'My Listings',
+		path: '/catalogue',
+	},
+]
+
+const vendorOptions: RouteOption[] = [
+	...commonOptions,
+	{
+		icon: <Icon icon='lucide:warehouse' />,
+		label: 'Catalogue',
+		path: '/catalogue',
+	},
+	{
+		icon: <Icon icon='lucide:receipt-indian-rupee' />,
+		label: 'Shop Transactions',
+		path: '/shop/transactions',
 	},
 ]
 
@@ -56,13 +74,15 @@ const GridItem = ({ icon, label, path }: RouteOption) => {
 	)
 }
 
-function renderGridItems() {
-	return navigationOptions.map((option) => (
-		<GridItem key={option.label} {...option} />
-	))
+function renderGridItems(role: Role) {
+	const options = role === 'STUDENT' ? studentOptions : vendorOptions
+	return options.map((option) => <GridItem key={option.label} {...option} />)
 }
 
 const HomeWithPayments = () => {
+	const {
+		user: { role },
+	} = useRouteLoaderData('protected-layout') as { user: User }
 	const form = useForm({
 		initialValues: { receiverUsername: '', amount: 1 },
 		validate: {
@@ -112,7 +132,7 @@ const HomeWithPayments = () => {
 				verticalSpacing='md'
 				className='max-w-3xl mx-auto pt-5'
 			>
-				{renderGridItems()}
+				{renderGridItems(role)}
 			</SimpleGrid>
 		</>
 	)
