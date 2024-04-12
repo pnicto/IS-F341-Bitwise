@@ -19,6 +19,7 @@ transactionRouter.get(
 )
 transactionRouter.get(
 	'/view/shop',
+	authorize(Role.VENDOR),
 	validateGetShopTransactions,
 	getShopTransactionHistory,
 )
