@@ -74,6 +74,15 @@ const EditProfile = () => {
 
 	return (
 		<>
+			<h1 className='text-3xl font-bold'>Edit Profile</h1>
+			<p className='text-xl text-center pb-4'>
+				Logged in as <b>{userQuery.data.user.username}</b>{' '}
+				{userQuery.data.user.role === 'VENDOR' && (
+					<>
+						owner of <b>{userQuery.data.user.shopName}</b>
+					</>
+				)}
+			</p>
 			<form
 				onSubmit={editForm.onSubmit((values) => {
 					editUser.mutate(values)

@@ -24,6 +24,7 @@ import EditProducts from './features/products/edit-products-page'
 import SearchProduct from './features/products/search-product.page'
 import ProductList from './features/shops/products-list.page'
 import ShopList from './features/shops/shop-list.page'
+import ShopTransactionHistory from './features/shops/shop-transaction-history.page'
 import EditProfile from './features/user/edit-profile'
 import HomeWithPayments from './features/user/home-with-payments.page'
 import ManageTags from './features/user/manage-tags'
@@ -72,6 +73,13 @@ const router = createBrowserRouter(
 					<Route path='manage-tags' element={<ManageTags />} />
 					<Route path='search-product' element={<SearchProduct />} />
 					<Route path='payment-requests' element={<PaymentRequests />} />
+				</Route>
+
+				{/* Protected only for vendor */}
+				<Route element={<PermissionGuard permissions={['VENDOR']} />}>
+					<Route path='shop'>
+						<Route path='transactions' element={<ShopTransactionHistory />} />
+					</Route>
 				</Route>
 
 				{/* Protected only for admin */}

@@ -3,7 +3,9 @@ import express from 'express'
 import { authorize } from '../../middleware/authorize'
 import {
 	filterTransactionHistory,
+	getShopTransactionHistory,
 	updateTransactionTags,
+	validateGetShopTransactions,
 	validateTransactionFilters,
 	validateUpdatedTags,
 } from './transactions.handler'
@@ -14,6 +16,12 @@ transactionRouter.get(
 	authorize(Role.STUDENT, Role.VENDOR),
 	validateTransactionFilters,
 	filterTransactionHistory,
+)
+transactionRouter.get(
+	'/view/shop',
+	authorize(Role.VENDOR),
+	validateGetShopTransactions,
+	getShopTransactionHistory,
 )
 transactionRouter.post(
 	'/update/:id',

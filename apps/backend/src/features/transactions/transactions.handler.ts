@@ -327,3 +327,123 @@ export const filterTransactionHistory: RequestHandler = async (
 		next(err)
 	}
 }
+
+export const validateGetShopTransactions = [
+	query('items').trim().optional(),
+	query('page').trim().optional(),
+	query('fromUser').trim().optional(),
+	query('fromDate').trim().optional(),
+	query('toDate').trim().optional(),
+	query('minAmount')
+		.trim()
+		.optional()
+		.custom((value) => {
+			if (value !== undefined && value !== '') {
+				if (!Number.isInteger(parseInt(value))) {
+					throw new Error('Minimum amount must be a number')
+				}
+			}
+			return true
+		})
+		.customSanitizer((value) => {
+			if (value === '') {
+				return undefined
+			}
+			return parseInt(value)
+		}),
+	query('maxAmount')
+		.trim()
+		.optional()
+		.custom((value) => {
+			if (value !== undefined && value !== '') {
+				if (!Number.isInteger(parseInt(value))) {
+					throw new Error('Maximum amount must be a number')
+				}
+			}
+			return true
+		})
+		.customSanitizer((value) => {
+			if (value === '') {
+				return undefined
+			}
+			return parseInt(value)
+		}),
+	query().custom((value, { req }) => {
+		const { minAmount, maxAmount } = req.query as {
+			minAmount: number
+			maxAmount: number
+		}
+		if (minAmount && maxAmount && minAmount > maxAmount) {
+			throw new Error('Minimum amount must be less than maximum amount')
+		}
+		return true
+	}),
+]
+export const getShopTransactionHistory: RequestHandler = async (
+	req,
+	res,
+	next,
+) => {
+	try {
+		const { items, page, fromUser, fromDate, toDate, minAmount, maxAmount } =
+			validateRequest<{
+				items: string | undefined
+				page: string | undefined
+				fromUser: string | undefined
+				fromDate: string | undefined
+				toDate: string | undefined
+				minAmount: number | undefined
+				maxAmount: number | undefined
+			}>(req)
+
+		let numberOfItems = intOrNaN(items)
+		let currentPage = intOrNaN(page)
+
+		if (isNaN(numberOfItems)) {
+			numberOfItems = 10
+		}
+		if (isNaN(currentPage)) {
+			currentPage = 1
+		}
+		currentPage -= 1
+
+		if (numberOfItems < 1) {
+			throw new BadRequest('Invalid number of items')
+		}
+		if (currentPage < 0) {
+			throw new BadRequest('Invalid page number')
+		}
+		const user = getAuthorizedUser(req)
+		if (!user.shopName) {
+			throw new Forbidden('Only vendors can view transaction history')
+		}
+
+		const transactions = await prisma.transaction.findMany({
+			skip: numberOfItems * currentPage,
+			take: numberOfItems,
+			where: {
+				receiverUsername: user.shopName,
+				senderUsername: fromUser ? fromUser : undefined,
+				createdAt: {
+					gte: fromDate ? fromDate : undefined,
+					lte: toDate ? toDate : undefined,
+				},
+				amount: {
+					gte: minAmount ? minAmount : undefined,
+					lte: maxAmount ? maxAmount : undefined,
+				},
+			},
+			orderBy: {
+				createdAt: 'desc',
+			},
+		})
+		return res.status(StatusCodes.OK).json({
+			transactions,
+			totalPages: Math.ceil(
+				transactions.length / Math.min(numberOfItems, transactions.length),
+			),
+		})
+	} catch (err) {
+		next(err)
+	}
+}
