@@ -169,7 +169,10 @@ async function main() {
 		Transaction,
 		'id' | 'senderTags' | 'receiverTags'
 	>[] = []
-	const students = await prisma.user.findMany({ where: { role: 'STUDENT' } })
+	const nonAdminUsers = await prisma.user.findMany({
+		where: { OR: [{ role: 'STUDENT' }, { role: 'VENDOR' }] },
+	})
+	// Shop transactions
 	for (let i = 0; i < 50; i++) {
 		const v = faker.helpers.arrayElement(vendors)
 		const v_products = await prisma.product.findMany({
@@ -178,11 +181,26 @@ async function main() {
 		const product = faker.helpers.arrayElement(v_products)
 
 		transactions.push({
-			senderUsername: faker.helpers.arrayElement(students)['username'],
-			receiverUsername: v['username'],
+			senderUsername: faker.helpers.arrayElement(nonAdminUsers)['username'],
+			receiverUsername: v['shopName'] as string,
 			amount: product['price'],
 			createdAt: faker.date.between({
 				from: product['updatedAt'],
+				to: '2024-02-29T00:00:00.000Z',
+			}),
+		})
+	}
+
+	// P2P transactions
+	for (let i = 0; i < 50; i++) {
+		const participants = faker.helpers.arrayElements(nonAdminUsers, 2)
+
+		transactions.push({
+			senderUsername: participants[0].username,
+			receiverUsername: participants[1].username,
+			amount: parseInt(faker.commerce.price({ min: 1, max: 5000, dec: 0 })),
+			createdAt: faker.date.between({
+				from: '2024-01-01T00:00:00.000Z',
 				to: '2024-02-29T00:00:00.000Z',
 			}),
 		})
