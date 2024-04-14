@@ -1,6 +1,5 @@
 import { fakerEN_IN as faker } from '@faker-js/faker'
 import { PrismaClient, Product, Transaction, User } from '@prisma/client'
-import ImageKit from 'imagekit'
 import { extractUsernameFromEmail } from '../apps/backend/src/features/admin/admin.utils'
 import { hashPassword } from '../apps/backend/src/utils/password'
 import imageData from './images'
@@ -32,11 +31,7 @@ const CATEGORY_NAMES = [
 	'Cosmetics',
 	'Misc',
 ]
-const imagekit = new ImageKit({
-	urlEndpoint: process.env.VITE_IMAGEKIT_URL_ENDPOINT as string,
-	publicKey: process.env.VITE_IMAGEKIT_PUBLIC_KEY as string,
-	privateKey: process.env.IMAGEKIT_PRIVATE_KEY as string,
-})
+
 const categories = CATEGORY_NAMES.map((categoryName) => {
 	return { name: categoryName }
 })
@@ -85,19 +80,6 @@ async function main() {
 			mobile: faker.phone.number().replace(/-/g, '').slice(3),
 		},
 	]
-
-	for (let i = 0; i < 10; i++) {
-		const email = faker.internet.email()
-		users.push({
-			email: email,
-			role: 'STUDENT',
-			username: extractUsernameFromEmail(email),
-			password: await hashPassword('password'),
-			balance: faker.number.int({ min: 100, max: 10000 }),
-			shopName: null,
-			mobile: faker.phone.number().replace(/-/g, '').slice(3),
-		})
-	}
 
 	for (let i = 0; i < 50; i++) {
 		const email = faker.internet.email()
