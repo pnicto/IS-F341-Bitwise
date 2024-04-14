@@ -46,6 +46,8 @@ async function main() {
 	console.log('Products deleted')
 	await prisma.paymentRequest.deleteMany({})
 	console.log('Payment Requests deleted')
+	await prisma.walletTransactionHistory.deleteMany({})
+	console.log('Wallet Transactions deleted')
 	await prisma.user.deleteMany({})
 	console.log('Users deleted')
 	await prisma.category.deleteMany({})
