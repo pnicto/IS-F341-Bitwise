@@ -74,6 +74,7 @@ export const validateTransactionFilters = [
 	query('toUser').trim().optional(),
 	query('fromDate').trim().optional(),
 	query('toDate').trim().optional(),
+	query('category').trim().optional(),
 	query('minAmount')
 		.trim()
 		.optional()
@@ -133,6 +134,7 @@ export const filterTransactionHistory: RequestHandler = async (
 			toUser,
 			fromDate,
 			toDate,
+			category,
 			minAmount,
 			maxAmount,
 		} = validateRequest<{
@@ -149,10 +151,28 @@ export const filterTransactionHistory: RequestHandler = async (
 			toUser: string | undefined
 			fromDate: string | undefined
 			toDate: string | undefined
+			category: string | undefined
 			minAmount: number | undefined
 			maxAmount: number | undefined
 		}>(req)
+		const user = getAuthorizedUser(req)
 
+		const senderCategories = await prisma.transaction.findMany({
+			where: { senderUsername: user.username },
+			select: { senderTags: true },
+		})
+		const receiverCategories = await prisma.transaction.findMany({
+			where: { receiverUsername: user.username },
+			select: { receiverTags: true },
+		})
+		const allCategories = new Set()
+		for (const x of senderCategories) {
+			for (const element of Object.values(x)[0]) allCategories.add(element)
+		}
+		for (const x of receiverCategories) {
+			for (const element of Object.values(x)[0]) allCategories.add(element)
+		}
+		console.log(allCategories)
 		let numberOfItems = intOrNaN(items)
 		let currentPage = intOrNaN(page)
 
@@ -170,8 +190,6 @@ export const filterTransactionHistory: RequestHandler = async (
 		if (currentPage < 0) {
 			throw new BadRequest('Invalid page number')
 		}
-
-		const user = getAuthorizedUser(req)
 
 		const allTransactions = []
 
