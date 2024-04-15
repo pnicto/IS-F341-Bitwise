@@ -43,7 +43,7 @@ export const transact: RequestHandler = async (req, res, next) => {
 			await prisma.$transaction([
 				prisma.user.update({
 					where: { shopName: receiverUsername, email: shop.email },
-					data: { shopBalance: { increment: amount } },
+					data: { balance: { increment: amount } },
 				}),
 				prisma.user.update({
 					where: { username: sender.username },

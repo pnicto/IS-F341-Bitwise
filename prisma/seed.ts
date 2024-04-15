@@ -53,7 +53,7 @@ async function main() {
 	await prisma.category.deleteMany({})
 	console.log('Categories deleted')
 
-	const users: Omit<User, 'id' | 'enabled' | 'tags' | 'shopBalance'>[] = [
+	const users: Omit<User, 'id' | 'enabled' | 'tags'>[] = [
 		{
 			email: 'john@email.com',
 			role: 'ADMIN',
