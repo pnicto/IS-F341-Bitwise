@@ -38,7 +38,6 @@ model User {
   mobile                   String                     @unique
   role                     Role                       @default(STUDENT)
   shopName                 String?
-  shopBalance              Int                        @default(0)
   balance                  Int                        @default(0)
   enabled                  Boolean                    @default(true)
   tags                     String[]                   @default([])
