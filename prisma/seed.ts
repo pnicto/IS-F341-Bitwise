@@ -175,7 +175,7 @@ async function main() {
 		where: { OR: [{ role: 'STUDENT' }, { role: 'VENDOR' }] },
 	})
 	// Shop transactions
-	for (let i = 0; i < 50; i++) {
+	for (let i = 0; i < 10000; i++) {
 		const v = faker.helpers.arrayElement(vendors)
 		const v_products = await prisma.product.findMany({
 			where: { vendorId: v['id'] },
@@ -187,8 +187,8 @@ async function main() {
 			receiverUsername: v['shopName'] as string,
 			amount: product['price'],
 			createdAt: faker.date.between({
-				from: product['updatedAt'],
-				to: '2024-02-29T00:00:00.000Z',
+				from: '2022-01-01T00:00:00.000Z',
+				to: '2024-04-15T00:00:00.000Z',
 			}),
 		})
 	}
