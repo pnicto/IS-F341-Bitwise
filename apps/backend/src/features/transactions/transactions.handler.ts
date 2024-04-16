@@ -74,7 +74,7 @@ export const validateTransactionFilters = [
 	query('toUser').trim().optional(),
 	query('fromDate').trim().optional(),
 	query('toDate').trim().optional(),
-	query('category').trim().optional(),
+	query('tags').optional(),
 	query('minAmount')
 		.trim()
 		.optional()
@@ -134,7 +134,7 @@ export const filterTransactionHistory: RequestHandler = async (
 			toUser,
 			fromDate,
 			toDate,
-			category,
+			tags,
 			minAmount,
 			maxAmount,
 		} = validateRequest<{
@@ -151,28 +151,39 @@ export const filterTransactionHistory: RequestHandler = async (
 			toUser: string | undefined
 			fromDate: string | undefined
 			toDate: string | undefined
-			category: string | undefined
+			tags: string[] | string | undefined
 			minAmount: number | undefined
 			maxAmount: number | undefined
 		}>(req)
 		const user = getAuthorizedUser(req)
 
-		const senderCategories = await prisma.transaction.findMany({
+		const senderTags = await prisma.transaction.findMany({
 			where: { senderUsername: user.username },
 			select: { senderTags: true },
 		})
-		const receiverCategories = await prisma.transaction.findMany({
+		const receiverTags = await prisma.transaction.findMany({
 			where: { receiverUsername: user.username },
 			select: { receiverTags: true },
 		})
-		const allCategories = new Set()
-		for (const x of senderCategories) {
-			for (const element of Object.values(x)[0]) allCategories.add(element)
+		const senderTagSet: Set<string> = new Set()
+		const receiverTagSet: Set<string> = new Set()
+		for (const x of senderTags) {
+			for (const element of Object.values(x)[0]) senderTagSet.add(element)
 		}
-		for (const x of receiverCategories) {
-			for (const element of Object.values(x)[0]) allCategories.add(element)
+		for (const x of receiverTags) {
+			for (const element of Object.values(x)[0]) receiverTagSet.add(element)
 		}
-		console.log(allCategories)
+
+		let tagSet: Set<string> = new Set()
+		if (tags === undefined || tags === null)
+			throw new Error('tags is undefined')
+
+		if (typeof tags === 'string') {
+			tagSet.add(tags)
+		} else {
+			tagSet = new Set(tags)
+		}
+
 		let numberOfItems = intOrNaN(items)
 		let currentPage = intOrNaN(page)
 
@@ -194,6 +205,14 @@ export const filterTransactionHistory: RequestHandler = async (
 		const allTransactions = []
 
 		if (!fromUser && (transactionType === 'DEBIT' || !transactionType)) {
+			const senderTagFilter =
+				senderTagSet.size === 0
+					? {}
+					: {
+							senderTags: {
+								hasSome: [...tagSet],
+							},
+					  }
 			const debitTransactions = await prisma.transaction.findMany({
 				where: {
 					senderUsername: user.username,
@@ -206,6 +225,7 @@ export const filterTransactionHistory: RequestHandler = async (
 						gte: minAmount ? minAmount : undefined,
 						lte: maxAmount ? maxAmount : undefined,
 					},
+					...senderTagFilter,
 				},
 				select: {
 					id: true,
@@ -226,6 +246,15 @@ export const filterTransactionHistory: RequestHandler = async (
 		}
 
 		if (!toUser && (transactionType === 'CREDIT' || !transactionType)) {
+			const receiverTagFilter =
+				receiverTagSet.size === 0
+					? {}
+					: {
+							receiverTags: {
+								hasSome: [...tagSet],
+							},
+					  }
+
 			const creditTransactions = await prisma.transaction.findMany({
 				where: {
 					senderUsername: fromUser ? fromUser : undefined,
@@ -238,6 +267,7 @@ export const filterTransactionHistory: RequestHandler = async (
 						gte: minAmount ? minAmount : undefined,
 						lte: maxAmount ? maxAmount : undefined,
 					},
+					...receiverTagFilter,
 				},
 				select: {
 					id: true,
