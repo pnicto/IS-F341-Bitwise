@@ -3,7 +3,7 @@ import { RequestHandler } from 'express'
 import { query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { prisma } from '../../config/prisma'
-import { Forbidden } from '../../errors/CustomErrors'
+import { BadRequest, Forbidden } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 import {
@@ -40,9 +40,14 @@ export const getVendorReport: RequestHandler = async (req, res, next) => {
 			compareEndDate: Date,
 			intervals: Date[][]
 
+		const fromDateObj = dayjs(fromDate)
+		const toDateObj = dayjs(toDate)
+
+		if (fromDate && toDate && !(fromDateObj.isValid() && toDateObj.isValid())) {
+			throw new BadRequest('Invalid date format')
+		}
+
 		if (preset && fromDate && toDate) {
-			const fromDateObj = dayjs(fromDate)
-			const toDateObj = dayjs(toDate)
 			const diffInDays = toDateObj.diff(fromDateObj, 'day') + 1
 			compareStartDate = fromDateObj.subtract(diffInDays, 'day').toDate()
 			compareEndDate = fromDateObj.subtract(1, 'day').toDate()
@@ -56,9 +61,6 @@ export const getVendorReport: RequestHandler = async (req, res, next) => {
 			;({ startDate, endDate, compareStartDate, compareEndDate, intervals } =
 				getStartAndEndDates(preset))
 		} else if (fromDate && toDate) {
-			const fromDateObj = dayjs(fromDate)
-			const toDateObj = dayjs(toDate)
-
 			const diffInDays = toDateObj.diff(fromDateObj, 'day')
 			const diffInHours = toDateObj.diff(fromDateObj, 'hour')
 			let intervalUnit: ManipulateType
