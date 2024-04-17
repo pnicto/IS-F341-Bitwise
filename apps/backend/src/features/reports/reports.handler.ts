@@ -164,7 +164,17 @@ export const getVendorReport: RequestHandler = async (req, res, next) => {
 			compareEndDate: Date,
 			intervals: Date[][]
 
-		if (preset) {
+		if (preset && fromDate && toDate) {
+			const fromDateObj = dayjs(fromDate)
+			const toDateObj = dayjs(toDate)
+			const diffInDays = toDateObj.diff(fromDateObj, 'day') + 1
+			compareStartDate = fromDateObj.subtract(diffInDays, 'day').toDate()
+			compareEndDate = fromDateObj.subtract(1, 'day').toDate()
+			startDate = fromDateObj.toDate()
+			endDate = toDateObj.toDate()
+
+			intervals = getTimeIntervals(startDate, endDate, preset as ManipulateType)
+		} else if (preset) {
 			// https://github.com/prettier/prettier/issues/1935#issuecomment-306729468
 			// eslint-disable-next-line @typescript-eslint/no-extra-semi
 			;({ startDate, endDate, compareStartDate, compareEndDate, intervals } =
@@ -172,13 +182,29 @@ export const getVendorReport: RequestHandler = async (req, res, next) => {
 		} else if (fromDate && toDate) {
 			const fromDateObj = dayjs(fromDate)
 			const toDateObj = dayjs(toDate)
-			const diffInDays = toDateObj.diff(fromDateObj, 'day')
+
+			const diffInDays = toDateObj.diff(fromDateObj, 'day') + 1
+			const diffInHours = toDateObj.diff(fromDateObj, 'hour') + 1
+			let intervalUnit: ManipulateType
+
+			if (diffInDays >= 28) {
+				intervalUnit = 'month'
+			} else if (diffInDays > 6) {
+				intervalUnit = 'week'
+			} else if (diffInDays === 6) {
+				intervalUnit = 'day'
+			} else if (diffInDays >= 1 && diffInHours > 1) {
+				intervalUnit = 'day'
+			} else {
+				intervalUnit = 'hour'
+			}
 
 			compareStartDate = fromDateObj.subtract(diffInDays, 'day').toDate()
 			compareEndDate = fromDateObj.subtract(1, 'day').toDate()
 			startDate = fromDateObj.toDate()
 			endDate = toDateObj.toDate()
-			intervals = getTimeIntervals(startDate, endDate, 'day')
+
+			intervals = getTimeIntervals(startDate, endDate, intervalUnit)
 		} else {
 			// eslint-disable-next-line @typescript-eslint/no-extra-semi
 			;({ startDate, endDate, compareStartDate, compareEndDate, intervals } =
