@@ -1,5 +1,5 @@
 import { BarChart } from '@mantine/charts'
-import { Card, Group, Select } from '@mantine/core'
+import { Button, Card, Group, Select, Stack } from '@mantine/core'
 import { DateTimePicker } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import { useQuery } from '@tanstack/react-query'
@@ -57,7 +57,7 @@ const VendorReportsPage = () => {
 
 	return (
 		<>
-			<Group>
+			<Group justify='center' className='py-4'>
 				<Select
 					label='Range'
 					defaultValue='month'
@@ -91,20 +91,40 @@ const VendorReportsPage = () => {
 				{(data) => (
 					<>
 						<Group justify='center'>
-							<Card>
-								<h2>Total Income</h2>
-								<p>Current: {data.totalIncome.currentTotalIncome}</p>
-								<p>Past: {data.totalIncome.compareTotalIncome}</p>
-							</Card>
-							<Card>
-								<h2>Unique Visitors Count</h2>
-								<p>
-									Current: {data.uniqueVisitorsCount.currentUniqueVisitorsCount}
-								</p>
-								<p>
-									Past: {data.uniqueVisitorsCount.compareUniqueVisitorsCount}
-								</p>
-							</Card>
+							<Stack gap={2}>
+								<h2 className='py-0'>Current Period</h2>
+								<Group>
+									<Card>
+										<h2>Total Income</h2>
+										<p className='font-bold text-xl'>
+											₹ {data.totalIncome.currentTotalIncome}
+										</p>
+									</Card>
+									<Card>
+										<h2>Unique Visitors Count</h2>
+										<p className='font-bold text-xl'>
+											{data.uniqueVisitorsCount.currentUniqueVisitorsCount}
+										</p>
+									</Card>
+								</Group>
+							</Stack>
+							<Stack gap={2}>
+								<h2 className='py-0'>Previous Period</h2>
+								<Group>
+									<Card>
+										<h2>Total Income</h2>
+										<p className='font-bold text-xl'>
+											₹ {data.totalIncome.compareTotalIncome}
+										</p>
+									</Card>
+									<Card>
+										<h2>Unique Visitors Count</h2>
+										<p className='font-bold text-xl'>
+											{data.uniqueVisitorsCount.compareUniqueVisitorsCount}
+										</p>
+									</Card>
+								</Group>
+							</Stack>
 						</Group>
 
 						<h2>Total Income</h2>
