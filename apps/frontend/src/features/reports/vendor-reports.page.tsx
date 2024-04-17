@@ -82,6 +82,7 @@ const VendorReportsPage = () => {
 					label='End Date'
 					placeholder='End Date'
 				/>
+				<Button onClick={filterForm.reset}>Clear Filters</Button>
 			</Group>
 			<CustomLoader
 				query={reportsQuery}
