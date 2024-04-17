@@ -198,16 +198,14 @@ export const getVendorReport: RequestHandler = async (req, res, next) => {
 			const fromDateObj = dayjs(fromDate)
 			const toDateObj = dayjs(toDate)
 
-			const diffInDays = toDateObj.diff(fromDateObj, 'day') + 1
-			const diffInHours = toDateObj.diff(fromDateObj, 'hour') + 1
+			const diffInDays = toDateObj.diff(fromDateObj, 'day')
+			const diffInHours = toDateObj.diff(fromDateObj, 'hour')
 			let intervalUnit: ManipulateType
 
 			if (diffInDays >= 28) {
 				intervalUnit = 'month'
 			} else if (diffInDays > 6) {
 				intervalUnit = 'week'
-			} else if (diffInDays === 6) {
-				intervalUnit = 'day'
 			} else if (diffInDays >= 1 && diffInHours > 1) {
 				intervalUnit = 'day'
 			} else {
