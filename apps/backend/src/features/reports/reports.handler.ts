@@ -83,6 +83,20 @@ const calculateDataForInterval = (
 const getStartAndEndDates = (preset: string) => {
 	const currentDate = dayjs()
 	switch (preset) {
+		case 'hour': {
+			const startDate = currentDate.startOf('hour').toDate()
+			const endDate = currentDate.endOf('hour').toDate()
+			return {
+				startDate,
+				endDate,
+				compareStartDate: currentDate
+					.subtract(1, 'hour')
+					.startOf('hour')
+					.toDate(),
+				compareEndDate: currentDate.subtract(1, 'hour').endOf('hour').toDate(),
+				intervals: getTimeIntervals(startDate, endDate, 'minute'),
+			}
+		}
 		case 'day': {
 			const startDate = currentDate.startOf('day').toDate()
 			const endDate = currentDate.endOf('day').toDate()
