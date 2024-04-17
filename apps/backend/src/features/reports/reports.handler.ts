@@ -11,7 +11,7 @@ import { validateRequest } from '../../utils/validateRequest'
 export const validateVendorReport = [
 	query('preset')
 		.trim()
-		.isIn(['day', 'week', 'month', 'year'])
+		.isIn(['day', 'week', 'month', 'year', 'hour', ''])
 		.optional()
 		.withMessage('Invalid preset'),
 	query('fromDate').trim().optional(),
