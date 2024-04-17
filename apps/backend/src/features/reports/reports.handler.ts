@@ -111,7 +111,6 @@ const getStartAndEndDates = (preset: string) => {
 				intervals: getTimeIntervals(startDate, endDate, 'hour'),
 			}
 		}
-
 		case 'week': {
 			const startDate = currentDate.startOf('week').toDate()
 			const endDate = currentDate.endOf('week').toDate()
