@@ -40,7 +40,7 @@ const getTimeIntervals = (
 
 	return intervals
 }
-const calculateDataForInterval = (
+const calculateVendorDataForInterval = (
 	transactions: Transaction[],
 	interval: Date[],
 ) => {
@@ -261,7 +261,7 @@ export const getVendorReport: RequestHandler = async (req, res, next) => {
 		const compareUniqueVisitorsCount = compareUniqueVisitors.size
 
 		const intervalData = intervals.map((interval) =>
-			calculateDataForInterval(currentTransactions, interval),
+			calculateVendorDataForInterval(currentTransactions, interval),
 		)
 
 		return res.status(StatusCodes.OK).json({
