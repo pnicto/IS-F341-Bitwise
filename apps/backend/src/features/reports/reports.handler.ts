@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import { RequestHandler } from 'express'
 import { prisma } from '../../config/prisma'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
@@ -10,24 +11,18 @@ export const getCategorizedExpenditure: RequestHandler = async (
 	try {
 		const user = getAuthorizedUser(req)
 
-		const currentMonth = (new Date().getMonth() - 2).toString().padStart(2, '0')
-		const nextMonth =
-			new Date().getMonth() + 2 > 12
-				? '01'
-				: (new Date().getMonth() + 2).toString().padStart(2, '0')
-
+		const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0')
 		const currentYear = new Date().getFullYear()
-		const nextYear =
-			new Date().getMonth() + 2 > 12
-				? new Date().getFullYear() + 1
-				: new Date().getFullYear()
+
+		const currentMonthDate = dayjs(`${currentYear}-${currentMonth}-01T00:00:00.000Z`)
+        const nextMonthDate = currentMonthDate.add(1, 'month')
 
 		const outgoingTransactionsMadeThisMonth = await prisma.transaction.findMany(
 			{
 				where: {
 					createdAt: {
-						gte: new Date(`${currentYear}-${currentMonth}-01T00:00:00.000Z`),
-						lte: new Date(`${nextYear}-${nextMonth}-01T00:00:00.000Z`),
+						gte: currentMonthDate.toDate(),
+						lte: nextMonthDate.toDate(),
 					},
 					senderUsername: user.username,
 				},
