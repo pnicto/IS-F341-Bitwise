@@ -49,13 +49,13 @@ const calculateDataForInterval = (
 	const startDay = dayjs(startDate)
 	const endDay = dayjs(endDate)
 	const diffDays = endDay.diff(startDay, 'day') + 1
-	const diffHours = endDay.diff(startDay, 'hour') + 1
+	const diffHours = endDay.diff(startDay, 'hour')
 
 	if (diffDays >= 28) {
 		label = startDay.format('MMMM')
-	} else if (diffDays >= 6) {
+	} else if (diffDays >= 2) {
 		label = startDay.format('DD/MM')
-	} else if (diffDays >= 1 && diffHours > 1) {
+	} else if (diffDays === 1 && diffHours > 1) {
 		label = startDay.format('dddd')
 	} else {
 		label = startDay.format('HH:mm')
