@@ -29,7 +29,9 @@ const getTimeIntervals = (
 	while (currentIntervalStart.isBefore(end)) {
 		const currentIntervalEnd = currentIntervalStart.clone().endOf(intervalUnit)
 		intervals.push([currentIntervalStart.toDate(), currentIntervalEnd.toDate()])
-		currentIntervalStart = currentIntervalEnd.add(1, 'day')
+		currentIntervalStart = currentIntervalEnd
+			.add(1, intervalUnit)
+			.startOf(intervalUnit)
 	}
 
 	if (currentIntervalStart.isBefore(endDate)) {
