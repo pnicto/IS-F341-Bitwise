@@ -1,5 +1,6 @@
 import { BarChart } from '@mantine/charts'
 import { Card, Group, Select } from '@mantine/core'
+import { DateTimePicker } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import { useQuery } from '@tanstack/react-query'
 import axios from '../../lib/axios'
@@ -25,20 +26,30 @@ const VendorReportsPage = () => {
 	const filterForm = useForm({
 		initialValues: {
 			preset: 'month',
+			fromDate: '',
+			toDate: '',
 		},
+		transformValues: (values) => ({
+			fromDate: values.fromDate ? new Date(values.fromDate).toISOString() : '',
+			toDate: values.toDate ? new Date(values.toDate).toISOString() : '',
+		}),
 	})
 	const filterFormValues = filterForm.values
+	const filterFormTransformedValues = filterForm.getTransformedValues()
+
 	const reportsQuery = useQuery({
 		queryKey: [
 			'reports',
 			'vendor',
 			{
 				preset: filterFormValues.preset,
+				fromDate: filterFormTransformedValues.fromDate,
+				toDate: filterFormTransformedValues.toDate,
 			},
 		],
 		queryFn: async () => {
 			const response = await axios.get<VendorReport>(
-				`/reports/vendor?preset=${filterFormValues.preset}`,
+				`/reports/vendor?preset=${filterFormValues.preset}&fromDate=${filterFormTransformedValues.fromDate}&toDate=${filterFormTransformedValues.toDate}`,
 			)
 			return response.data
 		},
@@ -51,13 +62,25 @@ const VendorReportsPage = () => {
 					label='Range'
 					defaultValue='month'
 					data={[
-						{ value: 'day', label: 'Today' },
+						{ value: 'hour', label: 'Hour' },
+						{ value: 'day', label: 'Day' },
 						{ value: 'week', label: 'Week' },
 						{ value: 'month', label: 'Month' },
 						{ value: 'year', label: 'Year' },
+						{ value: '', label: 'Auto' },
 					]}
 					allowDeselect={false}
 					{...filterForm.getInputProps('preset')}
+				/>
+				<DateTimePicker
+					{...filterForm.getInputProps('fromDate')}
+					label='Start Date'
+					placeholder='Start Date'
+				/>
+				<DateTimePicker
+					{...filterForm.getInputProps('toDate')}
+					label='End Date'
+					placeholder='End Date'
 				/>
 			</Group>
 			<CustomLoader
