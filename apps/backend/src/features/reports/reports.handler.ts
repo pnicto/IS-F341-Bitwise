@@ -1,17 +1,16 @@
 import { RequestHandler } from 'express'
 import { prisma } from '../../config/prisma'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
+import dayjs from 'dayjs'
 
 export const getTimelineReport: RequestHandler = async (req, res, next) => {
 	try {
 		const user = getAuthorizedUser(req)
-		const currentMonth = new Date().getMonth() + 1
-		const currentYear = new Date().getFullYear()
 		const transactionsMadeThisMonth = await prisma.transaction.findMany({
 			where: {
 				createdAt: {
-					gte: new Date(`${currentYear}-${currentMonth}-01T00:00:00.000Z`),
-					lte: new Date(`${currentYear}-${currentMonth + 1}-01T00:00:00.000Z`),
+					gte: dayjs().startOf('month').toDate(),
+					lte: dayjs().endOf('month').toDate(),
 				},
 				OR: [
 					{
@@ -58,8 +57,8 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 		const transactionsMadePreviousMonth = await prisma.transaction.findMany({
 			where: {
 				createdAt: {
-					gte: new Date(`${currentYear}-${currentMonth - 1}-01T00:00:00.000Z`),
-					lte: new Date(`${currentYear}-${currentMonth}-01T00:00:00.000Z`),
+					gte: dayjs().subtract(1, 'month').startOf('month').toDate(),
+					lte: dayjs().subtract(1, 'month').endOf('month').toDate(),
 				},
 				OR: [
 					{
