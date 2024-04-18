@@ -3,6 +3,7 @@ import { Button, Card, Group, Select, Stack } from '@mantine/core'
 import { DateTimePicker } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import { useQuery } from '@tanstack/react-query'
+import dayjs from 'dayjs'
 import axios from '../../lib/axios'
 import CustomLoader from '../../shared/loader'
 
@@ -29,10 +30,30 @@ const VendorReportsPage = () => {
 			fromDate: '',
 			toDate: '',
 		},
+		validate: {
+			fromDate: (value, values) => {
+				if (value && !dayjs(value).isValid()) return 'Invalid start date'
+
+				if (value && values.toDate && dayjs(value).isAfter(values.toDate))
+					return 'Start date must be before end date'
+
+				return null
+			},
+			toDate: (value, values) => {
+				if (value && !dayjs(value).isValid()) return 'Invalid end date'
+
+				if (value && values.fromDate && dayjs(value).isBefore(values.fromDate))
+					return 'End date must be after start date'
+
+				return null
+			},
+		},
 		transformValues: (values) => ({
 			fromDate: values.fromDate ? new Date(values.fromDate).toISOString() : '',
 			toDate: values.toDate ? new Date(values.toDate).toISOString() : '',
 		}),
+		validateInputOnChange: true,
+		clearInputErrorOnChange: false,
 	})
 	const filterFormValues = filterForm.values
 	const filterFormTransformedValues = filterForm.getTransformedValues()
