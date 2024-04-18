@@ -1,3 +1,4 @@
+import '@mantine/charts/styles.css'
 import { Card, MantineProvider, NumberInput } from '@mantine/core'
 import '@mantine/core/styles.css'
 import '@mantine/dates/styles.css'
@@ -22,6 +23,7 @@ import Login, { loginLoader } from './features/auth/login.page'
 import CreateProduct from './features/products/create-product.page'
 import EditProducts from './features/products/edit-products-page'
 import SearchProduct from './features/products/search-product.page'
+import VendorReportsPage from './features/reports/vendor-reports.page'
 import ProductList from './features/shops/products-list.page'
 import ShopList from './features/shops/shop-list.page'
 import ShopTransactionHistory from './features/shops/shop-transaction-history.page'
@@ -80,6 +82,7 @@ const router = createBrowserRouter(
 					<Route path='shop'>
 						<Route path='transactions' element={<ShopTransactionHistory />} />
 					</Route>
+					<Route path='reports/shop' element={<VendorReportsPage />} />
 				</Route>
 
 				{/* Protected only for admin */}

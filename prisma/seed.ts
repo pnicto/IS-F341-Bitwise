@@ -1,6 +1,5 @@
 import { fakerEN_IN as faker } from '@faker-js/faker'
 import { PrismaClient, Product, Transaction, User } from '@prisma/client'
-import ImageKit from 'imagekit'
 import { extractUsernameFromEmail } from '../apps/backend/src/features/admin/admin.utils'
 import { hashPassword } from '../apps/backend/src/utils/password'
 import imageData from './images'
@@ -32,11 +31,7 @@ const CATEGORY_NAMES = [
 	'Cosmetics',
 	'Misc',
 ]
-const imagekit = new ImageKit({
-	urlEndpoint: process.env.VITE_IMAGEKIT_URL_ENDPOINT as string,
-	publicKey: process.env.VITE_IMAGEKIT_PUBLIC_KEY as string,
-	privateKey: process.env.IMAGEKIT_PRIVATE_KEY as string,
-})
+
 const categories = CATEGORY_NAMES.map((categoryName) => {
 	return { name: categoryName }
 })
@@ -51,12 +46,14 @@ async function main() {
 	console.log('Products deleted')
 	await prisma.paymentRequest.deleteMany({})
 	console.log('Payment Requests deleted')
+	await prisma.walletTransactionHistory.deleteMany({})
+	console.log('Wallet Transactions deleted')
 	await prisma.user.deleteMany({})
 	console.log('Users deleted')
 	await prisma.category.deleteMany({})
 	console.log('Categories deleted')
 
-	const users: Omit<User, 'id' | 'enabled' | 'tags' | 'shopBalance'>[] = [
+	const users: Omit<User, 'id' | 'enabled' | 'tags'>[] = [
 		{
 			email: 'john@email.com',
 			role: 'ADMIN',
@@ -85,19 +82,6 @@ async function main() {
 			mobile: faker.phone.number().replace(/-/g, '').slice(3),
 		},
 	]
-
-	for (let i = 0; i < 10; i++) {
-		const email = faker.internet.email()
-		users.push({
-			email: email,
-			role: 'STUDENT',
-			username: extractUsernameFromEmail(email),
-			password: await hashPassword('password'),
-			balance: faker.number.int({ min: 100, max: 10000 }),
-			shopName: null,
-			mobile: faker.phone.number().replace(/-/g, '').slice(3),
-		})
-	}
 
 	for (let i = 0; i < 50; i++) {
 		const email = faker.internet.email()
@@ -187,8 +171,11 @@ async function main() {
 		Transaction,
 		'id' | 'senderTags' | 'receiverTags'
 	>[] = []
-	const students = await prisma.user.findMany({ where: { role: 'STUDENT' } })
-	for (let i = 0; i < 50; i++) {
+	const nonAdminUsers = await prisma.user.findMany({
+		where: { OR: [{ role: 'STUDENT' }, { role: 'VENDOR' }] },
+	})
+	// Shop transactions
+	for (let i = 0; i < 10000; i++) {
 		const v = faker.helpers.arrayElement(vendors)
 		const v_products = await prisma.product.findMany({
 			where: { vendorId: v['id'] },
@@ -196,11 +183,26 @@ async function main() {
 		const product = faker.helpers.arrayElement(v_products)
 
 		transactions.push({
-			senderUsername: faker.helpers.arrayElement(students)['username'],
-			receiverUsername: v['username'],
+			senderUsername: faker.helpers.arrayElement(nonAdminUsers)['username'],
+			receiverUsername: v['shopName'] as string,
 			amount: product['price'],
 			createdAt: faker.date.between({
-				from: product['updatedAt'],
+				from: '2022-01-01T00:00:00.000Z',
+				to: '2024-04-15T00:00:00.000Z',
+			}),
+		})
+	}
+
+	// P2P transactions
+	for (let i = 0; i < 50; i++) {
+		const participants = faker.helpers.arrayElements(nonAdminUsers, 2)
+
+		transactions.push({
+			senderUsername: participants[0].username,
+			receiverUsername: participants[1].username,
+			amount: parseInt(faker.commerce.price({ min: 1, max: 5000, dec: 0 })),
+			createdAt: faker.date.between({
+				from: '2024-01-01T00:00:00.000Z',
 				to: '2024-02-29T00:00:00.000Z',
 			}),
 		})
