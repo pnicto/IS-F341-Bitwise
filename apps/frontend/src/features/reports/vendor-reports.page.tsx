@@ -53,7 +53,6 @@ const VendorReportsPage = () => {
 			toDate: values.toDate ? new Date(values.toDate).toISOString() : '',
 		}),
 		validateInputOnChange: true,
-		clearInputErrorOnChange: false,
 	})
 	const filterFormValues = filterForm.values
 	const filterFormTransformedValues = filterForm.getTransformedValues()
