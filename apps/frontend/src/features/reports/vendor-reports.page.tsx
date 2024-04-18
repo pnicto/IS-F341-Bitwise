@@ -113,7 +113,12 @@ const VendorReportsPage = () => {
 					<>
 						<Group justify='center'>
 							<Stack gap={2}>
-								<h2 className='py-0'>Current Period</h2>
+								<h2 className='py-0 capitalize'>
+									Current{' '}
+									{filterFormValues.preset === ''
+										? 'Period'
+										: filterFormValues.preset}
+								</h2>
 								<Group>
 									<Card>
 										<h2>Total Income</h2>
@@ -130,7 +135,12 @@ const VendorReportsPage = () => {
 								</Group>
 							</Stack>
 							<Stack gap={2}>
-								<h2 className='py-0'>Previous Period</h2>
+								<h2 className='py-0 capitalize'>
+									Previous{' '}
+									{filterFormValues.preset === ''
+										? 'Period'
+										: filterFormValues.preset}
+								</h2>
 								<Group>
 									<Card>
 										<h2>Total Income</h2>
