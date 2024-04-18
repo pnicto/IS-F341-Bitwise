@@ -67,7 +67,7 @@ app.use(root('/user'), passportJWT, userRouter)
 app.use(root('/shops'), passportJWT, shopRouter)
 app.use(root('/transactions'), passportJWT, transactionRouter)
 app.use(root('/requests'), passportJWT, paymentRequestRouter)
-app.use(root('/report'), passportJWT, reportRouter)
+app.use(root('/reports'), passportJWT, reportRouter)
 
 // Custom error handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
