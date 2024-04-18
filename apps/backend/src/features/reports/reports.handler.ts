@@ -87,7 +87,7 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 			0,
 		)
 
-		res.json({
+		return res.json({
 			sent: {
 				amount: sentAmount,
 				timeline: sentTimeline,
