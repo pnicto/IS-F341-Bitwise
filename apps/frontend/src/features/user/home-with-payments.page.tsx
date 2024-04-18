@@ -59,6 +59,11 @@ const vendorOptions: RouteOption[] = [
 		label: 'Shop Transactions',
 		path: '/shop/transactions',
 	},
+	{
+		icon: <Icon icon='lucide:file-bar-chart' />,
+		label: 'Shop Reports',
+		path: '/reports/shop',
+	},
 ]
 
 const GridItem = ({ icon, label, path }: RouteOption) => {
