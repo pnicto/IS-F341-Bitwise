@@ -194,7 +194,7 @@ async function main() {
 	}
 
 	// P2P transactions
-	for (let i = 0; i < 50; i++) {
+	for (let i = 0; i < 10000; i++) {
 		const participants = faker.helpers.arrayElements(nonAdminUsers, 2)
 
 		transactions.push({
@@ -202,8 +202,8 @@ async function main() {
 			receiverUsername: participants[1].username,
 			amount: parseInt(faker.commerce.price({ min: 1, max: 5000, dec: 0 })),
 			createdAt: faker.date.between({
-				from: '2024-01-01T00:00:00.000Z',
-				to: '2024-02-29T00:00:00.000Z',
+				from: '2022-01-01T00:00:00.000Z',
+				to: '2024-04-15T00:00:00.000Z',
 			}),
 		})
 	}
