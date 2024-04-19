@@ -263,3 +263,191 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 		next(err)
 	}
 }
+
+export const validateAdminReport = [
+	query('datePreset')
+		.trim()
+		.isIn(['day', 'week', 'month', 'year', 'hour', ''])
+		.optional()
+		.withMessage('Invalid preset'),
+	query('fromDate').trim().optional(),
+	query('toDate').trim().optional(),
+	query('vendor').trim().optional(),
+	query('category').trim().optional(),
+]
+
+export const getAdminReport: RequestHandler = async (req, res, next) => {
+	try {
+		const { datePreset, fromDate, toDate, vendor, category } = validateRequest<{
+			datePreset?: string
+			fromDate?: string
+			toDate?: string
+			vendor?: string
+			category?: string
+		}>(req)
+		if (vendor) {
+			const vendorExists = await prisma.user.findFirst({
+				where: { shopName: vendor },
+			})
+			if (!vendorExists) {
+				throw new BadRequest('Invalid vendor')
+			}
+		}
+		if (category) {
+			const categoryExists = await prisma.category.findFirst({
+				where: {
+					name: category,
+				},
+			})
+			if (!categoryExists) {
+				throw new BadRequest('Invalid category')
+			}
+		}
+		let startDate: Date,
+			endDate: Date,
+			compareStartDate: Date,
+			compareEndDate: Date,
+			intervals: Date[][]
+
+		const fromDateObj = dayjs(fromDate)
+		const toDateObj = dayjs(toDate)
+
+		if (fromDate && toDate && !(fromDateObj.isValid() && toDateObj.isValid())) {
+			throw new BadRequest('Invalid date format')
+		}
+
+		if (datePreset && fromDate && toDate) {
+			const diffInDays = toDateObj.diff(fromDateObj, 'day') + 1
+			compareStartDate = fromDateObj.subtract(diffInDays, 'day').toDate()
+			compareEndDate = fromDateObj.subtract(1, 'day').toDate()
+			startDate = fromDateObj.toDate()
+			endDate = toDateObj.toDate()
+
+			intervals = getTimeIntervals(
+				startDate,
+				endDate,
+				datePreset as ManipulateType,
+			)
+		} else if (datePreset) {
+			// eslint-disable-next-line @typescript-eslint/no-extra-semi
+			;({ startDate, endDate, compareStartDate, compareEndDate, intervals } =
+				getStartAndEndDates(datePreset))
+		} else if (fromDate && toDate) {
+			const diffInDays = toDateObj.diff(fromDateObj, 'day')
+			const diffInHours = toDateObj.diff(fromDateObj, 'hour')
+			let intervalUnit: ManipulateType
+
+			if (diffInDays >= 28) {
+				intervalUnit = 'month'
+			} else if (diffInDays > 6) {
+				intervalUnit = 'week'
+			} else if (diffInDays >= 1 && diffInHours > 1) {
+				intervalUnit = 'day'
+			} else {
+				intervalUnit = 'hour'
+			}
+
+			compareStartDate = fromDateObj.subtract(diffInDays, 'day').toDate()
+			compareEndDate = fromDateObj.subtract(1, 'day').toDate()
+			startDate = fromDateObj.toDate()
+			endDate = toDateObj.toDate()
+
+			intervals = getTimeIntervals(startDate, endDate, intervalUnit)
+		} else {
+			// eslint-disable-next-line @typescript-eslint/no-extra-semi
+			;({ startDate, endDate, compareStartDate, compareEndDate, intervals } =
+				getStartAndEndDates('month'))
+		}
+
+		const currentTransactions = await prisma.transaction.findMany({
+			where: {
+				receiverUsername: vendor ? vendor : undefined,
+				createdAt: {
+					gte: startDate,
+					lte: endDate,
+				},
+			},
+		})
+
+		const compareTransactions = await prisma.transaction.findMany({
+			where: {
+				receiverUsername: vendor ? vendor : undefined,
+				createdAt: {
+					gte: compareStartDate,
+					lte: compareEndDate,
+				},
+			},
+		})
+		const currentVendorUniqueVisitors = new Set(),
+			currentTotalUniqueVisitors = new Set()
+		let currentVendorIncome = 0,
+			currentTotalIncome = 0
+		const currentVendorUniqueVisitorsCount = currentVendorUniqueVisitors.size,
+			currentTotalUniqueVisitorsCount = currentTotalUniqueVisitors.size
+
+		const compareVendorUniqueVisitors = new Set(),
+			compareTotalUniqueVisitors = new Set()
+		let compareVendorIncome = 0,
+			compareTotalIncome = 0
+
+		const compareVendorUniqueVisitorsCount = compareVendorUniqueVisitors.size,
+			compareTotalUniqueVisitorsCount = compareTotalUniqueVisitors.size
+		let intervalData
+		if (vendor) {
+			currentTransactions.forEach((transaction) => {
+				currentVendorUniqueVisitors.add(transaction.senderUsername)
+				currentVendorIncome += transaction.amount
+			})
+			compareTransactions.forEach((transaction) => {
+				compareVendorUniqueVisitors.add(transaction.senderUsername)
+				compareVendorIncome += transaction.amount
+			})
+			intervalData = intervals.map((interval) =>
+				calculateVendorDataForInterval(currentTransactions, interval),
+			)
+			const totalCurrentTransactions = await prisma.transaction.findMany({
+				where: {
+					createdAt: {
+						gte: startDate,
+						lte: endDate,
+					},
+				},
+			})
+			const totalCompareTransactions = await prisma.transaction.findMany({
+				where: {
+					receiverUsername: vendor ? vendor : undefined,
+					createdAt: {
+						gte: compareStartDate,
+						lte: compareEndDate,
+					},
+				},
+			})
+			totalCurrentTransactions.forEach((transaction) => {
+				currentTotalUniqueVisitors.add(transaction.senderUsername)
+				currentTotalIncome += transaction.amount
+			})
+			totalCompareTransactions.forEach((transaction) => {
+				compareTotalUniqueVisitors.add(transaction.senderUsername)
+				compareTotalIncome += transaction.amount
+			})
+		}
+
+		return res.status(StatusCodes.OK).json({
+			uniqueVisitorsCount: {
+				currentVendorUniqueVisitorsCount,
+				compareVendorUniqueVisitorsCount,
+				currentTotalUniqueVisitorsCount,
+				compareTotalUniqueVisitorsCount,
+			},
+			income: {
+				currentVendorIncome,
+				compareVendorIncome,
+				currentTotalIncome,
+				compareTotalIncome,
+			},
+			intervalData,
+		})
+	} catch (err) {
+		next(err)
+	}
+}
