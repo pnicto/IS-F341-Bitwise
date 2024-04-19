@@ -228,6 +228,10 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 			})
 		}
 
+		combinedTimeline.sort((a, b) =>
+			dayjs(a.label, 'DD/MM') < dayjs(b.label, 'DD/MM') ? -1 : 1,
+		)
+
 		const transactionsMadePreviousMonth = await prisma.transaction.findMany({
 			where: {
 				createdAt: {
