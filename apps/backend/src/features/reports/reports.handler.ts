@@ -162,54 +162,38 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 				],
 			},
 		})
-		const sent = transactionsMadeThisMonth.filter(
-			(transaction) => transaction.senderUsername === user.username,
-		)
-		const received = transactionsMadeThisMonth.filter(
-			(transaction) => transaction.receiverUsername === user.username,
-		)
 
-		const sentAmount = sent.reduce(
-			(acc, transaction) => acc + transaction.amount,
-			0,
-		)
-		const receivedAmount = received.reduce(
-			(acc, transaction) => acc + transaction.amount,
-			0,
-		)
-
-		const sentTimeline = sent.map((transaction) => ({
-			label: dayjs(transaction.createdAt).format('DD/MM'),
-			amount: transaction.amount,
-		}))
-		const receivedTimeline = received.map((transaction) => ({
-			label: dayjs(transaction.createdAt).format('DD/MM'),
-			amount: transaction.amount,
-		}))
+		let sentAmount = 0,
+			receivedAmount = 0
 
 		const combinedTransactions: Record<
 			string,
 			{ sentAmount: number; receivedAmount: number }
 		> = {}
 
-		sentTimeline.forEach((transaction) => {
-			if (combinedTransactions[transaction.label]) {
-				combinedTransactions[transaction.label].sentAmount += transaction.amount
-			} else {
-				combinedTransactions[transaction.label] = {
-					sentAmount: transaction.amount,
-					receivedAmount: 0,
+		transactionsMadeThisMonth.forEach((transaction) => {
+			const label = dayjs(transaction.createdAt).format('DD/MM')
+			if (combinedTransactions[label]) {
+				if (transaction.senderUsername === user.username) {
+					combinedTransactions[label].sentAmount += transaction.amount
+					sentAmount += transaction.amount
+				} else {
+					combinedTransactions[label].receivedAmount += transaction.amount
+					receivedAmount += transaction.amount
 				}
-			}
-		})
-		receivedTimeline.forEach((transaction) => {
-			if (combinedTransactions[transaction.label]) {
-				combinedTransactions[transaction.label].receivedAmount +=
-					transaction.amount
 			} else {
-				combinedTransactions[transaction.label] = {
-					receivedAmount: transaction.amount,
-					sentAmount: 0,
+				if (transaction.senderUsername === user.username) {
+					combinedTransactions[label] = {
+						sentAmount: transaction.amount,
+						receivedAmount: 0,
+					}
+					sentAmount += transaction.amount
+				} else {
+					combinedTransactions[label] = {
+						sentAmount: 0,
+						receivedAmount: transaction.amount,
+					}
+					receivedAmount += transaction.amount
 				}
 			}
 		})
