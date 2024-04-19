@@ -178,21 +178,55 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 			0,
 		)
 
-		const sentSorted = sent.sort(
-			(a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
-		)
-		const receivedSorted = received.sort(
-			(a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
-		)
+		const sentTimeline = sent.map((transaction) => ({
+			label: dayjs(transaction.createdAt).format('DD/MM'),
+			amount: transaction.amount,
+		}))
+		const receivedTimeline = received.map((transaction) => ({
+			label: dayjs(transaction.createdAt).format('DD/MM'),
+			amount: transaction.amount,
+		}))
 
-		const sentTimeline = sentSorted.map((transaction) => ({
-			date: transaction.createdAt,
-			amount: transaction.amount,
-		}))
-		const receivedTimeline = receivedSorted.map((transaction) => ({
-			date: transaction.createdAt,
-			amount: transaction.amount,
-		}))
+		const combinedTransactions: Record<
+			string,
+			{ sentAmount: number; receivedAmount: number }
+		> = {}
+
+		sentTimeline.forEach((transaction) => {
+			if (combinedTransactions[transaction.label]) {
+				combinedTransactions[transaction.label].sentAmount += transaction.amount
+			} else {
+				combinedTransactions[transaction.label] = {
+					sentAmount: transaction.amount,
+					receivedAmount: 0,
+				}
+			}
+		})
+		receivedTimeline.forEach((transaction) => {
+			if (combinedTransactions[transaction.label]) {
+				combinedTransactions[transaction.label].receivedAmount +=
+					transaction.amount
+			} else {
+				combinedTransactions[transaction.label] = {
+					receivedAmount: transaction.amount,
+					sentAmount: 0,
+				}
+			}
+		})
+
+		const combinedTimeline: {
+			label: string
+			sentAmount: number
+			receivedAmount: number
+		}[] = []
+
+		for (const label in combinedTransactions) {
+			combinedTimeline.push({
+				label,
+				receivedAmount: combinedTransactions[label].receivedAmount,
+				sentAmount: combinedTransactions[label].sentAmount,
+			})
+		}
 
 		const transactionsMadePreviousMonth = await prisma.transaction.findMany({
 			where: {
@@ -227,13 +261,10 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 		)
 
 		return res.json({
-			sent: {
-				amount: sentAmount,
-				timeline: sentTimeline,
-			},
-			received: {
-				amount: receivedAmount,
-				timeline: receivedTimeline,
+			timeline: combinedTimeline,
+			current: {
+				sent: sentAmount,
+				received: receivedAmount,
 			},
 			previous: {
 				sent: sentAmountPrevious,
