@@ -142,3 +142,124 @@ export const getVendorReport: RequestHandler = async (req, res, next) => {
 		next(err)
 	}
 }
+
+export const getTimelineReport: RequestHandler = async (req, res, next) => {
+	try {
+		const user = getAuthorizedUser(req)
+		const transactionsMadeThisMonth = await prisma.transaction.findMany({
+			where: {
+				createdAt: {
+					gte: dayjs().startOf('month').toDate(),
+					lte: dayjs().endOf('month').toDate(),
+				},
+				OR: [
+					{
+						senderUsername: user.username,
+					},
+					{
+						receiverUsername: user.username,
+					},
+				],
+			},
+		})
+
+		let sentAmount = 0,
+			receivedAmount = 0
+
+		const combinedTransactions: Record<
+			string,
+			{ sentAmount: number; receivedAmount: number }
+		> = {}
+
+		transactionsMadeThisMonth.forEach((transaction) => {
+			const label = dayjs(transaction.createdAt).format('DD/MM')
+			if (combinedTransactions[label]) {
+				if (transaction.senderUsername === user.username) {
+					combinedTransactions[label].sentAmount += transaction.amount
+					sentAmount += transaction.amount
+				} else {
+					combinedTransactions[label].receivedAmount += transaction.amount
+					receivedAmount += transaction.amount
+				}
+			} else {
+				if (transaction.senderUsername === user.username) {
+					combinedTransactions[label] = {
+						sentAmount: transaction.amount,
+						receivedAmount: 0,
+					}
+					sentAmount += transaction.amount
+				} else {
+					combinedTransactions[label] = {
+						sentAmount: 0,
+						receivedAmount: transaction.amount,
+					}
+					receivedAmount += transaction.amount
+				}
+			}
+		})
+
+		const combinedTimeline: {
+			label: string
+			sentAmount: number
+			receivedAmount: number
+		}[] = []
+
+		for (const label in combinedTransactions) {
+			combinedTimeline.push({
+				label,
+				receivedAmount: combinedTransactions[label].receivedAmount,
+				sentAmount: combinedTransactions[label].sentAmount,
+			})
+		}
+
+		combinedTimeline.sort((a, b) =>
+			dayjs(a.label, 'DD/MM') < dayjs(b.label, 'DD/MM') ? -1 : 1,
+		)
+
+		const transactionsMadePreviousMonth = await prisma.transaction.findMany({
+			where: {
+				createdAt: {
+					gte: dayjs().subtract(1, 'month').startOf('month').toDate(),
+					lte: dayjs().subtract(1, 'month').endOf('month').toDate(),
+				},
+				OR: [
+					{
+						senderUsername: user.username,
+					},
+					{
+						receiverUsername: user.username,
+					},
+				],
+			},
+		})
+		const sentPrevious = transactionsMadePreviousMonth.filter(
+			(transaction) => transaction.senderUsername === user.username,
+		)
+		const receivedPrevious = transactionsMadePreviousMonth.filter(
+			(transaction) => transaction.receiverUsername === user.username,
+		)
+
+		const sentAmountPrevious = sentPrevious.reduce(
+			(acc, transaction) => acc + transaction.amount,
+			0,
+		)
+		const receivedAmountPrevious = receivedPrevious.reduce(
+			(acc, transaction) => acc + transaction.amount,
+			0,
+		)
+
+		return res.json({
+			timeline: combinedTimeline,
+			current: {
+				sent: sentAmount,
+				received: receivedAmount,
+			},
+			previous: {
+				sent: sentAmountPrevious,
+				received: receivedAmountPrevious,
+			},
+		})
+	} catch (err) {
+		next(err)
+	}
+}
