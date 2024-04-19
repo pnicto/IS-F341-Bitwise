@@ -36,6 +36,11 @@ const commonOptions: RouteOption[] = [
 		label: 'Payment Requests',
 		path: '/payment-requests',
 	},
+	{
+		icon: <Icon icon='lucide:line-chart' />,
+		label: 'Reports',
+		path: '/reports/timeline',
+	},
 ]
 
 const studentOptions: RouteOption[] = [
