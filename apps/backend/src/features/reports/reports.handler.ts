@@ -285,24 +285,7 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			vendor?: string
 			category?: string
 		}>(req)
-		if (vendor) {
-			const vendorExists = await prisma.user.findFirst({
-				where: { shopName: vendor },
-			})
-			if (!vendorExists) {
-				throw new BadRequest('Invalid vendor')
-			}
-		}
-		if (category) {
-			const categoryExists = await prisma.category.findFirst({
-				where: {
-					name: category,
-				},
-			})
-			if (!categoryExists) {
-				throw new BadRequest('Invalid category')
-			}
-		}
+
 		let startDate: Date,
 			endDate: Date,
 			compareStartDate: Date,
