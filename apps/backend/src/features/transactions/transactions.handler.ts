@@ -74,7 +74,7 @@ export const validateTransactionFilters = [
 	query('toUser').trim().optional(),
 	query('fromDate').trim().optional(),
 	query('toDate').trim().optional(),
-	query('tags').optional(),
+	query('tags').isArray().optional(),
 	query('minAmount')
 		.trim()
 		.optional()
@@ -151,38 +151,12 @@ export const filterTransactionHistory: RequestHandler = async (
 			toUser: string | undefined
 			fromDate: string | undefined
 			toDate: string | undefined
-			tags: string[] | string | undefined
+			tags: string[] | undefined
 			minAmount: number | undefined
 			maxAmount: number | undefined
 		}>(req)
 		const user = getAuthorizedUser(req)
-
-		const senderTags = await prisma.transaction.findMany({
-			where: { senderUsername: user.username },
-			select: { senderTags: true },
-		})
-		const receiverTags = await prisma.transaction.findMany({
-			where: { receiverUsername: user.username },
-			select: { receiverTags: true },
-		})
-		const senderTagSet: Set<string> = new Set()
-		const receiverTagSet: Set<string> = new Set()
-		for (const x of senderTags) {
-			for (const element of Object.values(x)[0]) senderTagSet.add(element)
-		}
-		for (const x of receiverTags) {
-			for (const element of Object.values(x)[0]) receiverTagSet.add(element)
-		}
-
-		let tagSet: Set<string> = new Set()
-		if (tags === undefined || tags === null)
-			throw new Error('tags is undefined')
-
-		if (typeof tags === 'string') {
-			tagSet.add(tags)
-		} else {
-			tagSet = new Set(tags)
-		}
+		console.log(tags, typeof tags)
 
 		let numberOfItems = intOrNaN(items)
 		let currentPage = intOrNaN(page)
@@ -206,11 +180,11 @@ export const filterTransactionHistory: RequestHandler = async (
 
 		if (!fromUser && (transactionType === 'DEBIT' || !transactionType)) {
 			const senderTagFilter =
-				senderTagSet.size === 0
+				!tags || (tags.length === 1 && tags[0] === '') || tags.length === 0
 					? {}
 					: {
 							senderTags: {
-								hasSome: [...tagSet],
+								hasSome: [...tags],
 							},
 					  }
 			const debitTransactions = await prisma.transaction.findMany({
@@ -247,11 +221,11 @@ export const filterTransactionHistory: RequestHandler = async (
 
 		if (!toUser && (transactionType === 'CREDIT' || !transactionType)) {
 			const receiverTagFilter =
-				receiverTagSet.size === 0
+				!tags || (tags.length === 1 && tags[0] === '') || tags.length === 0
 					? {}
 					: {
 							receiverTags: {
-								hasSome: [...tagSet],
+								hasSome: [...tags],
 							},
 					  }
 
