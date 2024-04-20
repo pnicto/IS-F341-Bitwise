@@ -382,26 +382,28 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			currentTotalUniqueVisitors = new Set()
 		let currentVendorIncome = 0,
 			currentTotalIncome = 0
-		const currentVendorUniqueVisitorsCount = currentVendorUniqueVisitors.size,
-			currentTotalUniqueVisitorsCount = currentTotalUniqueVisitors.size
+		let currentVendorUniqueVisitorsCount = 0,
+			currentTotalUniqueVisitorsCount = 0
 
 		const compareVendorUniqueVisitors = new Set(),
 			compareTotalUniqueVisitors = new Set()
 		let compareVendorIncome = 0,
 			compareTotalIncome = 0
 
-		const compareVendorUniqueVisitorsCount = compareVendorUniqueVisitors.size,
-			compareTotalUniqueVisitorsCount = compareTotalUniqueVisitors.size
+		let compareVendorUniqueVisitorsCount = 0,
+			compareTotalUniqueVisitorsCount = 0
 		let intervalData
 		if (vendor) {
 			currentTransactions.forEach((transaction) => {
 				currentVendorUniqueVisitors.add(transaction.senderUsername)
 				currentVendorIncome += transaction.amount
 			})
+			currentVendorUniqueVisitorsCount = currentVendorUniqueVisitors.size
 			compareTransactions.forEach((transaction) => {
 				compareVendorUniqueVisitors.add(transaction.senderUsername)
 				compareVendorIncome += transaction.amount
 			})
+			compareVendorUniqueVisitorsCount = compareVendorUniqueVisitors.size
 			intervalData = intervals.map((interval) =>
 				calculateVendorDataForInterval(currentTransactions, interval),
 			)
@@ -426,19 +428,23 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 				currentTotalUniqueVisitors.add(transaction.senderUsername)
 				currentTotalIncome += transaction.amount
 			})
+			currentTotalUniqueVisitorsCount = currentTotalUniqueVisitors.size
 			totalCompareTransactions.forEach((transaction) => {
 				compareTotalUniqueVisitors.add(transaction.senderUsername)
 				compareTotalIncome += transaction.amount
 			})
+			compareTotalUniqueVisitorsCount = compareTotalUniqueVisitors.size
 		} else {
 			currentTransactions.forEach((transaction) => {
 				currentTotalUniqueVisitors.add(transaction.senderUsername)
 				currentTotalIncome += transaction.amount
 			})
+			currentTotalUniqueVisitorsCount = currentTotalUniqueVisitors.size
 			compareTransactions.forEach((transaction) => {
 				compareTotalUniqueVisitors.add(transaction.senderUsername)
 				compareTotalIncome += transaction.amount
 			})
+			compareTotalUniqueVisitorsCount = compareTotalUniqueVisitors.size
 		}
 
 		return res.status(StatusCodes.OK).json({
