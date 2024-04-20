@@ -38,8 +38,8 @@ const commonOptions: RouteOption[] = [
 	},
 	{
 		icon: <Icon icon='lucide:line-chart' />,
-		label: 'Reports',
-		path: '/reports',
+		label: 'User Reports',
+		path: '/reports/user',
 	},
 ]
 

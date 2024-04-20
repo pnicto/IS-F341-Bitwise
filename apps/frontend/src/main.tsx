@@ -31,12 +31,12 @@ import ManageTags from './features/user/manage-tags'
 import ManageWallet from './features/user/manage-wallet.page'
 import PaymentRequests from './features/user/payment-requests.page'
 import TransactionHistory from './features/user/transaction-history.page'
+import UserReportsPage from './features/reports/user-reports.page'
 import ErrorBoundary from './shared/error-boundary'
 import MainLayout from './shared/main-layout'
 import NotFound from './shared/not-found'
 import PermissionGuard from './shared/permission-guard'
 import ProtectedLayout, { protectedLoader } from './shared/protected-layout'
-import Reports from './features/user/reports'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
@@ -74,7 +74,7 @@ const router = createBrowserRouter(
 					<Route path='manage-tags' element={<ManageTags />} />
 					<Route path='search-product' element={<SearchProduct />} />
 					<Route path='payment-requests' element={<PaymentRequests />} />
-					<Route path='reports' element={<Reports />} />
+					<Route path='reports/user' element={<UserReportsPage />} />
 				</Route>
 
 				{/* Protected only for vendor */}
