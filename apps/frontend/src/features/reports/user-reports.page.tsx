@@ -1,6 +1,9 @@
-import { PieChart } from '@mantine/charts'
+import { DonutChart } from '@mantine/charts'
+import { Pagination } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import axios from '../../lib/axios'
+import ExpenditureItemCard from '../../shared/expenditure-item-card'
 import CustomLoader from '../../shared/loader'
 
 const getColors = (value: number) => {
@@ -26,6 +29,10 @@ const getColors = (value: number) => {
 }
 
 const UserReportsPage = () => {
+	const numberOfItems = 4
+
+	const [currentPage, setCurrentPage] = useState(1)
+
 	const userExpenditureQuery = useQuery({
 		queryKey: ['reports', 'user'],
 		queryFn: async () => {
@@ -51,18 +58,20 @@ const UserReportsPage = () => {
 		return <div>Error fetching data</div>
 	}
 
+	const totalAmount = userExpenditureQuery.data
+		.map((category) => category.value)
+		.reduce((sum, value) => sum + value)
+
 	return (
 		<CustomLoader
 			query={userExpenditureQuery}
 			errorMessage='Failed to fetch user expenditure report'
 		>
 			{(data) => (
-				<>
+				<div className='flex flex-col gap-2'>
 					<h1>Expenditure Report</h1>
-					<PieChart
+					<DonutChart
 						withLabelsLine
-						labelsPosition='outside'
-						labelsType='percent'
 						withLabels
 						size={200}
 						data={data}
@@ -70,7 +79,29 @@ const UserReportsPage = () => {
 						tooltipDataSource='segment'
 						mx='auto'
 					/>
-				</>
+					{data
+						.slice(
+							(currentPage - 1) * numberOfItems,
+							(currentPage - 1) * numberOfItems + numberOfItems,
+						)
+						.map((category, index) => (
+							<ExpenditureItemCard
+								key={index}
+								name={category.name}
+								amount={category.value}
+								totalAmount={totalAmount}
+								color={category.color}
+							/>
+						))}
+					<div className='flex flex-col items-center'>
+						<Pagination
+							total={Math.ceil(data.length / numberOfItems)}
+							value={currentPage}
+							onChange={setCurrentPage}
+							mt='sm'
+						/>
+					</div>
+				</div>
 			)}
 		</CustomLoader>
 	)

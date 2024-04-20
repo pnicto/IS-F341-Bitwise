@@ -12,17 +12,23 @@ const ExpenditureItemCard = ({ name, amount, totalAmount, color }: Props) => {
 		<Card>
 			<div className='flex flex-col'>
 				<div className='flex flex-row justify-between'>
-					<Badge>{name}</Badge>
-					<p>₹ {amount}</p>
+					<Badge color={color}>{name}</Badge>
+					<p className='font-bold text-red-400'>₹ {amount}</p>
 				</div>
-				<div className='flex flex-row justify-between'>
-					<Progress
-						value={amount / totalAmount}
-						size='lg'
+				<div className='flex flex-row justify-between items-center lg:gap-16 gap-8'>
+					<Progress.Root
+						className='flex-grow'
+						size='md'
 						transitionDuration={200}
-						color={color}
-					/>
-					<p>{amount / totalAmount}%</p>
+					>
+						<Progress.Section
+							value={Math.round((amount / totalAmount) * 100)}
+							color={color}
+						/>
+					</Progress.Root>
+					<p className='font-bold'>
+						{Math.round((amount / totalAmount) * 100)}%
+					</p>
 				</div>
 			</div>
 		</Card>
