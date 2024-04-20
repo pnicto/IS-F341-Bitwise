@@ -405,6 +405,7 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			intervalData = intervals.map((interval) =>
 				calculateVendorDataForInterval(currentTransactions, interval),
 			)
+
 			const totalCurrentTransactions = await prisma.transaction.findMany({
 				where: {
 					createdAt: {
@@ -415,7 +416,6 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			})
 			const totalCompareTransactions = await prisma.transaction.findMany({
 				where: {
-					receiverUsername: vendor ? vendor : undefined,
 					createdAt: {
 						gte: compareStartDate,
 						lte: compareEndDate,
@@ -427,6 +427,15 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 				currentTotalIncome += transaction.amount
 			})
 			totalCompareTransactions.forEach((transaction) => {
+				compareTotalUniqueVisitors.add(transaction.senderUsername)
+				compareTotalIncome += transaction.amount
+			})
+		} else {
+			currentTransactions.forEach((transaction) => {
+				currentTotalUniqueVisitors.add(transaction.senderUsername)
+				currentTotalIncome += transaction.amount
+			})
+			compareTransactions.forEach((transaction) => {
 				compareTotalUniqueVisitors.add(transaction.senderUsername)
 				compareTotalIncome += transaction.amount
 			})
