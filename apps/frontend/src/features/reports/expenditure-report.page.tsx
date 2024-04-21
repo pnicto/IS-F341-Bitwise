@@ -3,7 +3,7 @@ import { Pagination } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import axios from '../../lib/axios'
-import ExpenditureItemCard from '../../shared/expenditure-item-card'
+import ExpenditureItemCard from './expenditure-item-card'
 import CustomLoader from '../../shared/loader'
 
 const getCategoryColor = (value: number) => {
