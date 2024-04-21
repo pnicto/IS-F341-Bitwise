@@ -16,10 +16,7 @@ const ExpenditureItemCard = ({ name, amount, totalAmount, color }: Props) => {
 					<p className='font-bold text-red-400'>₹ {amount}</p>
 				</div>
 				<div className='flex flex-row justify-between items-center lg:gap-16 gap-8'>
-					<Progress.Root
-						className='flex-grow'
-						size='md'
-					>
+					<Progress.Root className='flex-grow' size='md'>
 						<Progress.Section
 							value={Math.round((amount / totalAmount) * 100)}
 							color={color}
