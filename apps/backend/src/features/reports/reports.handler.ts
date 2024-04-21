@@ -272,12 +272,7 @@ export const getCategorizedExpenditure: RequestHandler = async (
 	try {
 		const user = getAuthorizedUser(req)
 
-		const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0')
-		const currentYear = new Date().getFullYear()
-
-		const currentMonthDate = dayjs(
-			`${currentYear}-${currentMonth}-01T00:00:00.000Z`,
-		)
+		const currentMonthDate = dayjs().startOf('month')
 		const nextMonthDate = currentMonthDate.add(1, 'month')
 
 		const outgoingTransactionsMadeThisMonth = await prisma.transaction.findMany(
