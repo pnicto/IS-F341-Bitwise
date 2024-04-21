@@ -19,7 +19,6 @@ const ExpenditureItemCard = ({ name, amount, totalAmount, color }: Props) => {
 					<Progress.Root
 						className='flex-grow'
 						size='md'
-						transitionDuration={200}
 					>
 						<Progress.Section
 							value={Math.round((amount / totalAmount) * 100)}

@@ -77,7 +77,7 @@ const router = createBrowserRouter(
 					<Route path='manage-tags' element={<ManageTags />} />
 					<Route path='search-product' element={<SearchProduct />} />
 					<Route path='payment-requests' element={<PaymentRequests />} />
-					<Route path='reports/user' element={<UserReportsPage />} />
+					<Route path='reports/expenditure' element={<UserReportsPage />} />
 					<Route path='reports/timeline' element={<TimelineReportPage />} />
 				</Route>
 

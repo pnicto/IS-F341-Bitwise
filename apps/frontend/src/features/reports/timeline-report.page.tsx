@@ -1,6 +1,8 @@
+import { Icon } from '@iconify/react'
 import { LineChart } from '@mantine/charts'
 import { Card, Group, Stack } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import axios from '../../lib/axios'
 import CustomLoader from '../../shared/loader'
 
@@ -78,6 +80,18 @@ const TimelineReportPage = () => {
 						]}
 						h={300}
 					></LineChart>
+					<div className='pt-8 flex flex-row justify-end'>
+						<Card
+							component={Link}
+							to='/reports/expenditure'
+							className='flex flex-col items-center gap-3 justify-center'
+						>
+							<span className='text-3xl'>
+								<Icon icon='lucide:pie-chart' />
+							</span>
+							<h2>Expenditure Report</h2>
+						</Card>
+					</div>
 				</>
 			)}
 		</CustomLoader>

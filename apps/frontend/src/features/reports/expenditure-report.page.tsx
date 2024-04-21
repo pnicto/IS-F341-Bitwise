@@ -28,7 +28,7 @@ const getCategoryColor = (value: number) => {
 	return palette[value % (palette.length - 1)]
 }
 
-const UserReportsPage = () => {
+const ExpenditureReportsPage = () => {
 	const numberOfItems = 4
 
 	const [currentPage, setCurrentPage] = useState(1)
@@ -50,61 +50,56 @@ const UserReportsPage = () => {
 		},
 	})
 
-	if (userExpenditureQuery.isPending) {
-		return <div>Loading</div>
-	}
-
-	if (userExpenditureQuery.isError) {
-		return <div>Error fetching data</div>
-	}
-
-	const totalAmount = userExpenditureQuery.data
-		.map((category) => category.value)
-		.reduce((sum, value) => sum + value)
-
 	return (
 		<CustomLoader
-			query={userExpenditureQuery}
-			errorMessage='Failed to fetch user expenditure report'
-		>
-			{(data) => (
-				<div className='flex flex-col gap-2'>
-					<h1>Expenditure Report</h1>
-					<DonutChart
-						withLabelsLine
-						withLabels
-						size={200}
-						data={data}
-						withTooltip
-						tooltipDataSource='segment'
-						mx='auto'
-					/>
-					{data
-						.slice(
-							(currentPage - 1) * numberOfItems,
-							(currentPage - 1) * numberOfItems + numberOfItems,
-						)
-						.map((category, index) => (
-							<ExpenditureItemCard
-								key={index}
-								name={category.name}
-								amount={category.value}
-								totalAmount={totalAmount}
-								color={category.color}
-							/>
-						))}
-					<div className='flex flex-col items-center'>
-						<Pagination
-							total={Math.ceil(data.length / numberOfItems)}
-							value={currentPage}
-							onChange={setCurrentPage}
-							mt='sm'
-						/>
-					</div>
-				</div>
-			)}
+            query={userExpenditureQuery}
+            errorMessage='Failed to fetch user expenditure report'
+        >
+            {(data) => {
+                const totalAmount = data.reduce(
+                    (acc, current) => acc + current.value,
+                    0,
+                )
+
+                return (
+                    <div className='flex flex-col gap-2'>
+                        <h1>Expenditure Report</h1>
+                        <DonutChart
+                            withLabelsLine
+                            withLabels
+                            size={200}
+                            data={data}
+                            withTooltip
+                            tooltipDataSource='segment'
+                            mx='auto'
+                        />
+                        {data
+                            .slice(
+                                (currentPage - 1) * numberOfItems,
+                                (currentPage - 1) * numberOfItems + numberOfItems,
+                            )
+                            .map((category, index) => (
+                                <ExpenditureItemCard
+                                    key={index}
+                                    name={category.name}
+                                    amount={category.value}
+                                    totalAmount={totalAmount}
+                                    color={category.color}
+                                />
+                            ))}
+                        <div className='flex flex-col items-center'>
+                            <Pagination
+                                total={Math.ceil(data.length / numberOfItems)}
+                                value={currentPage}
+                                onChange={setCurrentPage}
+                                mt='sm'
+                            />
+                        </div>
+                    </div>
+                )
+            }}
 		</CustomLoader>
 	)
 }
 
-export default UserReportsPage
+export default ExpenditureReportsPage
