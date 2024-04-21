@@ -53,7 +53,7 @@ async function main() {
 	await prisma.category.deleteMany({})
 	console.log('Categories deleted')
 
-	const users: Omit<User, 'id' | 'enabled' | 'tags' | 'shopBalance'>[] = [
+	const users: Omit<User, 'id' | 'enabled' | 'tags'>[] = [
 		{
 			email: 'john@email.com',
 			role: 'ADMIN',
@@ -175,7 +175,7 @@ async function main() {
 		where: { OR: [{ role: 'STUDENT' }, { role: 'VENDOR' }] },
 	})
 	// Shop transactions
-	for (let i = 0; i < 50; i++) {
+	for (let i = 0; i < 10000; i++) {
 		const v = faker.helpers.arrayElement(vendors)
 		const v_products = await prisma.product.findMany({
 			where: { vendorId: v['id'] },
@@ -187,14 +187,14 @@ async function main() {
 			receiverUsername: v['shopName'] as string,
 			amount: product['price'],
 			createdAt: faker.date.between({
-				from: product['updatedAt'],
-				to: '2024-02-29T00:00:00.000Z',
+				from: '2022-01-01T00:00:00.000Z',
+				to: '2024-04-15T00:00:00.000Z',
 			}),
 		})
 	}
 
 	// P2P transactions
-	for (let i = 0; i < 50; i++) {
+	for (let i = 0; i < 10000; i++) {
 		const participants = faker.helpers.arrayElements(nonAdminUsers, 2)
 
 		transactions.push({
@@ -202,8 +202,8 @@ async function main() {
 			receiverUsername: participants[1].username,
 			amount: parseInt(faker.commerce.price({ min: 1, max: 5000, dec: 0 })),
 			createdAt: faker.date.between({
-				from: '2024-01-01T00:00:00.000Z',
-				to: '2024-02-29T00:00:00.000Z',
+				from: '2022-01-01T00:00:00.000Z',
+				to: '2024-04-15T00:00:00.000Z',
 			}),
 		})
 	}

@@ -41,6 +41,11 @@ const commonOptions: RouteOption[] = [
 		label: 'User Reports',
 		path: '/reports/user',
 	},
+	{
+		icon: <Icon icon='lucide:line-chart' />,
+		label: 'Reports',
+		path: '/reports/timeline',
+	},
 ]
 
 const studentOptions: RouteOption[] = [
@@ -63,6 +68,11 @@ const vendorOptions: RouteOption[] = [
 		icon: <Icon icon='lucide:receipt-indian-rupee' />,
 		label: 'Shop Transactions',
 		path: '/shop/transactions',
+	},
+	{
+		icon: <Icon icon='lucide:file-bar-chart' />,
+		label: 'Shop Reports',
+		path: '/reports/shop',
 	},
 ]
 

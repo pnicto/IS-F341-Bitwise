@@ -1,5 +1,5 @@
-import { Card, MantineProvider, NumberInput } from '@mantine/core'
 import '@mantine/charts/styles.css'
+import { Card, MantineProvider, NumberInput } from '@mantine/core'
 import '@mantine/core/styles.css'
 import '@mantine/dates/styles.css'
 import '@mantine/dropzone/styles.css'
@@ -23,6 +23,9 @@ import Login, { loginLoader } from './features/auth/login.page'
 import CreateProduct from './features/products/create-product.page'
 import EditProducts from './features/products/edit-products-page'
 import SearchProduct from './features/products/search-product.page'
+import TimelineReportPage from './features/reports/timeline-report.page'
+import UserReportsPage from './features/reports/user-reports.page'
+import VendorReportsPage from './features/reports/vendor-reports.page'
 import ProductList from './features/shops/products-list.page'
 import ShopList from './features/shops/shop-list.page'
 import ShopTransactionHistory from './features/shops/shop-transaction-history.page'
@@ -32,7 +35,6 @@ import ManageTags from './features/user/manage-tags'
 import ManageWallet from './features/user/manage-wallet.page'
 import PaymentRequests from './features/user/payment-requests.page'
 import TransactionHistory from './features/user/transaction-history.page'
-import UserReportsPage from './features/reports/user-reports.page'
 import ErrorBoundary from './shared/error-boundary'
 import MainLayout from './shared/main-layout'
 import NotFound from './shared/not-found'
@@ -76,6 +78,7 @@ const router = createBrowserRouter(
 					<Route path='search-product' element={<SearchProduct />} />
 					<Route path='payment-requests' element={<PaymentRequests />} />
 					<Route path='reports/user' element={<UserReportsPage />} />
+					<Route path='reports/timeline' element={<TimelineReportPage />} />
 				</Route>
 
 				{/* Protected only for vendor */}
@@ -83,6 +86,7 @@ const router = createBrowserRouter(
 					<Route path='shop'>
 						<Route path='transactions' element={<ShopTransactionHistory />} />
 					</Route>
+					<Route path='reports/shop' element={<VendorReportsPage />} />
 				</Route>
 
 				{/* Protected only for admin */}
