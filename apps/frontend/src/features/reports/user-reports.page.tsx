@@ -6,8 +6,8 @@ import axios from '../../lib/axios'
 import ExpenditureItemCard from '../../shared/expenditure-item-card'
 import CustomLoader from '../../shared/loader'
 
-const getColors = (value: number) => {
-	const pallet = [
+const getCategoryColor = (value: number) => {
+	const palette = [
 		'#0074D9',
 		'#FF4136',
 		'#2ECC40',
@@ -25,7 +25,7 @@ const getColors = (value: number) => {
 		'#AAAAAA',
 	]
 
-	return pallet[value % (pallet.length - 1)]
+	return palette[value % (palette.length - 1)]
 }
 
 const UserReportsPage = () => {
@@ -45,7 +45,7 @@ const UserReportsPage = () => {
 			return data.expenditure.map((category, index) => ({
 				name: category.name,
 				value: category.value,
-				color: getColors(index),
+				color: getCategoryColor(index),
 			}))
 		},
 	})

@@ -299,6 +299,7 @@ export const getCategorizedExpenditure: RequestHandler = async (
 
 		for (const transaction of outgoingTransactionsMadeThisMonth) {
 			if (transaction.senderTags.length === 0) {
+				// The transcation has no tags, therefore the transaction is categorized as "Uncategorized"
 				if (!categorizedExpenditure.has('Uncategorized')) {
 					categorizedExpenditure.set('Uncategorized', transaction.amount)
 				} else {
@@ -311,6 +312,7 @@ export const getCategorizedExpenditure: RequestHandler = async (
 					}
 				}
 			} else {
+				// The transaction has tags, therefore the transaction is categorized into the first tag present on it
 				if (!categorizedExpenditure.has(transaction.senderTags[0])) {
 					categorizedExpenditure.set(
 						transaction.senderTags[0],
