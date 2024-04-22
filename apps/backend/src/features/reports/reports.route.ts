@@ -2,21 +2,28 @@ import { Role } from '@prisma/client'
 import express from 'express'
 import { authorize } from '../../middleware/authorize'
 import {
+	getCategorizedExpenditure,
 	getTimelineReport,
 	getVendorReport,
 	validateVendorReport,
 } from './reports.handler'
 
-export const reportRouter = express.Router()
+export const reportsRouter = express.Router()
 
-reportRouter.get(
+reportsRouter.get(
+	'/categorized-expenditure',
+	authorize(Role.STUDENT, Role.VENDOR),
+	getCategorizedExpenditure,
+)
+
+reportsRouter.get(
 	'/vendor',
 	authorize(Role.VENDOR),
 	validateVendorReport,
 	getVendorReport,
 )
 
-reportRouter.get(
+reportsRouter.get(
 	'/timeline',
 	authorize(Role.STUDENT, Role.VENDOR),
 	getTimelineReport,

@@ -13,7 +13,7 @@ import { authRouter } from './features/auth/auth.route'
 import { paymentRequestRouter } from './features/paymentRequests/paymentRequest.route'
 import { paymentRouter } from './features/payments/payment.route'
 import { productRouter } from './features/products/products.route'
-import { reportRouter } from './features/reports/reports.route'
+import { reportsRouter } from './features/reports/reports.route'
 import { shopRouter } from './features/shops/shops.route'
 import { transactionRouter } from './features/transactions/transactions.route'
 import { userRouter } from './features/users/user.route'
@@ -67,7 +67,7 @@ app.use(root('/user'), passportJWT, userRouter)
 app.use(root('/shops'), passportJWT, shopRouter)
 app.use(root('/transactions'), passportJWT, transactionRouter)
 app.use(root('/requests'), passportJWT, paymentRequestRouter)
-app.use(root('/reports'), passportJWT, reportRouter)
+app.use(root('/reports'), passportJWT, reportsRouter)
 
 // Custom error handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
