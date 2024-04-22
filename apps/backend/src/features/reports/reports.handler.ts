@@ -443,6 +443,11 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			},
 		})
 
+		const productsbyCategory = await prisma.product.groupBy({
+			by: ['categoryName'],
+			_count: true,
+		})
+
 		return res.status(StatusCodes.OK).json({
 			uniqueVisitorsCount: {
 				currentVendorUniqueVisitorsCount,
@@ -459,6 +464,7 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			intervalData,
 			shopCount: shopCount._count.shopName,
 			disabledCount: disabledCount._count,
+			productsbyCategory,
 		})
 	} catch (err) {
 		next(err)
