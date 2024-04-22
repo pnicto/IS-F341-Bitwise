@@ -436,6 +436,13 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			},
 		})
 
+		const disabledCount = await prisma.user.aggregate({
+			_count: true,
+			where: {
+				enabled: false,
+			},
+		})
+
 		return res.status(StatusCodes.OK).json({
 			uniqueVisitorsCount: {
 				currentVendorUniqueVisitorsCount,
@@ -451,6 +458,7 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			},
 			intervalData,
 			shopCount: shopCount._count.shopName,
+			disabledCount: disabledCount._count,
 		})
 	} catch (err) {
 		next(err)
