@@ -146,3 +146,40 @@ export const getStartAndEndDates = (preset: string) => {
 			throw new Error('Invalid preset')
 	}
 }
+
+export const getDateFormat = (
+	startDate: Date,
+	endDate: Date,
+	preset: ManipulateType | undefined,
+) => {
+	const startDay = dayjs(startDate)
+	const endDay = dayjs(endDate)
+
+	const diffDays = endDay.diff(startDay, 'day') + 1
+	const diffHours = endDay.diff(startDay, 'hour')
+
+	if (preset) {
+		switch (preset) {
+			case 'hour':
+				return 'HH:mm'
+			case 'day':
+				return 'dddd'
+			case 'week':
+				return 'DD/MM'
+			case 'month':
+				return 'DD/MM'
+			case 'year':
+				return 'MMMM'
+		}
+	}
+
+	if (diffDays >= 28) {
+		return 'MMMM'
+	} else if (diffDays >= 2) {
+		return 'DD/MM'
+	} else if (diffDays === 1 && diffHours > 1) {
+		return 'dddd'
+	} else {
+		return 'HH:mm'
+	}
+}

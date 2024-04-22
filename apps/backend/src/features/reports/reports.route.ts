@@ -4,6 +4,7 @@ import { authorize } from '../../middleware/authorize'
 import {
 	getTimelineReport,
 	getVendorReport,
+	validateTimelineReport,
 	validateVendorReport,
 } from './reports.handler'
 
@@ -19,5 +20,6 @@ reportRouter.get(
 reportRouter.get(
 	'/timeline',
 	authorize(Role.STUDENT, Role.VENDOR),
+	validateTimelineReport,
 	getTimelineReport,
 )
