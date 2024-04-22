@@ -273,7 +273,7 @@ export const getCategorizedExpenditure: RequestHandler = async (
 		const user = getAuthorizedUser(req)
 
 		const currentMonthDate = dayjs().startOf('month')
-		const nextMonthDate = currentMonthDate.add(1, 'month')
+		const nextMonthDate = currentMonthDate.endOf('month')
 
 		const outgoingTransactionsMadeThisMonth = await prisma.transaction.findMany(
 			{
@@ -294,7 +294,7 @@ export const getCategorizedExpenditure: RequestHandler = async (
 
 		for (const transaction of outgoingTransactionsMadeThisMonth) {
 			if (transaction.senderTags.length === 0) {
-				// The transcation has no tags, therefore the transaction is categorized as "Uncategorized"
+				// The transaction has no tags, therefore the transaction is categorized as "Uncategorized"
 				if (!categorizedExpenditure.has('Uncategorized')) {
 					categorizedExpenditure.set('Uncategorized', transaction.amount)
 				} else {
