@@ -1,6 +1,9 @@
 import { LineChart } from '@mantine/charts'
-import { Card, Group, Stack } from '@mantine/core'
+import { Button, Card, Group, Select, Stack } from '@mantine/core'
+import { DateTimePicker } from '@mantine/dates'
+import { useForm } from '@mantine/form'
 import { useQuery } from '@tanstack/react-query'
+import dayjs from 'dayjs'
 import axios from '../../lib/axios'
 import CustomLoader from '../../shared/loader'
 
@@ -10,6 +13,7 @@ type TimelineReport = {
 		sentAmount: number
 		receivedAmount: number
 	}[]
+	format: string
 	current: {
 		sent: number
 		received: number
@@ -21,10 +25,52 @@ type TimelineReport = {
 }
 
 const TimelineReportPage = () => {
+	const filterForm = useForm({
+		initialValues: {
+			preset: 'month',
+			fromDate: '',
+			toDate: '',
+		},
+		validate: {
+			fromDate: (value, values) => {
+				if (value && !dayjs(value).isValid()) return 'Invalid start date'
+
+				if (value && values.toDate && dayjs(value).isAfter(values.toDate))
+					return 'Start date must be before end date'
+
+				return null
+			},
+			toDate: (value, values) => {
+				if (value && !dayjs(value).isValid()) return 'Invalid end date'
+
+				if (value && values.fromDate && dayjs(value).isBefore(values.fromDate))
+					return 'End date must be after start date'
+
+				return null
+			},
+		},
+		transformValues: (values) => ({
+			fromDate: values.fromDate ? new Date(values.fromDate).toISOString() : '',
+			toDate: values.toDate ? new Date(values.toDate).toISOString() : '',
+		}),
+		validateInputOnChange: true,
+	})
+	const filterFormValues = filterForm.values
+	const filterFormTransformedValues = filterForm.getTransformedValues()
+
 	const reportsQuery = useQuery({
-		queryKey: ['reports'],
+		queryKey: [
+			'reports',
+			{
+				preset: filterFormValues.preset,
+				fromDate: filterFormTransformedValues.fromDate,
+				toDate: filterFormTransformedValues.toDate,
+			},
+		],
 		queryFn: async () => {
-			const response = await axios.get<TimelineReport>(`/reports/timeline`)
+			const response = await axios.get<TimelineReport>(
+				`/reports/timeline?preset=${filterFormValues.preset}&fromDate=${filterFormTransformedValues.fromDate}&toDate=${filterFormTransformedValues.toDate}`,
+			)
 			return response.data
 		},
 	})
@@ -33,6 +79,33 @@ const TimelineReportPage = () => {
 		<CustomLoader query={reportsQuery} errorMessage='Failed to fetch reports'>
 			{(data) => (
 				<>
+					<Group justify='center' className='py-4'>
+						<Select
+							label='Range'
+							defaultValue='month'
+							data={[
+								{ value: 'hour', label: 'Hour' },
+								{ value: 'day', label: 'Day' },
+								{ value: 'week', label: 'Week' },
+								{ value: 'month', label: 'Month' },
+								{ value: 'year', label: 'Year' },
+								{ value: '', label: 'Auto' },
+							]}
+							allowDeselect={false}
+							{...filterForm.getInputProps('preset')}
+						/>
+						<DateTimePicker
+							{...filterForm.getInputProps('fromDate')}
+							label='Start Date'
+							placeholder='Start Date'
+						/>
+						<DateTimePicker
+							{...filterForm.getInputProps('toDate')}
+							label='End Date'
+							placeholder='End Date'
+						/>
+						<Button onClick={filterForm.reset}>Clear Filters</Button>
+					</Group>
 					<Group justify='center'>
 						<Stack gap={2}>
 							<h2 className='py-0 capitalize'>Current month</h2>
@@ -77,7 +150,7 @@ const TimelineReportPage = () => {
 							{ name: 'sentAmount', color: 'red', label: 'Amount Sent' },
 						]}
 						h={300}
-					></LineChart>
+					/>
 				</>
 			)}
 		</CustomLoader>
