@@ -5,6 +5,7 @@ import {
 	getCategorizedExpenditure,
 	getTimelineReport,
 	getVendorReport,
+	validateCategorizedExpenditure,
 	validateVendorReport,
 } from './reports.handler'
 
@@ -13,6 +14,7 @@ export const reportsRouter = express.Router()
 reportsRouter.get(
 	'/categorized-expenditure',
 	authorize(Role.STUDENT, Role.VENDOR),
+	validateCategorizedExpenditure,
 	getCategorizedExpenditure,
 )
 
