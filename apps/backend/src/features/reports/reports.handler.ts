@@ -430,6 +430,12 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			compareTotalUniqueVisitorsCount = compareTotalUniqueVisitors.size
 		}
 
+		const shopCount = await prisma.user.aggregate({
+			_count: {
+				shopName: true,
+			},
+		})
+
 		return res.status(StatusCodes.OK).json({
 			uniqueVisitorsCount: {
 				currentVendorUniqueVisitorsCount,
@@ -444,6 +450,7 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 				compareTotalIncome,
 			},
 			intervalData,
+			shopCount: shopCount._count.shopName,
 		})
 	} catch (err) {
 		next(err)
