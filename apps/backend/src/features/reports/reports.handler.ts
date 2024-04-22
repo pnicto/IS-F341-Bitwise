@@ -267,7 +267,7 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 export const validateCategorizedExpenditure = [
 	query('preset')
 		.trim()
-		.isIn(['day', 'week', 'month', 'year', 'hour', ''])
+		.isIn(['day', 'week', 'month', 'year', ''])
 		.optional()
 		.withMessage('Invalid preset'),
 	query('fromDate').trim().optional(),

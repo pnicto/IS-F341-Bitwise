@@ -1,10 +1,13 @@
 import { DonutChart } from '@mantine/charts'
-import { Pagination } from '@mantine/core'
+import { Button, Group, Pagination, Select } from '@mantine/core'
+import { DateTimePicker } from '@mantine/dates'
+import { useForm } from '@mantine/form'
 import { useQuery } from '@tanstack/react-query'
+import dayjs from 'dayjs'
 import { useState } from 'react'
 import axios from '../../lib/axios'
-import ExpenditureItemCard from './expenditure-item-card'
 import CustomLoader from '../../shared/loader'
+import ExpenditureItemCard from './expenditure-item-card'
 
 const getCategoryColor = (value: number) => {
 	const palette = [
@@ -31,22 +34,71 @@ const getCategoryColor = (value: number) => {
 const ExpenditureReportsPage = () => {
 	const numberOfItems = 4
 
+	const filterForm = useForm({
+		initialValues: {
+			preset: 'month',
+			fromDate: '',
+			toDate: '',
+		},
+		validate: {
+			fromDate: (value, values) => {
+				if (value && !dayjs(value).isValid()) return 'Invalid start date'
+
+				if (value && values.toDate && dayjs(value).isAfter(values.toDate))
+					return 'Start date must be before end date'
+
+				return null
+			},
+			toDate: (value, values) => {
+				if (value && !dayjs(value).isValid()) return 'Invalid end date'
+
+				if (value && values.fromDate && dayjs(value).isBefore(values.fromDate))
+					return 'End date must be after start date'
+
+				return null
+			},
+		},
+		transformValues: (values) => ({
+			fromDate: values.fromDate ? new Date(values.fromDate).toISOString() : '',
+			toDate: values.toDate ? new Date(values.toDate).toISOString() : '',
+		}),
+		validateInputOnChange: true,
+	})
+	const filterFormValues = filterForm.values
+	const filterFormTransformedValues = filterForm.getTransformedValues()
+
 	const [currentPage, setCurrentPage] = useState(1)
 
 	const userExpenditureQuery = useQuery({
-		queryKey: ['reports', 'user'],
+		queryKey: [
+			'reports',
+			'user',
+			{
+				preset: filterFormValues.preset,
+				fromDate: filterFormTransformedValues.fromDate,
+				toDate: filterFormTransformedValues.toDate,
+			},
+		],
 		queryFn: async () => {
 			const response = await axios.get<{
+				startDate: string
+				endDate: string
 				expenditure: { name: string; value: number }[]
-			}>(`/reports/categorized-expenditure`)
+			}>(
+				`/reports/categorized-expenditure?preset=${filterFormValues.preset}&fromDate=${filterFormTransformedValues.fromDate}&toDate=${filterFormTransformedValues.toDate}`,
+			)
 			return response.data
 		},
 		select: (data) => {
-			return data.expenditure.map((category, index) => ({
-				name: category.name,
-				value: category.value,
-				color: getCategoryColor(index),
-			}))
+			return {
+				startDate: new Date(data.startDate),
+				endDate: new Date(data.endDate),
+				expenditure: data.expenditure.map((category, index) => ({
+					name: category.name,
+					value: category.value,
+					color: getCategoryColor(index),
+				})),
+			}
 		},
 	})
 
@@ -56,7 +108,7 @@ const ExpenditureReportsPage = () => {
 			errorMessage='Failed to fetch user expenditure report'
 		>
 			{(data) => {
-				const totalAmount = data.reduce(
+				const totalAmount = data.expenditure.reduce(
 					(acc, current) => acc + current.value,
 					0,
 				)
@@ -64,37 +116,79 @@ const ExpenditureReportsPage = () => {
 				return (
 					<div className='flex flex-col gap-2'>
 						<h1>Expenditure Report</h1>
-						<DonutChart
-							withLabelsLine
-							withLabels
-							size={200}
-							data={data}
-							withTooltip
-							tooltipDataSource='segment'
-							mx='auto'
-						/>
-						{data
-							.slice(
-								(currentPage - 1) * numberOfItems,
-								(currentPage - 1) * numberOfItems + numberOfItems,
-							)
-							.map((category, index) => (
-								<ExpenditureItemCard
-									key={index}
-									name={category.name}
-									amount={category.value}
-									totalAmount={totalAmount}
-									color={category.color}
-								/>
-							))}
-						<div className='flex flex-col items-center'>
-							<Pagination
-								total={Math.ceil(data.length / numberOfItems)}
-								value={currentPage}
-								onChange={setCurrentPage}
-								mt='sm'
+						<Group justify='center' className='py-4'>
+							<Select
+								label='Range'
+								defaultValue='month'
+								data={[
+									{ value: 'day', label: 'Day' },
+									{ value: 'week', label: 'Week' },
+									{ value: 'month', label: 'Month' },
+									{ value: 'year', label: 'Year' },
+									{ value: '', label: 'Auto' },
+								]}
+								allowDeselect={false}
+								{...filterForm.getInputProps('preset')}
 							/>
-						</div>
+							<DateTimePicker
+								{...filterForm.getInputProps('fromDate')}
+								label='Start Date'
+								placeholder='Start Date'
+							/>
+							<DateTimePicker
+								{...filterForm.getInputProps('toDate')}
+								label='End Date'
+								placeholder='End Date'
+							/>
+							<Button onClick={filterForm.reset}>Clear Filters</Button>
+						</Group>
+						{data.expenditure.length === 0 ? (
+							<div className='pt-8'>
+								<h2>
+									No transactions found for period{' '}
+									{data.startDate.toLocaleDateString()} -{' '}
+									{data.endDate.toLocaleDateString()}
+								</h2>
+							</div>
+						) : (
+							<>
+								<DonutChart
+									withLabelsLine
+									withLabels
+									size={200}
+									data={data.expenditure}
+									withTooltip
+									tooltipDataSource='segment'
+									mx='auto'
+								/>
+								<h2>
+									{data.startDate.toLocaleDateString()} -{' '}
+									{data.endDate.toLocaleDateString()}
+								</h2>
+								{data.expenditure
+									.slice(
+										(currentPage - 1) * numberOfItems,
+										(currentPage - 1) * numberOfItems + numberOfItems,
+									)
+									.map((category, index) => (
+										<ExpenditureItemCard
+											key={index}
+											name={category.name}
+											amount={category.value}
+											totalAmount={totalAmount}
+											color={category.color}
+										/>
+									))}
+								<div className='flex flex-col items-center'>
+									<Pagination
+										total={Math.ceil(data.expenditure.length / numberOfItems)}
+										value={currentPage}
+										onChange={setCurrentPage}
+										mt='sm'
+									/>
+								</div>
+							</>
+						)}
 					</div>
 				)
 			}}
