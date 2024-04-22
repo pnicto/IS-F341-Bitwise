@@ -169,12 +169,12 @@ export const getDateFormat = (
 			case 'month':
 				return 'DD/MM'
 			case 'year':
-				return 'MMMM'
+				return 'MMMM YY'
 		}
 	}
 
 	if (diffDays >= 28) {
-		return 'MMMM'
+		return 'MMMM YY'
 	} else if (diffDays >= 2) {
 		return 'DD/MM'
 	} else if (diffDays === 1 && diffHours > 1) {

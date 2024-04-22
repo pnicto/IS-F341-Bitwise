@@ -1,4 +1,5 @@
 import dayjs, { ManipulateType } from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { RequestHandler } from 'express'
 import { query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
@@ -12,6 +13,8 @@ import {
 	getStartAndEndDates,
 	getTimeIntervals,
 } from './reports.utils'
+
+dayjs.extend(customParseFormat)
 
 export const validateVendorReport = [
 	query('preset')
@@ -188,6 +191,8 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 			// eslint-disable-next-line @typescript-eslint/no-extra-semi
 			;({ startDate, endDate, compareStartDate, compareEndDate } =
 				getStartAndEndDates(preset))
+
+			format = getDateFormat(startDate, endDate, preset as ManipulateType)
 		} else if (fromDate && toDate) {
 			const diffInDays = toDateObj.diff(fromDateObj, 'day') + 1
 			compareStartDate = fromDateObj.subtract(diffInDays, 'day').toDate()
@@ -287,7 +292,7 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 		}
 
 		combinedTimeline.sort((a, b) =>
-			dayjs(a.label, format) < dayjs(b.label, format) ? -1 : 1,
+			dayjs(a.label, format).isBefore(dayjs(b.label, format)) ? -1 : 1,
 		)
 
 		const transactionsMadePreviousPeriod = await prisma.transaction.findMany({
