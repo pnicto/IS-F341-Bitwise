@@ -4,6 +4,7 @@ import { DateTimePicker } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
+import { Link } from 'react-router-dom'
 import axios from '../../lib/axios'
 import CustomLoader from '../../shared/loader'
 
@@ -79,6 +80,15 @@ const TimelineReportPage = () => {
 		<CustomLoader query={reportsQuery} errorMessage='Failed to fetch reports'>
 			{(data) => (
 				<>
+					<div className='pb-8 flex flex-row justify-end'>
+						<Button
+							component={Link}
+							to='/reports/expenditure'
+							className='flex flex-col items-center gap-3 justify-center'
+						>
+							<h2>Expenditure Report</h2>
+						</Button>
+					</div>
 					<Group justify='center' className='py-4'>
 						<Select
 							label='Range'
