@@ -673,7 +673,7 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			disabledCount: disabledCount._count,
 			productsByCategory,
 			activeUserCount: activeUsers.size - shopCount._count.shopName,
-			cashFlow: cashFlow,
+			cashFlow,
 		})
 	} catch (err) {
 		next(err)
