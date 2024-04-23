@@ -8,28 +8,7 @@ import { useState } from 'react'
 import axios from '../../lib/axios'
 import CustomLoader from '../../shared/loader'
 import ExpenditureItemCard from './expenditure-item-card'
-
-const getCategoryColor = (value: number) => {
-	const palette = [
-		'#0074D9',
-		'#FF4136',
-		'#2ECC40',
-		'#FF851B',
-		'#7FDBFF',
-		'#B10DC9',
-		'#FFDC00',
-		'#001F3F',
-		'#39CCCC',
-		'#01FF70',
-		'#85144B',
-		'#F012BE',
-		'#3D9970',
-		'#111111',
-		'#AAAAAA',
-	]
-
-	return palette[value % (palette.length - 1)]
-}
+import { getCategoryColor } from './utils'
 
 const ExpenditureReportsPage = () => {
 	const numberOfItems = 4
