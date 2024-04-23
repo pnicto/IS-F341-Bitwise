@@ -1,5 +1,4 @@
 import dayjs, { ManipulateType } from 'dayjs'
-import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { RequestHandler } from 'express'
 import { query } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
@@ -13,8 +12,6 @@ import {
 	getStartAndEndDates,
 	getTimeIntervals,
 } from './reports.utils'
-
-dayjs.extend(customParseFormat)
 
 export const validateVendorReport = [
 	query('preset')
