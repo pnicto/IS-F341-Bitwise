@@ -156,7 +156,6 @@ export const filterTransactionHistory: RequestHandler = async (
 			maxAmount: number | undefined
 		}>(req)
 		const user = getAuthorizedUser(req)
-		console.log(tags, typeof tags)
 
 		let numberOfItems = intOrNaN(items)
 		let currentPage = intOrNaN(page)
