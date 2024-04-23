@@ -264,6 +264,15 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 	}
 }
 
+export const validateCategorizedExpenditure = [
+	query('preset')
+		.trim()
+		.isIn(['day', 'week', 'month', 'year', ''])
+		.optional()
+		.withMessage('Invalid preset'),
+	query('fromDate').trim().optional(),
+	query('toDate').trim().optional(),
+]
 export const getCategorizedExpenditure: RequestHandler = async (
 	req,
 	res,
@@ -272,27 +281,49 @@ export const getCategorizedExpenditure: RequestHandler = async (
 	try {
 		const user = getAuthorizedUser(req)
 
-		const currentMonthDate = dayjs().startOf('month')
-		const nextMonthDate = currentMonthDate.endOf('month')
+		const { preset, fromDate, toDate } = validateRequest<{
+			preset?: string
+			fromDate?: string
+			toDate?: string
+		}>(req)
 
-		const outgoingTransactionsMadeThisMonth = await prisma.transaction.findMany(
-			{
+		let startDate: Date, endDate: Date
+
+		const fromDateObj = dayjs(fromDate)
+		const toDateObj = dayjs(toDate)
+
+		if (fromDate && toDate && !(fromDateObj.isValid() && toDateObj.isValid())) {
+			throw new BadRequest('Invalid date format')
+		}
+
+		if (fromDate && toDate) {
+			startDate = fromDateObj.toDate()
+			endDate = toDateObj.toDate()
+		} else if (preset) {
+			// eslint-disable-next-line @typescript-eslint/no-extra-semi
+			;({ startDate, endDate } = getStartAndEndDates(preset))
+		} else {
+			// eslint-disable-next-line @typescript-eslint/no-extra-semi
+			;({ startDate, endDate } = getStartAndEndDates('month'))
+		}
+
+		const outgoingTransactionsMadeThisPeriod =
+			await prisma.transaction.findMany({
 				where: {
 					createdAt: {
-						gte: currentMonthDate.toDate(),
-						lte: nextMonthDate.toDate(),
+						gte: startDate,
+						lte: endDate,
 					},
 					senderUsername: user.username,
 				},
-			},
-		)
+			})
 
 		const categorizedExpenditure: Map<string, number> = new Map<
 			string,
 			number
 		>()
 
-		for (const transaction of outgoingTransactionsMadeThisMonth) {
+		for (const transaction of outgoingTransactionsMadeThisPeriod) {
 			if (transaction.senderTags.length === 0) {
 				// The transaction has no tags, therefore the transaction is categorized as "Uncategorized"
 				if (!categorizedExpenditure.has('Uncategorized')) {
@@ -326,6 +357,8 @@ export const getCategorizedExpenditure: RequestHandler = async (
 		}
 
 		return res.json({
+			startDate: startDate,
+			endDate: endDate,
 			expenditure: Array.from(categorizedExpenditure).map(([key, value]) => ({
 				name: key,
 				value: value,
