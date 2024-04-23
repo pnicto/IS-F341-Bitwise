@@ -225,7 +225,10 @@ const MainLayout = () => {
 								<Menu.Item
 									leftSection={<Icon icon='lucide:log-out' />}
 									component='button'
-									onClick={() => logout.mutate()}
+									onClick={() => {
+										searchForm.reset()
+										logout.mutate()
+									}}
 									color='red'
 								>
 									Logout

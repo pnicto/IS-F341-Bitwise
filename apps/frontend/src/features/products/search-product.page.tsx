@@ -1,8 +1,8 @@
 import { Pagination, SimpleGrid } from '@mantine/core'
 import { Product } from '@prisma/client'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import axios from '../../lib/axios'
 import ProductCard from '../../shared/product-card'
 
@@ -14,6 +14,12 @@ const SearchProduct = () => {
 	const categoryName = searchParams.get('category')
 
 	const [currentPage, setCurrentPage] = useState(1)
+
+	const { search } = useLocation()
+
+	useEffect(() => {
+		setCurrentPage(1)
+	}, [search])
 
 	const queryClient = useQueryClient()
 
