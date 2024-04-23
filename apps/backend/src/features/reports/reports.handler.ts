@@ -273,17 +273,15 @@ export const validateAdminReport = [
 	query('fromDate').trim().optional(),
 	query('toDate').trim().optional(),
 	query('vendor').trim().optional(),
-	query('category').trim().optional(),
 ]
 
 export const getAdminReport: RequestHandler = async (req, res, next) => {
 	try {
-		const { datePreset, fromDate, toDate, vendor, category } = validateRequest<{
+		const { datePreset, fromDate, toDate, vendor } = validateRequest<{
 			datePreset?: string
 			fromDate?: string
 			toDate?: string
 			vendor?: string
-			category?: string
 		}>(req)
 
 		let startDate: Date,
