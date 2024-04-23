@@ -67,7 +67,7 @@ const CustomLoader = <T,>({
 		const expectedArray = query.data[arrayKey]
 		if (Array.isArray(expectedArray) && expectedArray.length === 0) {
 			return (
-				<div className='flex flex-col items-center justify-center text-center'>
+				<div className='flex flex-col items-center justify-center text-center gap-6'>
 					<p className='text-2xl font-bold text-gray-800'>
 						{typeof emptyMessage === 'function'
 							? emptyMessage(query.data)
