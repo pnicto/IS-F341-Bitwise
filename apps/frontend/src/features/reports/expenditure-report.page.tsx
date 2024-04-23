@@ -103,96 +103,100 @@ const ExpenditureReportsPage = () => {
 	})
 
 	return (
-		<CustomLoader
-			query={userExpenditureQuery}
-			errorMessage='Failed to fetch user expenditure report'
-		>
-			{(data) => {
-				const totalAmount = data.expenditure.reduce(
-					(acc, current) => acc + current.value,
-					0,
-				)
+		<div className='flex flex-col gap-2'>
+			<h1>Expenditure Report</h1>
+			<Group justify='center' className='py-4'>
+				<Select
+					label='Range'
+					defaultValue='month'
+					data={[
+						{ value: 'day', label: 'Day' },
+						{ value: 'week', label: 'Week' },
+						{ value: 'month', label: 'Month' },
+						{ value: 'year', label: 'Year' },
+						{ value: '', label: 'Auto' },
+					]}
+					allowDeselect={false}
+					{...filterForm.getInputProps('preset')}
+				/>
+				<DateTimePicker
+					{...filterForm.getInputProps('fromDate')}
+					label='Start Date'
+					placeholder='Start Date'
+				/>
+				<DateTimePicker
+					{...filterForm.getInputProps('toDate')}
+					label='End Date'
+					placeholder='End Date'
+				/>
+				<Button onClick={filterForm.reset}>Clear Filters</Button>
+			</Group>
+			<CustomLoader
+				query={userExpenditureQuery}
+				errorMessage='Failed to fetch user expenditure report'
+			>
+				{(data) => {
+					const totalAmount = data.expenditure.reduce(
+						(acc, current) => acc + current.value,
+						0,
+					)
 
-				return (
-					<div className='flex flex-col gap-2'>
-						<h1>Expenditure Report</h1>
-						<Group justify='center' className='py-4'>
-							<Select
-								label='Range'
-								defaultValue='month'
-								data={[
-									{ value: 'day', label: 'Day' },
-									{ value: 'week', label: 'Week' },
-									{ value: 'month', label: 'Month' },
-									{ value: 'year', label: 'Year' },
-									{ value: '', label: 'Auto' },
-								]}
-								allowDeselect={false}
-								{...filterForm.getInputProps('preset')}
-							/>
-							<DateTimePicker
-								{...filterForm.getInputProps('fromDate')}
-								label='Start Date'
-								placeholder='Start Date'
-							/>
-							<DateTimePicker
-								{...filterForm.getInputProps('toDate')}
-								label='End Date'
-								placeholder='End Date'
-							/>
-							<Button onClick={filterForm.reset}>Clear Filters</Button>
-						</Group>
-						{data.expenditure.length === 0 ? (
-							<div className='pt-8'>
-								<h2>
-									No transactions found for period{' '}
-									{data.startDate.toLocaleDateString()} -{' '}
-									{data.endDate.toLocaleDateString()}
-								</h2>
-							</div>
-						) : (
-							<>
-								<DonutChart
-									withLabelsLine
-									withLabels
-									size={200}
-									data={data.expenditure}
-									withTooltip
-									tooltipDataSource='segment'
-									mx='auto'
-								/>
-								<h2>
-									{data.startDate.toLocaleDateString()} -{' '}
-									{data.endDate.toLocaleDateString()}
-								</h2>
-								{data.expenditure
-									.slice(
-										(currentPage - 1) * numberOfItems,
-										(currentPage - 1) * numberOfItems + numberOfItems,
-									)
-									.map((category, index) => (
-										<ExpenditureItemCard
-											key={index}
-											name={category.name}
-											amount={category.value}
-											totalAmount={totalAmount}
-											color={category.color}
-										/>
-									))}
-								<div className='flex flex-col items-center'>
-									<Pagination
-										total={Math.ceil(data.expenditure.length / numberOfItems)}
-										value={currentPage}
-										onChange={setCurrentPage}
-										mt='sm'
-									/>
+					return (
+						<div className='flex flex-col gap-2'>
+							{data.expenditure.length === 0 ? (
+								<div className='pt-8'>
+									<h2>
+										No transactions found for period{' '}
+										{data.startDate.toLocaleDateString()} -{' '}
+										{data.endDate.toLocaleDateString()}
+									</h2>
 								</div>
-							</>
-						)}
-					</div>
-				)
-			}}
-		</CustomLoader>
+							) : (
+								<>
+								<div className='flex flex-row items-center'>
+									<DonutChart
+										withLabelsLine
+										withLabels
+										size={200}
+										data={data.expenditure}
+										withTooltip
+										tooltipDataSource='segment'
+										w={400}
+										mx='auto'
+									/></div>
+									<h2>
+										{data.startDate.toLocaleDateString()} -{' '}
+										{data.endDate.toLocaleDateString()}
+									</h2>
+									{data.expenditure
+										.slice(
+											(currentPage - 1) * numberOfItems,
+											(currentPage - 1) * numberOfItems + numberOfItems,
+										)
+										.map((category, index) => (
+											<ExpenditureItemCard
+												key={index}
+												name={category.name}
+												amount={category.value}
+												totalAmount={totalAmount}
+												color={category.color}
+											/>
+										))}
+									<div className='flex flex-col items-center'>
+										<Pagination
+											total={Math.ceil(data.expenditure.length / numberOfItems)}
+											value={currentPage}
+											onChange={setCurrentPage}
+											mt='sm'
+										/>
+									</div>
+								</>
+							)}
+						</div>
+					)
+				}}
+			</CustomLoader>
+		</div>
 	)
 }
 
