@@ -153,17 +153,18 @@ const ExpenditureReportsPage = () => {
 								</div>
 							) : (
 								<>
-								<div className='flex flex-row items-center'>
-									<DonutChart
-										withLabelsLine
-										withLabels
-										size={200}
-										data={data.expenditure}
-										withTooltip
-										tooltipDataSource='segment'
-										w={400}
-										mx='auto'
-									/></div>
+									<div className='flex flex-row items-center'>
+										<DonutChart
+											withLabelsLine
+											withLabels
+											size={200}
+											data={data.expenditure}
+											withTooltip
+											tooltipDataSource='segment'
+											w={400}
+											mx='auto'
+										/>
+									</div>
 									<h2>
 										{data.startDate.toLocaleDateString()} -{' '}
 										{data.endDate.toLocaleDateString()}
