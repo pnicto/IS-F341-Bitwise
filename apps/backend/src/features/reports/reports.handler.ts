@@ -591,6 +591,9 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			where: {
 				vendorId: vendorObj ? vendorObj.id : undefined,
 			},
+			orderBy: {
+				categoryName: 'asc',
+			},
 		})
 
 		const uniqueReceivers = await prisma.transaction.findMany({
