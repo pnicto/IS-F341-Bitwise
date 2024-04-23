@@ -443,9 +443,20 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			},
 		})
 
-		const productsbyCategory = await prisma.product.groupBy({
+		let vendorObj
+		if (vendor) {
+			vendorObj = await prisma.user.findFirst({
+				where: {
+					shopName: vendor,
+				},
+			})
+		}
+		const productsByCategory = await prisma.product.groupBy({
 			by: ['categoryName'],
 			_count: true,
+			where: {
+				vendorId: vendorObj ? vendorObj.id : undefined,
+			},
 		})
 
 		const uniqueReceivers = await prisma.transaction.findMany({
@@ -526,7 +537,7 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			intervalData,
 			shopCount: shopCount._count.shopName,
 			disabledCount: disabledCount._count,
-			productsbyCategory,
+			productsByCategory,
 			activeUserCount: activeUsers.size - shopCount._count.shopName,
 			cashFlow: cashFlow,
 		})
