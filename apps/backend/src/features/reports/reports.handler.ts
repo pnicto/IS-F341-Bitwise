@@ -405,23 +405,23 @@ export const getCategorizedExpenditure: RequestHandler = async (
 }
 
 export const validateAdminReport = [
-	query('datePreset')
+	query('preset')
 		.trim()
 		.isIn(['day', 'week', 'month', 'year', 'hour', ''])
 		.optional()
 		.withMessage('Invalid preset'),
 	query('fromDate').trim().optional(),
 	query('toDate').trim().optional(),
-	query('vendor').trim().optional(),
+	query('shopName').trim().optional(),
 ]
 
 export const getAdminReport: RequestHandler = async (req, res, next) => {
 	try {
-		const { datePreset, fromDate, toDate, vendor } = validateRequest<{
-			datePreset?: string
+		const { preset, fromDate, toDate, shopName } = validateRequest<{
+			preset?: string
 			fromDate?: string
 			toDate?: string
-			vendor?: string
+			shopName?: string
 		}>(req)
 
 		let startDate: Date,
@@ -437,22 +437,18 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			throw new BadRequest('Invalid date format')
 		}
 
-		if (datePreset && fromDate && toDate) {
+		if (preset && fromDate && toDate) {
 			const diffInDays = toDateObj.diff(fromDateObj, 'day') + 1
 			compareStartDate = fromDateObj.subtract(diffInDays, 'day').toDate()
 			compareEndDate = fromDateObj.subtract(1, 'day').toDate()
 			startDate = fromDateObj.toDate()
 			endDate = toDateObj.toDate()
 
-			intervals = getTimeIntervals(
-				startDate,
-				endDate,
-				datePreset as ManipulateType,
-			)
-		} else if (datePreset) {
+			intervals = getTimeIntervals(startDate, endDate, preset as ManipulateType)
+		} else if (preset) {
 			// eslint-disable-next-line @typescript-eslint/no-extra-semi
 			;({ startDate, endDate, compareStartDate, compareEndDate, intervals } =
-				getStartAndEndDates(datePreset))
+				getStartAndEndDates(preset))
 		} else if (fromDate && toDate) {
 			const diffInDays = toDateObj.diff(fromDateObj, 'day')
 			const diffInHours = toDateObj.diff(fromDateObj, 'hour')
@@ -482,7 +478,7 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 
 		const currentTransactions = await prisma.transaction.findMany({
 			where: {
-				receiverUsername: vendor ? vendor : undefined,
+				receiverUsername: shopName ? shopName : undefined,
 				createdAt: {
 					gte: startDate,
 					lte: endDate,
@@ -492,7 +488,7 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 
 		const compareTransactions = await prisma.transaction.findMany({
 			where: {
-				receiverUsername: vendor ? vendor : undefined,
+				receiverUsername: shopName ? shopName : undefined,
 				createdAt: {
 					gte: compareStartDate,
 					lte: compareEndDate,
@@ -514,7 +510,7 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 		let compareVendorUniqueVisitorsCount = 0,
 			compareTotalUniqueVisitorsCount = 0
 		let intervalData
-		if (vendor) {
+		if (shopName) {
 			currentTransactions.forEach((transaction) => {
 				currentVendorUniqueVisitors.add(transaction.senderUsername)
 				currentVendorIncome += transaction.amount
@@ -582,10 +578,10 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 		})
 
 		let vendorObj
-		if (vendor) {
+		if (shopName) {
 			vendorObj = await prisma.user.findFirst({
 				where: {
-					shopName: vendor,
+					shopName,
 				},
 			})
 		}
