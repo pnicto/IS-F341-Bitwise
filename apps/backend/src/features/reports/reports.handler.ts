@@ -479,6 +479,37 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			activeUsers.add(Object.values(s)[0])
 		}
 
+		const cashFlow = await prisma.transaction.aggregateRaw({
+			pipeline: [
+				{
+					$group: {
+						_id: {
+							$dateToString: {
+								format: '%Y-%m-%d',
+								date: '$createdAt',
+							},
+						},
+						total: {
+							$sum: '$amount',
+						},
+					},
+				},
+				{
+					$match: {
+						_id: {
+							$gte: fromDateObj.format('YYYY-MM-DD'),
+							$lte: toDateObj.format('YYYY-MM-DD'),
+						},
+					},
+				},
+				{
+					$sort: {
+						_id: 1,
+					},
+				},
+			],
+		})
+
 		return res.status(StatusCodes.OK).json({
 			uniqueVisitorsCount: {
 				currentVendorUniqueVisitorsCount,
@@ -497,6 +528,7 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			disabledCount: disabledCount._count,
 			productsbyCategory,
 			activeUserCount: activeUsers.size - shopCount._count.shopName,
+			cashFlow: cashFlow,
 		})
 	} catch (err) {
 		next(err)
