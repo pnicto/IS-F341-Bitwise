@@ -14,7 +14,6 @@ type TimelineReport = {
 		sentAmount: number
 		receivedAmount: number
 	}[]
-	format: string
 	current: {
 		sent: number
 		received: number

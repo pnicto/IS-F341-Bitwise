@@ -8,8 +8,8 @@ import { BadRequest, Forbidden } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 import {
+	calculateUserDataForInterval,
 	calculateVendorDataForInterval,
-	getDateFormat,
 	getStartAndEndDates,
 	getTimeIntervals,
 } from './reports.utils'
@@ -170,7 +170,7 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 			endDate: Date,
 			compareStartDate: Date,
 			compareEndDate: Date,
-			format = 'DD/MM'
+			intervals: Date[][]
 
 		const fromDateObj = dayjs(fromDate)
 		const toDateObj = dayjs(toDate)
@@ -186,26 +186,36 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 			startDate = fromDateObj.toDate()
 			endDate = toDateObj.toDate()
 
-			format = getDateFormat(startDate, endDate, preset as ManipulateType)
+			intervals = getTimeIntervals(startDate, endDate, preset as ManipulateType)
 		} else if (preset) {
 			// eslint-disable-next-line @typescript-eslint/no-extra-semi
-			;({ startDate, endDate, compareStartDate, compareEndDate } =
+			;({ startDate, endDate, compareStartDate, compareEndDate, intervals } =
 				getStartAndEndDates(preset))
-
-			format = getDateFormat(startDate, endDate, preset as ManipulateType)
 		} else if (fromDate && toDate) {
-			const diffInDays = toDateObj.diff(fromDateObj, 'day') + 1
+			const diffInDays = toDateObj.diff(fromDateObj, 'day')
+			const diffInHours = toDateObj.diff(fromDateObj, 'hour')
+			let intervalUnit: ManipulateType
+
+			if (diffInDays >= 28) {
+				intervalUnit = 'month'
+			} else if (diffInDays > 6) {
+				intervalUnit = 'week'
+			} else if (diffInDays >= 1 && diffInHours > 1) {
+				intervalUnit = 'day'
+			} else {
+				intervalUnit = 'hour'
+			}
+
 			compareStartDate = fromDateObj.subtract(diffInDays, 'day').toDate()
 			compareEndDate = fromDateObj.subtract(1, 'day').toDate()
 			startDate = fromDateObj.toDate()
 			endDate = toDateObj.toDate()
 
-			format = getDateFormat(startDate, endDate, undefined)
+			intervals = getTimeIntervals(startDate, endDate, intervalUnit)
 		} else {
 			// eslint-disable-next-line @typescript-eslint/no-extra-semi
-			;({ startDate, endDate, compareStartDate, compareEndDate } =
+			;({ startDate, endDate, compareStartDate, compareEndDate, intervals } =
 				getStartAndEndDates('month'))
-			format = getDateFormat(startDate, endDate, 'month')
 		}
 
 		const transactionsMadeThisPeriod = await prisma.transaction.findMany({
@@ -228,71 +238,20 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 		let sentAmount = 0,
 			receivedAmount = 0
 
-		const combinedTransactions: Record<
-			string,
-			{ sentAmount: number; receivedAmount: number }
-		> = {}
-
 		transactionsMadeThisPeriod.forEach((transaction) => {
-			const label = dayjs(transaction.createdAt).format(format)
-			if (combinedTransactions[label]) {
-				if (transaction.senderUsername === user.username) {
-					combinedTransactions[label].sentAmount += transaction.amount
-					sentAmount += transaction.amount
-				} else {
-					combinedTransactions[label].receivedAmount += transaction.amount
-					receivedAmount += transaction.amount
-				}
+			if (transaction.senderUsername === user.username) {
+				sentAmount += transaction.amount
 			} else {
-				if (transaction.senderUsername === user.username) {
-					combinedTransactions[label] = {
-						sentAmount: transaction.amount,
-						receivedAmount: 0,
-					}
-					sentAmount += transaction.amount
-				} else {
-					combinedTransactions[label] = {
-						sentAmount: 0,
-						receivedAmount: transaction.amount,
-					}
-					receivedAmount += transaction.amount
-				}
+				receivedAmount += transaction.amount
 			}
 		})
 
-		// Add padding data points to ensure time period shown in graph is same as the one user entered
-		const startDateLabel = dayjs(startDate).format(format)
-		const endDateLabel = dayjs(endDate).format(format)
-
-		if (combinedTransactions[startDateLabel] === undefined) {
-			combinedTransactions[startDateLabel] = {
-				receivedAmount: 0,
-				sentAmount: 0,
-			}
-		}
-		if (combinedTransactions[endDateLabel] === undefined) {
-			combinedTransactions[endDateLabel] = {
-				receivedAmount: 0,
-				sentAmount: 0,
-			}
-		}
-
-		const combinedTimeline: {
-			label: string
-			sentAmount: number
-			receivedAmount: number
-		}[] = []
-
-		for (const label in combinedTransactions) {
-			combinedTimeline.push({
-				label,
-				receivedAmount: combinedTransactions[label].receivedAmount,
-				sentAmount: combinedTransactions[label].sentAmount,
-			})
-		}
-
-		combinedTimeline.sort((a, b) =>
-			dayjs(a.label, format).isBefore(dayjs(b.label, format)) ? -1 : 1,
+		const timeline = intervals.map((interval) =>
+			calculateUserDataForInterval(
+				transactionsMadeThisPeriod,
+				interval,
+				user.username,
+			),
 		)
 
 		const transactionsMadePreviousPeriod = await prisma.transaction.findMany({
@@ -328,8 +287,7 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 		)
 
 		return res.json({
-			timeline: combinedTimeline,
-			format: format,
+			timeline,
 			current: {
 				sent: sentAmount,
 				received: receivedAmount,

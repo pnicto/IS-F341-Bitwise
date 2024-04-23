@@ -147,39 +147,47 @@ export const getStartAndEndDates = (preset: string) => {
 	}
 }
 
-export const getDateFormat = (
-	startDate: Date,
-	endDate: Date,
-	preset: ManipulateType | undefined,
+export const calculateUserDataForInterval = (
+	transactions: Transaction[],
+	interval: Date[],
+	username: string,
 ) => {
+	let label: string
+	const [startDate, endDate] = interval
 	const startDay = dayjs(startDate)
 	const endDay = dayjs(endDate)
-
 	const diffDays = endDay.diff(startDay, 'day') + 1
 	const diffHours = endDay.diff(startDay, 'hour')
 
-	if (preset) {
-		switch (preset) {
-			case 'hour':
-				return 'HH:mm'
-			case 'day':
-				return 'dddd'
-			case 'week':
-				return 'DD/MM'
-			case 'month':
-				return 'DD/MM'
-			case 'year':
-				return 'MMMM YY'
-		}
+	if (diffDays >= 28) {
+		label = startDay.format('MMMM')
+	} else if (diffDays >= 2) {
+		label = startDay.format('DD/MM')
+	} else if (diffDays === 1 && diffHours > 1) {
+		label = startDay.format('dddd')
+	} else {
+		label = startDay.format('HH:mm')
 	}
 
-	if (diffDays >= 28) {
-		return 'MMMM YY'
-	} else if (diffDays >= 2) {
-		return 'DD/MM'
-	} else if (diffDays === 1 && diffHours > 1) {
-		return 'dddd'
-	} else {
-		return 'HH:mm'
+	const filteredTransactions = transactions.filter(
+		(transaction) =>
+			transaction.createdAt >= startDate && transaction.createdAt <= endDate,
+	)
+
+	let sentAmount = 0,
+		receivedAmount = 0
+
+	filteredTransactions.forEach((transaction) => {
+		if (transaction.senderUsername === username) {
+			sentAmount += transaction.amount
+		} else {
+			receivedAmount += transaction.amount
+		}
+	})
+
+	return {
+		sentAmount,
+		receivedAmount,
+		label,
 	}
 }
