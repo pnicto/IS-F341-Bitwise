@@ -7,6 +7,7 @@ type Props<T> = {
 	errorMessage: string
 	query: UseQueryResult<T, unknown>
 	arrayKey?: keyof T
+	emptyMessage?: string | ((data: T) => string)
 }
 
 const CustomLoader = <T,>({
@@ -14,6 +15,7 @@ const CustomLoader = <T,>({
 	errorMessage,
 	query,
 	arrayKey,
+	emptyMessage = "Hmm... It seems there's nothing to show here.",
 }: Props<T>) => {
 	if (query.isError || query.failureReason) {
 		const errors: { msg: string }[] = []
@@ -65,9 +67,11 @@ const CustomLoader = <T,>({
 		const expectedArray = query.data[arrayKey]
 		if (Array.isArray(expectedArray) && expectedArray.length === 0) {
 			return (
-				<div className='flex flex-col items-center justify-center text-center'>
+				<div className='flex flex-col items-center justify-center text-center gap-6'>
 					<p className='text-2xl font-bold text-gray-800'>
-						Hmm... It seems there's nothing to show here.
+						{typeof emptyMessage === 'function'
+							? emptyMessage(query.data)
+							: emptyMessage}
 					</p>
 					<img
 						src='/undraw_empty.svg'
