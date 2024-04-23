@@ -104,6 +104,7 @@ const TransactionHistory = () => {
 			toDate: '',
 			minAmount: '',
 			maxAmount: '',
+			tags: [],
 		},
 		transformValues: (values) => ({
 			fromDate: values.fromDate ? new Date(values.fromDate).toISOString() : '',
@@ -169,14 +170,23 @@ const TransactionHistory = () => {
 				toDate: filterFormTransformedValues.toDate,
 				minAmount: filterFormValues.minAmount,
 				maxAmount: filterFormValues.maxAmount,
+				tags: filterFormValues.tags,
 			},
 		],
 		queryFn: async () => {
+			let tagString = ''
+
+			filterFormValues.tags.forEach((tag) => {
+				if (tag !== '') {
+					tagString += `&tags[]=${tag}`
+				}
+			})
+
 			const response = await axios.get<{
 				transactions: HistoryItem[]
 				totalPages: number
 			}>(
-				`/transactions/view?items=${numberOfItems}&page=${currentPage}&transactionType=${filterFormValues.transactionType}&fromUser=${filterFormValues.fromUser}&toUser=${filterFormValues.toUser}&fromDate=${filterFormTransformedValues.fromDate}&toDate=${filterFormTransformedValues.toDate}&minAmount=${filterFormValues.minAmount}&maxAmount=${filterFormValues.maxAmount}`,
+				`/transactions/view?items=${numberOfItems}&page=${currentPage}&transactionType=${filterFormValues.transactionType}&fromUser=${filterFormValues.fromUser}&toUser=${filterFormValues.toUser}&fromDate=${filterFormTransformedValues.fromDate}&toDate=${filterFormTransformedValues.toDate}&minAmount=${filterFormValues.minAmount}&maxAmount=${filterFormValues.maxAmount}${tagString}`,
 			)
 			return response.data
 		},
@@ -348,6 +358,26 @@ const TransactionHistory = () => {
 								leftSection={<Icon icon='lucide:indian-rupee' />}
 								{...filterForm.getInputProps('maxAmount')}
 							/>
+						</Group>
+						<Group justify='center'>
+							<CustomLoader
+								errorMessage={"Couldn't get your tags"}
+								query={userQuery}
+							>
+								{(data) => (
+									<TagsInput
+										label='Select Tags'
+										placeholder='Pick value or enter anything'
+										data={data.user.tags}
+										filter={optionsFilter}
+										comboboxProps={{
+											transitionProps: { transition: 'pop', duration: 200 },
+										}}
+										{...filterForm.getInputProps('tags')}
+										clearable
+									/>
+								)}
+							</CustomLoader>
 							<Button onClick={filterForm.reset}>Clear All Filters</Button>
 						</Group>
 					</Stack>
