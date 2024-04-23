@@ -134,6 +134,10 @@ const ExpenditureReportsPage = () => {
 			<CustomLoader
 				query={userExpenditureQuery}
 				errorMessage='Failed to fetch user expenditure report'
+				arrayKey='expenditure'
+				emptyMessage={(data) =>
+					`No expenditure data found for ${data.startDate.toLocaleDateString()} - ${data.endDate.toLocaleDateString()}`
+				}
 			>
 				{(data) => {
 					const totalAmount = data.expenditure.reduce(
@@ -143,56 +147,44 @@ const ExpenditureReportsPage = () => {
 
 					return (
 						<div className='flex flex-col gap-2'>
-							{data.expenditure.length === 0 ? (
-								<div className='pt-8'>
-									<h2>
-										No transactions found for period{' '}
-										{data.startDate.toLocaleDateString()} -{' '}
-										{data.endDate.toLocaleDateString()}
-									</h2>
-								</div>
-							) : (
-								<>
-									<div className='flex flex-row items-center'>
-										<DonutChart
-											withLabelsLine
-											withLabels
-											size={200}
-											data={data.expenditure}
-											withTooltip
-											tooltipDataSource='segment'
-											w={400}
-											mx='auto'
-										/>
-									</div>
-									<h2>
-										{data.startDate.toLocaleDateString()} -{' '}
-										{data.endDate.toLocaleDateString()}
-									</h2>
-									{data.expenditure
-										.slice(
-											(currentPage - 1) * numberOfItems,
-											(currentPage - 1) * numberOfItems + numberOfItems,
-										)
-										.map((category, index) => (
-											<ExpenditureItemCard
-												key={index}
-												name={category.name}
-												amount={category.value}
-												totalAmount={totalAmount}
-												color={category.color}
-											/>
-										))}
-									<div className='flex flex-col items-center'>
-										<Pagination
-											total={Math.ceil(data.expenditure.length / numberOfItems)}
-											value={currentPage}
-											onChange={setCurrentPage}
-											mt='sm'
-										/>
-									</div>
-								</>
-							)}
+							<div className='flex flex-row items-center'>
+								<DonutChart
+									withLabelsLine
+									withLabels
+									size={200}
+									data={data.expenditure}
+									withTooltip
+									tooltipDataSource='segment'
+									w={400}
+									mx='auto'
+								/>
+							</div>
+							<h2>
+								{data.startDate.toLocaleDateString()} -{' '}
+								{data.endDate.toLocaleDateString()}
+							</h2>
+							{data.expenditure
+								.slice(
+									(currentPage - 1) * numberOfItems,
+									(currentPage - 1) * numberOfItems + numberOfItems,
+								)
+								.map((category, index) => (
+									<ExpenditureItemCard
+										key={index}
+										name={category.name}
+										amount={category.value}
+										totalAmount={totalAmount}
+										color={category.color}
+									/>
+								))}
+							<div className='flex flex-col items-center'>
+								<Pagination
+									total={Math.ceil(data.expenditure.length / numberOfItems)}
+									value={currentPage}
+									onChange={setCurrentPage}
+									mt='sm'
+								/>
+							</div>
 						</div>
 					)
 				}}
