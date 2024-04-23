@@ -645,8 +645,8 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 				{
 					$match: {
 						_id: {
-							$gte: fromDateObj.format('YYYY-MM-DD'),
-							$lte: toDateObj.format('YYYY-MM-DD'),
+							$gte: dayjs(startDate).format('YYYY-MM-DD'),
+							$lte: dayjs(toDateObj).format('YYYY-MM-DD'),
 						},
 					},
 				},
