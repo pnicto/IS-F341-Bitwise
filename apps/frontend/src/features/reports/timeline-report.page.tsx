@@ -77,93 +77,97 @@ const TimelineReportPage = () => {
 	})
 
 	return (
-		<CustomLoader query={reportsQuery} errorMessage='Failed to fetch reports'>
-			{(data) => (
-				<>
-					<div className='pb-8 flex flex-row justify-end'>
-						<Button
-							component={Link}
-							to='/reports/expenditure'
-							className='flex flex-col items-center gap-3 justify-center'
-						>
-							<h2>Expenditure Report</h2>
-						</Button>
-					</div>
-					<Group justify='center' className='py-4'>
-						<Select
-							label='Range'
-							defaultValue='month'
-							data={[
-								{ value: 'hour', label: 'Hour' },
-								{ value: 'day', label: 'Day' },
-								{ value: 'week', label: 'Week' },
-								{ value: 'month', label: 'Month' },
-								{ value: 'year', label: 'Year' },
-								{ value: '', label: 'Auto' },
-							]}
-							allowDeselect={false}
-							{...filterForm.getInputProps('preset')}
-						/>
-						<DateTimePicker
-							{...filterForm.getInputProps('fromDate')}
-							label='Start Date'
-							placeholder='Start Date'
-						/>
-						<DateTimePicker
-							{...filterForm.getInputProps('toDate')}
-							label='End Date'
-							placeholder='End Date'
-						/>
-						<Button onClick={filterForm.reset}>Clear Filters</Button>
-					</Group>
-					<Group justify='center'>
-						<Stack gap={2}>
-							<h2 className='py-0 capitalize'>Current month</h2>
-							<Group>
-								<Card>
-									<h2>Amount sent</h2>
-									<p className='font-bold text-xl'>₹ {data.current.sent}</p>
-								</Card>
-								<Card>
-									<h2>Amount received</h2>
-									<p className='font-bold text-xl'>₹ {data.current.received}</p>
-								</Card>
-							</Group>
-						</Stack>
-						<Stack gap={2}>
-							<h2 className='py-0 capitalize'>Previous Month</h2>
-							<Group>
-								<Card>
-									<h2>Amount sent</h2>
-									<p className='font-bold text-xl'>₹ {data.previous.sent}</p>
-								</Card>
-								<Card>
-									<h2>Amount received</h2>
-									<p className='font-bold text-xl'>
-										₹ {data.previous.received}
-									</p>
-								</Card>
-							</Group>
-						</Stack>
-					</Group>
+		<>
+			<div className='pb-8 flex flex-row justify-end'>
+				<Button
+					component={Link}
+					to='/reports/expenditure'
+					className='flex flex-col items-center gap-3 justify-center'
+				>
+					<h2>Expenditure Report</h2>
+				</Button>
+			</div>
+			<Group justify='center' className='py-4'>
+				<Select
+					label='Range'
+					defaultValue='month'
+					data={[
+						{ value: 'hour', label: 'Hour' },
+						{ value: 'day', label: 'Day' },
+						{ value: 'week', label: 'Week' },
+						{ value: 'month', label: 'Month' },
+						{ value: 'year', label: 'Year' },
+						{ value: '', label: 'Auto' },
+					]}
+					allowDeselect={false}
+					{...filterForm.getInputProps('preset')}
+				/>
+				<DateTimePicker
+					{...filterForm.getInputProps('fromDate')}
+					label='Start Date'
+					placeholder='Start Date'
+				/>
+				<DateTimePicker
+					{...filterForm.getInputProps('toDate')}
+					label='End Date'
+					placeholder='End Date'
+				/>
+				<Button onClick={filterForm.reset}>Clear Filters</Button>
+			</Group>
+			<CustomLoader query={reportsQuery} errorMessage='Failed to fetch reports'>
+				{(data) => (
+					<>
+						<Group justify='center'>
+							<Stack gap={2}>
+								<h2 className='py-0 capitalize'>Current month</h2>
+								<Group>
+									<Card>
+										<h2>Amount sent</h2>
+										<p className='font-bold text-xl'>₹ {data.current.sent}</p>
+									</Card>
+									<Card>
+										<h2>Amount received</h2>
+										<p className='font-bold text-xl'>
+											₹ {data.current.received}
+										</p>
+									</Card>
+								</Group>
+							</Stack>
+							<Stack gap={2}>
+								<h2 className='py-0 capitalize'>Previous Month</h2>
+								<Group>
+									<Card>
+										<h2>Amount sent</h2>
+										<p className='font-bold text-xl'>₹ {data.previous.sent}</p>
+									</Card>
+									<Card>
+										<h2>Amount received</h2>
+										<p className='font-bold text-xl'>
+											₹ {data.previous.received}
+										</p>
+									</Card>
+								</Group>
+							</Stack>
+						</Group>
 
-					<h2 className='pt-8'>Cash Flow</h2>
-					<LineChart
-						data={data.timeline}
-						dataKey='label'
-						series={[
-							{
-								name: 'receivedAmount',
-								color: 'green',
-								label: 'Amount Received',
-							},
-							{ name: 'sentAmount', color: 'red', label: 'Amount Sent' },
-						]}
-						h={300}
-					/>
-				</>
-			)}
-		</CustomLoader>
+						<h2 className='pt-8'>Cash Flow</h2>
+						<LineChart
+							data={data.timeline}
+							dataKey='label'
+							series={[
+								{
+									name: 'receivedAmount',
+									color: 'green',
+									label: 'Amount Received',
+								},
+								{ name: 'sentAmount', color: 'red', label: 'Amount Sent' },
+							]}
+							h={300}
+						/>
+					</>
+				)}
+			</CustomLoader>
+		</>
 	)
 }
 
