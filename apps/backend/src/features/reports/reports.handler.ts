@@ -449,39 +449,31 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 		})
 
 		const uniqueReceivers = await prisma.transaction.findMany({
-			where: {},
+			where: {
+				createdAt: {
+					gte: dayjs().subtract(1, 'month').toISOString(),
+				},
+			},
 			distinct: ['receiverUsername'],
 			select: {
 				receiverUsername: true,
 			},
 		})
 		const uniqueSenders = await prisma.transaction.findMany({
-			where: {},
+			where: {
+				createdAt: {
+					gte: dayjs().subtract(1, 'month').toISOString(),
+				},
+			},
 			distinct: ['senderUsername'],
 			select: {
 				senderUsername: true,
 			},
 		})
 
-		const shops = await prisma.user.findMany({
-			where: {
-				NOT: {
-					shopName: null,
-				},
-			},
-			select: {
-				shopName: true,
-			},
-		})
-		const shopList = []
-		for (const shop of shops) {
-			shopList.push(Object.values(shop)[0])
-		}
 		const activeUsers = new Set()
 		for (const r of uniqueReceivers) {
-			if (!shopList.includes(Object.values(r)[0])) {
-				activeUsers.add(Object.values(r)[0])
-			}
+			activeUsers.add(Object.values(r)[0])
 		}
 		for (const s of uniqueSenders) {
 			activeUsers.add(Object.values(s)[0])
@@ -504,7 +496,7 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			shopCount: shopCount._count.shopName,
 			disabledCount: disabledCount._count,
 			productsbyCategory,
-			activeUserCount: activeUsers.size,
+			activeUserCount: activeUsers.size - shopCount._count.shopName,
 		})
 	} catch (err) {
 		next(err)
