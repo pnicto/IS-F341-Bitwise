@@ -7,6 +7,7 @@ import { BadRequest, Forbidden } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 import {
+	calculateUserDataForInterval,
 	calculateVendorDataForInterval,
 	getStartAndEndDates,
 	getTimeIntervals,
@@ -143,14 +144,82 @@ export const getVendorReport: RequestHandler = async (req, res, next) => {
 	}
 }
 
+export const validateTimelineReport = [
+	query('preset')
+		.trim()
+		.isIn(['day', 'week', 'month', 'year', 'hour', ''])
+		.optional()
+		.withMessage('Invalid preset'),
+	query('fromDate').trim().optional(),
+	query('toDate').trim().optional(),
+]
 export const getTimelineReport: RequestHandler = async (req, res, next) => {
 	try {
 		const user = getAuthorizedUser(req)
-		const transactionsMadeThisMonth = await prisma.transaction.findMany({
+
+		const { preset, fromDate, toDate } = validateRequest<{
+			preset?: string
+			fromDate?: string
+			toDate?: string
+		}>(req)
+
+		let startDate: Date,
+			endDate: Date,
+			compareStartDate: Date,
+			compareEndDate: Date,
+			intervals: Date[][]
+
+		const fromDateObj = dayjs(fromDate)
+		const toDateObj = dayjs(toDate)
+
+		if (fromDate && toDate && !(fromDateObj.isValid() && toDateObj.isValid())) {
+			throw new BadRequest('Invalid date format')
+		}
+
+		if (preset && fromDate && toDate) {
+			const diffInDays = toDateObj.diff(fromDateObj, 'day') + 1
+			compareStartDate = fromDateObj.subtract(diffInDays, 'day').toDate()
+			compareEndDate = fromDateObj.subtract(1, 'day').toDate()
+			startDate = fromDateObj.toDate()
+			endDate = toDateObj.toDate()
+
+			intervals = getTimeIntervals(startDate, endDate, preset as ManipulateType)
+		} else if (preset) {
+			// eslint-disable-next-line @typescript-eslint/no-extra-semi
+			;({ startDate, endDate, compareStartDate, compareEndDate, intervals } =
+				getStartAndEndDates(preset))
+		} else if (fromDate && toDate) {
+			const diffInDays = toDateObj.diff(fromDateObj, 'day')
+			const diffInHours = toDateObj.diff(fromDateObj, 'hour')
+			let intervalUnit: ManipulateType
+
+			if (diffInDays >= 28) {
+				intervalUnit = 'month'
+			} else if (diffInDays > 6) {
+				intervalUnit = 'week'
+			} else if (diffInDays >= 1 && diffInHours > 1) {
+				intervalUnit = 'day'
+			} else {
+				intervalUnit = 'hour'
+			}
+
+			compareStartDate = fromDateObj.subtract(diffInDays, 'day').toDate()
+			compareEndDate = fromDateObj.subtract(1, 'day').toDate()
+			startDate = fromDateObj.toDate()
+			endDate = toDateObj.toDate()
+
+			intervals = getTimeIntervals(startDate, endDate, intervalUnit)
+		} else {
+			// eslint-disable-next-line @typescript-eslint/no-extra-semi
+			;({ startDate, endDate, compareStartDate, compareEndDate, intervals } =
+				getStartAndEndDates('month'))
+		}
+
+		const transactionsMadeThisPeriod = await prisma.transaction.findMany({
 			where: {
 				createdAt: {
-					gte: dayjs().startOf('month').toDate(),
-					lte: dayjs().endOf('month').toDate(),
+					gte: startDate,
+					lte: endDate,
 				},
 				OR: [
 					{
@@ -166,61 +235,27 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 		let sentAmount = 0,
 			receivedAmount = 0
 
-		const combinedTransactions: Record<
-			string,
-			{ sentAmount: number; receivedAmount: number }
-		> = {}
-
-		transactionsMadeThisMonth.forEach((transaction) => {
-			const label = dayjs(transaction.createdAt).format('DD/MM')
-			if (combinedTransactions[label]) {
-				if (transaction.senderUsername === user.username) {
-					combinedTransactions[label].sentAmount += transaction.amount
-					sentAmount += transaction.amount
-				} else {
-					combinedTransactions[label].receivedAmount += transaction.amount
-					receivedAmount += transaction.amount
-				}
+		transactionsMadeThisPeriod.forEach((transaction) => {
+			if (transaction.senderUsername === user.username) {
+				sentAmount += transaction.amount
 			} else {
-				if (transaction.senderUsername === user.username) {
-					combinedTransactions[label] = {
-						sentAmount: transaction.amount,
-						receivedAmount: 0,
-					}
-					sentAmount += transaction.amount
-				} else {
-					combinedTransactions[label] = {
-						sentAmount: 0,
-						receivedAmount: transaction.amount,
-					}
-					receivedAmount += transaction.amount
-				}
+				receivedAmount += transaction.amount
 			}
 		})
 
-		const combinedTimeline: {
-			label: string
-			sentAmount: number
-			receivedAmount: number
-		}[] = []
-
-		for (const label in combinedTransactions) {
-			combinedTimeline.push({
-				label,
-				receivedAmount: combinedTransactions[label].receivedAmount,
-				sentAmount: combinedTransactions[label].sentAmount,
-			})
-		}
-
-		combinedTimeline.sort((a, b) =>
-			dayjs(a.label, 'DD/MM') < dayjs(b.label, 'DD/MM') ? -1 : 1,
+		const timeline = intervals.map((interval) =>
+			calculateUserDataForInterval(
+				transactionsMadeThisPeriod,
+				interval,
+				user.username,
+			),
 		)
 
-		const transactionsMadePreviousMonth = await prisma.transaction.findMany({
+		const transactionsMadePreviousPeriod = await prisma.transaction.findMany({
 			where: {
 				createdAt: {
-					gte: dayjs().subtract(1, 'month').startOf('month').toDate(),
-					lte: dayjs().subtract(1, 'month').endOf('month').toDate(),
+					gte: compareStartDate,
+					lte: compareEndDate,
 				},
 				OR: [
 					{
@@ -232,10 +267,10 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 				],
 			},
 		})
-		const sentPrevious = transactionsMadePreviousMonth.filter(
+		const sentPrevious = transactionsMadePreviousPeriod.filter(
 			(transaction) => transaction.senderUsername === user.username,
 		)
-		const receivedPrevious = transactionsMadePreviousMonth.filter(
+		const receivedPrevious = transactionsMadePreviousPeriod.filter(
 			(transaction) => transaction.receiverUsername === user.username,
 		)
 
@@ -249,7 +284,7 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 		)
 
 		return res.json({
-			timeline: combinedTimeline,
+			timeline,
 			current: {
 				sent: sentAmount,
 				received: receivedAmount,

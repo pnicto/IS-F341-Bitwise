@@ -6,6 +6,7 @@ import {
 	getTimelineReport,
 	getVendorReport,
 	validateCategorizedExpenditure,
+	validateTimelineReport,
 	validateVendorReport,
 } from './reports.handler'
 
@@ -28,5 +29,6 @@ reportsRouter.get(
 reportsRouter.get(
 	'/timeline',
 	authorize(Role.STUDENT, Role.VENDOR),
+	validateTimelineReport,
 	getTimelineReport,
 )
