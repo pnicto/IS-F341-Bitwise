@@ -23,8 +23,9 @@ import Login, { loginLoader } from './features/auth/login.page'
 import CreateProduct from './features/products/create-product.page'
 import EditProducts from './features/products/edit-products-page'
 import SearchProduct from './features/products/search-product.page'
-import TimelineReportPage from './features/reports/timeline-report.page'
+import AdminReportsPage from './features/reports/admin-reports.page'
 import UserReportsPage from './features/reports/expenditure-report.page'
+import TimelineReportPage from './features/reports/timeline-report.page'
 import VendorReportsPage from './features/reports/vendor-reports.page'
 import ProductList from './features/shops/products-list.page'
 import ShopList from './features/shops/shop-list.page'
@@ -96,6 +97,7 @@ const router = createBrowserRouter(
 						<Route path='add-account' element={<CreateAccount />} />
 						<Route path='bulk-add-account' element={<CreateAccountsBulk />} />
 						<Route path='manage-categories' element={<ManageCategories />} />
+						<Route path='reports' element={<AdminReportsPage />} />
 					</Route>
 				</Route>
 			</Route>
