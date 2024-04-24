@@ -36,6 +36,16 @@ const categories = CATEGORY_NAMES.map((categoryName) => {
 	return { name: categoryName }
 })
 
+const transactionTags = [
+	'groceries',
+	'stationery',
+	'misc',
+	'food',
+	'laundry',
+	'books',
+	'medicine',
+]
+
 // const images: any[] = []
 let imageIndex = 0
 
@@ -167,10 +177,7 @@ async function main() {
 	await prisma.product.createMany({ data: products })
 	console.log('Seeded products')
 
-	const transactions: Omit<
-		Transaction,
-		'id' | 'senderTags' | 'receiverTags'
-	>[] = []
+	const transactions: Omit<Transaction, 'id'>[] = []
 	const nonAdminUsers = await prisma.user.findMany({
 		where: { OR: [{ role: 'STUDENT' }, { role: 'VENDOR' }] },
 	})
@@ -186,6 +193,14 @@ async function main() {
 			senderUsername: faker.helpers.arrayElement(nonAdminUsers)['username'],
 			receiverUsername: v['shopName'] as string,
 			amount: product['price'],
+			senderTags: faker.helpers.arrayElements(transactionTags, {
+				min: 0,
+				max: transactionTags.length - 1,
+			}),
+			receiverTags: faker.helpers.arrayElements(transactionTags, {
+				min: 0,
+				max: transactionTags.length - 1,
+			}),
 			createdAt: faker.date.between({
 				from: '2022-01-01T00:00:00.000Z',
 				to: '2024-04-15T00:00:00.000Z',
@@ -201,6 +216,14 @@ async function main() {
 			senderUsername: participants[0].username,
 			receiverUsername: participants[1].username,
 			amount: parseInt(faker.commerce.price({ min: 1, max: 5000, dec: 0 })),
+			senderTags: faker.helpers.arrayElements(transactionTags, {
+				min: 0,
+				max: transactionTags.length - 1,
+			}),
+			receiverTags: faker.helpers.arrayElements(transactionTags, {
+				min: 0,
+				max: transactionTags.length - 1,
+			}),
 			createdAt: faker.date.between({
 				from: '2022-01-01T00:00:00.000Z',
 				to: '2024-04-15T00:00:00.000Z',
