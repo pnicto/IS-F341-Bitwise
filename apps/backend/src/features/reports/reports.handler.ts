@@ -7,6 +7,7 @@ import { BadRequest, Forbidden } from '../../errors/CustomErrors'
 import { getAuthorizedUser } from '../../utils/getAuthorizedUser'
 import { validateRequest } from '../../utils/validateRequest'
 import {
+	calculateCashFlowLabels,
 	calculateUserDataForInterval,
 	calculateVendorDataForInterval,
 	getStartAndEndDates,
@@ -509,7 +510,6 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 
 		let compareVendorUniqueVisitorsCount = 0,
 			compareTotalUniqueVisitorsCount = 0
-		let intervalData
 		if (shopName) {
 			currentTransactions.forEach((transaction) => {
 				currentVendorUniqueVisitors.add(transaction.senderUsername)
@@ -521,9 +521,6 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 				compareVendorIncome += transaction.amount
 			})
 			compareVendorUniqueVisitorsCount = compareVendorUniqueVisitors.size
-			intervalData = intervals.map((interval) =>
-				calculateVendorDataForInterval(currentTransactions, interval),
-			)
 
 			const totalCurrentTransactions = await prisma.transaction.findMany({
 				where: {
@@ -563,6 +560,9 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			})
 			compareTotalUniqueVisitorsCount = compareTotalUniqueVisitors.size
 		}
+		const intervalData = intervals.map((interval) =>
+			calculateVendorDataForInterval(currentTransactions, interval),
+		)
 
 		const shopCount = await prisma.user.aggregate({
 			_count: {
@@ -658,6 +658,12 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			],
 		})
 
+		const cashFlowWithLabel: { total: number; _id: string; label: string }[] =
+			[]
+		intervals.forEach((interval) => {
+			cashFlowWithLabel.push(...calculateCashFlowLabels(cashFlow, interval))
+		})
+
 		return res.status(StatusCodes.OK).json({
 			uniqueVisitorsCount: {
 				currentVendorUniqueVisitorsCount,
@@ -676,7 +682,7 @@ export const getAdminReport: RequestHandler = async (req, res, next) => {
 			disabledCount: disabledCount._count,
 			productsByCategory,
 			activeUserCount: activeUsers.size - shopCount._count.shopName,
-			cashFlow,
+			cashFlowWithLabel,
 		})
 	} catch (err) {
 		next(err)
