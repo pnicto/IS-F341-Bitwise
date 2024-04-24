@@ -7,7 +7,7 @@ export const getTimeIntervals = (
 	intervalUnit: ManipulateType,
 ) => {
 	const intervals = []
-	let currentIntervalStart = dayjs(startDate)
+	let currentIntervalStart = dayjs(startDate).startOf('day')
 	const end = dayjs(endDate)
 
 	while (currentIntervalStart.isBefore(end)) {
