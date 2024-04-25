@@ -1,8 +1,5 @@
-import { Prisma, Transaction } from '@prisma/client'
+import { Transaction } from '@prisma/client'
 import dayjs, { ManipulateType } from 'dayjs'
-import isBetween from 'dayjs/plugin/isBetween'
-
-dayjs.extend(isBetween)
 
 export const getTimeIntervals = (
 	startDate: Date,
@@ -67,41 +64,6 @@ export const calculateVendorDataForInterval = (
 		totalIncome,
 		label,
 	}
-}
-export const calculateCashFlowLabels = (
-	c: Prisma.JsonObject,
-	interval: Date[],
-) => {
-	let label: string
-	const [startDate, endDate] = interval
-	const startDay = dayjs(startDate)
-	const endDay = dayjs(endDate)
-	const diffDays = endDay.diff(startDay, 'day') + 1
-	const diffHours = endDay.diff(startDay, 'hour')
-
-	if (diffDays >= 28) {
-		label = startDay.format('MMMM')
-	} else if (diffDays >= 2) {
-		label = startDay.format('DD/MM')
-	} else if (diffDays === 1 && diffHours > 1) {
-		label = startDay.format('dddd')
-	} else {
-		label = startDay.format('HH:mm')
-	}
-
-	// prisma JsonObjects cannot be typecasted into anything hence this hack
-	const cashFlow = c as any as { total: number; _id: string; label: string }[]
-
-	const filteredCashFlow = cashFlow.filter((cashFlow) => {
-		const cashFlowDate = dayjs(cashFlow._id)
-		return cashFlowDate.isBetween(startDate, endDate, 'milliseconds', '[]')
-	})
-
-	filteredCashFlow.forEach((cashFlow) => {
-		cashFlow.label = label
-	})
-
-	return filteredCashFlow
 }
 
 export const getStartAndEndDates = (preset: string) => {
