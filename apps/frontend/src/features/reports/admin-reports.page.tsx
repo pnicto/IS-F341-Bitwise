@@ -29,10 +29,9 @@ type AdminReport = {
 		categoryName: string
 	}[]
 	activeUserCount: number
-	cashFlowWithLabel: {
+	cashFlow: {
 		_id: string
 		total: number
-		label: string
 	}[]
 }
 
@@ -311,8 +310,8 @@ const AdminReportsPage = () => {
 						<div>
 							<h2>Cashflow in the selected period</h2>
 							<LineChart
-								data={data.cashFlowWithLabel}
-								dataKey='label'
+								data={data.cashFlow}
+								dataKey='_id'
 								series={[{ name: 'total', color: 'blue' }]}
 								h={300}
 							/>
