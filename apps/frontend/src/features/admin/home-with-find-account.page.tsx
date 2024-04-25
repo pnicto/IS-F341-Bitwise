@@ -46,6 +46,11 @@ const navigationOptions: RouteOption[] = [
 		label: 'Manage Product Categories',
 		path: '/admin/manage-categories',
 	},
+	{
+		icon: <Icon icon='lucide:file-bar-chart' />,
+		label: 'Reports',
+		path: '/admin/reports',
+	},
 ]
 
 const GridItem = ({ icon, label, path }: RouteOption) => {

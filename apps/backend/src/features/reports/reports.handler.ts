@@ -416,3 +416,282 @@ export const getCategorizedExpenditure: RequestHandler = async (
 		next(err)
 	}
 }
+
+export const validateAdminReport = [
+	query('preset')
+		.trim()
+		.isIn(['day', 'week', 'month', 'year', 'hour', ''])
+		.optional()
+		.withMessage('Invalid preset'),
+	query('fromDate').trim().optional(),
+	query('toDate').trim().optional(),
+	query('shopName').trim().optional(),
+]
+
+export const getAdminReport: RequestHandler = async (req, res, next) => {
+	try {
+		const { preset, fromDate, toDate, shopName } = validateRequest<{
+			preset?: string
+			fromDate?: string
+			toDate?: string
+			shopName?: string
+		}>(req)
+
+		let startDate: Date,
+			endDate: Date,
+			compareStartDate: Date,
+			compareEndDate: Date,
+			intervals: Date[][]
+
+		const fromDateObj = dayjs(fromDate)
+		const toDateObj = dayjs(toDate)
+
+		if (fromDate && toDate && !(fromDateObj.isValid() && toDateObj.isValid())) {
+			throw new BadRequest('Invalid date format')
+		}
+
+		if (preset && fromDate && toDate) {
+			const diffInDays = toDateObj.diff(fromDateObj, 'day') + 1
+			compareStartDate = fromDateObj.subtract(diffInDays, 'day').toDate()
+			compareEndDate = fromDateObj.subtract(1, 'day').toDate()
+			startDate = fromDateObj.toDate()
+			endDate = toDateObj.toDate()
+
+			intervals = getTimeIntervals(startDate, endDate, preset as ManipulateType)
+		} else if (preset) {
+			// eslint-disable-next-line @typescript-eslint/no-extra-semi
+			;({ startDate, endDate, compareStartDate, compareEndDate, intervals } =
+				getStartAndEndDates(preset))
+		} else if (fromDate && toDate) {
+			const diffInDays = toDateObj.diff(fromDateObj, 'day')
+			const diffInHours = toDateObj.diff(fromDateObj, 'hour')
+			let intervalUnit: ManipulateType
+
+			if (diffInDays >= 28) {
+				intervalUnit = 'month'
+			} else if (diffInDays > 6) {
+				intervalUnit = 'week'
+			} else if (diffInDays >= 1 && diffInHours > 1) {
+				intervalUnit = 'day'
+			} else {
+				intervalUnit = 'hour'
+			}
+
+			compareStartDate = fromDateObj.subtract(diffInDays, 'day').toDate()
+			compareEndDate = fromDateObj.subtract(1, 'day').toDate()
+			startDate = fromDateObj.toDate()
+			endDate = toDateObj.toDate()
+
+			intervals = getTimeIntervals(startDate, endDate, intervalUnit)
+		} else {
+			// eslint-disable-next-line @typescript-eslint/no-extra-semi
+			;({ startDate, endDate, compareStartDate, compareEndDate, intervals } =
+				getStartAndEndDates('month'))
+		}
+
+		const currentTransactions = await prisma.transaction.findMany({
+			where: {
+				receiverUsername: shopName ? shopName : undefined,
+				createdAt: {
+					gte: startDate,
+					lte: endDate,
+				},
+			},
+		})
+
+		const compareTransactions = await prisma.transaction.findMany({
+			where: {
+				receiverUsername: shopName ? shopName : undefined,
+				createdAt: {
+					gte: compareStartDate,
+					lte: compareEndDate,
+				},
+			},
+		})
+		const currentVendorUniqueVisitors = new Set(),
+			currentTotalUniqueVisitors = new Set()
+		let currentVendorIncome = 0,
+			currentTotalIncome = 0
+		let currentVendorUniqueVisitorsCount = 0,
+			currentTotalUniqueVisitorsCount = 0
+
+		const compareVendorUniqueVisitors = new Set(),
+			compareTotalUniqueVisitors = new Set()
+		let compareVendorIncome = 0,
+			compareTotalIncome = 0
+
+		let compareVendorUniqueVisitorsCount = 0,
+			compareTotalUniqueVisitorsCount = 0
+		let intervalData
+		if (shopName) {
+			currentTransactions.forEach((transaction) => {
+				currentVendorUniqueVisitors.add(transaction.senderUsername)
+				currentVendorIncome += transaction.amount
+			})
+			currentVendorUniqueVisitorsCount = currentVendorUniqueVisitors.size
+			compareTransactions.forEach((transaction) => {
+				compareVendorUniqueVisitors.add(transaction.senderUsername)
+				compareVendorIncome += transaction.amount
+			})
+			compareVendorUniqueVisitorsCount = compareVendorUniqueVisitors.size
+			intervalData = intervals.map((interval) =>
+				calculateVendorDataForInterval(currentTransactions, interval),
+			)
+
+			const totalCurrentTransactions = await prisma.transaction.findMany({
+				where: {
+					createdAt: {
+						gte: startDate,
+						lte: endDate,
+					},
+				},
+			})
+			const totalCompareTransactions = await prisma.transaction.findMany({
+				where: {
+					createdAt: {
+						gte: compareStartDate,
+						lte: compareEndDate,
+					},
+				},
+			})
+			totalCurrentTransactions.forEach((transaction) => {
+				currentTotalUniqueVisitors.add(transaction.senderUsername)
+				currentTotalIncome += transaction.amount
+			})
+			currentTotalUniqueVisitorsCount = currentTotalUniqueVisitors.size
+			totalCompareTransactions.forEach((transaction) => {
+				compareTotalUniqueVisitors.add(transaction.senderUsername)
+				compareTotalIncome += transaction.amount
+			})
+			compareTotalUniqueVisitorsCount = compareTotalUniqueVisitors.size
+		} else {
+			currentTransactions.forEach((transaction) => {
+				currentTotalUniqueVisitors.add(transaction.senderUsername)
+				currentTotalIncome += transaction.amount
+			})
+			currentTotalUniqueVisitorsCount = currentTotalUniqueVisitors.size
+			compareTransactions.forEach((transaction) => {
+				compareTotalUniqueVisitors.add(transaction.senderUsername)
+				compareTotalIncome += transaction.amount
+			})
+			compareTotalUniqueVisitorsCount = compareTotalUniqueVisitors.size
+		}
+
+		const shopCount = await prisma.user.aggregate({
+			_count: {
+				shopName: true,
+			},
+		})
+
+		const disabledCount = await prisma.user.aggregate({
+			_count: true,
+			where: {
+				enabled: false,
+			},
+		})
+
+		let vendorObj
+		if (shopName) {
+			vendorObj = await prisma.user.findFirst({
+				where: {
+					shopName,
+				},
+			})
+		}
+		const productsByCategory = await prisma.product.groupBy({
+			by: ['categoryName'],
+			_count: true,
+			where: {
+				vendorId: vendorObj ? vendorObj.id : undefined,
+			},
+			orderBy: {
+				categoryName: 'asc',
+			},
+		})
+
+		const uniqueReceivers = await prisma.transaction.findMany({
+			where: {
+				createdAt: {
+					gte: dayjs().subtract(1, 'month').toISOString(),
+				},
+			},
+			distinct: ['receiverUsername'],
+			select: {
+				receiverUsername: true,
+			},
+		})
+		const uniqueSenders = await prisma.transaction.findMany({
+			where: {
+				createdAt: {
+					gte: dayjs().subtract(1, 'month').toISOString(),
+				},
+			},
+			distinct: ['senderUsername'],
+			select: {
+				senderUsername: true,
+			},
+		})
+
+		const activeUsers = new Set()
+		for (const r of uniqueReceivers) {
+			activeUsers.add(Object.values(r)[0])
+		}
+		for (const s of uniqueSenders) {
+			activeUsers.add(Object.values(s)[0])
+		}
+
+		const cashFlow = await prisma.transaction.aggregateRaw({
+			pipeline: [
+				{
+					$group: {
+						_id: {
+							$dateToString: {
+								format: '%Y-%m-%d',
+								date: '$createdAt',
+							},
+						},
+						total: {
+							$sum: '$amount',
+						},
+					},
+				},
+				{
+					$match: {
+						_id: {
+							$gte: dayjs(startDate).format('YYYY-MM-DD'),
+							$lte: dayjs(endDate).format('YYYY-MM-DD'),
+						},
+					},
+				},
+				{
+					$sort: {
+						_id: 1,
+					},
+				},
+			],
+		})
+
+		return res.status(StatusCodes.OK).json({
+			uniqueVisitorsCount: {
+				currentVendorUniqueVisitorsCount,
+				compareVendorUniqueVisitorsCount,
+				currentTotalUniqueVisitorsCount,
+				compareTotalUniqueVisitorsCount,
+			},
+			income: {
+				currentVendorIncome,
+				compareVendorIncome,
+				currentTotalIncome,
+				compareTotalIncome,
+			},
+			intervalData,
+			shopCount: shopCount._count.shopName,
+			disabledCount: disabledCount._count,
+			productsByCategory,
+			activeUserCount: activeUsers.size - shopCount._count.shopName,
+			cashFlow,
+		})
+	} catch (err) {
+		next(err)
+	}
+}

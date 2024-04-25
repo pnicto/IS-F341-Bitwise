@@ -2,9 +2,11 @@ import { Role } from '@prisma/client'
 import express from 'express'
 import { authorize } from '../../middleware/authorize'
 import {
+	getAdminReport,
 	getCategorizedExpenditure,
 	getTimelineReport,
 	getVendorReport,
+	validateAdminReport,
 	validateCategorizedExpenditure,
 	validateTimelineReport,
 	validateVendorReport,
@@ -31,4 +33,11 @@ reportsRouter.get(
 	authorize(Role.STUDENT, Role.VENDOR),
 	validateTimelineReport,
 	getTimelineReport,
+)
+
+reportsRouter.get(
+	'/admin',
+	authorize(Role.ADMIN),
+	validateAdminReport,
+	getAdminReport,
 )
