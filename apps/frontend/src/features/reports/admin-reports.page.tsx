@@ -47,7 +47,10 @@ const AdminReportsPage = () => {
 		select: (data) => {
 			return [
 				{ value: '', label: 'All' },
-				...data.shops.map((shop) => shop.shopName),
+				...data.shops.map((shop) => ({
+					value: shop.shopName,
+					label: shop.shopName,
+				})),
 			]
 		},
 	})
@@ -59,7 +62,7 @@ const AdminReportsPage = () => {
 			preset: 'month',
 			fromDate: '',
 			toDate: '',
-			shopName: shopsQuery.data?.[0] ?? '',
+			shopName: shopsQuery.data?.[0].value ?? '',
 		},
 		validate: {
 			fromDate: (value, values) => {
