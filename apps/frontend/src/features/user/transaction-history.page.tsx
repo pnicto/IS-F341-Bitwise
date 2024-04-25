@@ -214,6 +214,7 @@ const TransactionHistory = () => {
 					<CustomLoader
 						errorMessage={"Couldn't get your tags"}
 						query={userQuery}
+						displayImage={false}
 					>
 						{(data) => (
 							<TagsInput
@@ -361,6 +362,7 @@ const TransactionHistory = () => {
 							<CustomLoader
 								errorMessage={"Couldn't get your tags"}
 								query={userQuery}
+								displayImage={false}
 							>
 								{(data) => (
 									<TagsInput

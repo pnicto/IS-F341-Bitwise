@@ -8,6 +8,7 @@ type Props<T> = {
 	query: UseQueryResult<T, unknown>
 	arrayKey?: keyof T
 	emptyMessage?: string | ((data: T) => string)
+	displayImage?: boolean
 }
 
 const CustomLoader = <T,>({
@@ -16,6 +17,7 @@ const CustomLoader = <T,>({
 	query,
 	arrayKey,
 	emptyMessage = "Hmm... It seems there's nothing to show here.",
+	displayImage = true,
 }: Props<T>) => {
 	if (query.isError || query.failureReason) {
 		const errors: { msg: string }[] = []
@@ -44,11 +46,13 @@ const CustomLoader = <T,>({
 				<p className='text-lg text-gray-600'>
 					We couldn't fetch the data you requested. Please try again later.
 				</p>
-				<img
-					src='/undraw_blank_canvas.svg'
-					alt='blank canvas'
-					className='md:max-w-xl md:max-h-[30rem]'
-				/>
+				{displayImage && (
+					<img
+						src='/undraw_blank_canvas.svg'
+						alt='blank canvas'
+						className='md:max-w-xl md:max-h-[30rem]'
+					/>
+				)}
 			</div>
 		)
 	}

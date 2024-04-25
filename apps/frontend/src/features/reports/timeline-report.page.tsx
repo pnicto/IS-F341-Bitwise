@@ -147,7 +147,11 @@ const TimelineReportPage = () => {
 					label='End Date'
 					placeholder='End Date'
 				/>
-				<CustomLoader errorMessage={"Couldn't get your tags"} query={userQuery}>
+				<CustomLoader
+					errorMessage={"Couldn't get your tags"}
+					query={userQuery}
+					displayImage={false}
+				>
 					{(data) => (
 						<TagsInput
 							label='Select Tags'
