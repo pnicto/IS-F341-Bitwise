@@ -63,35 +63,44 @@ async function main() {
 	await prisma.category.deleteMany({})
 	console.log('Categories deleted')
 
-	const users: Omit<User, 'id' | 'enabled' | 'tags'>[] = [
-		{
-			email: 'john@email.com',
-			role: 'ADMIN',
-			username: extractUsernameFromEmail('john@email.com'),
-			password: await hashPassword('password'),
-			balance: 0,
-			shopName: null,
-			mobile: faker.phone.number().replace(/-/g, '').slice(3),
-		},
-		{
-			email: 'tron@email.com',
-			role: 'STUDENT',
-			username: extractUsernameFromEmail('tron@email.com'),
-			password: await hashPassword('password'),
-			balance: 1000,
-			shopName: null,
-			mobile: faker.phone.number().replace(/-/g, '').slice(3),
-		},
-		{
-			email: 'lane@email.com',
-			role: 'VENDOR',
-			username: extractUsernameFromEmail('lane@email.com'),
-			password: await hashPassword('password'),
-			balance: 1000,
-			shopName: 'shoppy',
-			mobile: faker.phone.number().replace(/-/g, '').slice(3),
-		},
-	]
+	const users: (Omit<User, 'id' | 'enabled' | 'tags'> & { tags?: string[] })[] =
+		[
+			{
+				email: 'john@email.com',
+				role: 'ADMIN',
+				username: extractUsernameFromEmail('john@email.com'),
+				password: await hashPassword('password'),
+				balance: 0,
+				shopName: null,
+				mobile: faker.phone.number().replace(/-/g, '').slice(3),
+			},
+			{
+				email: 'lane@email.com',
+				role: 'VENDOR',
+				username: extractUsernameFromEmail('lane@email.com'),
+				password: await hashPassword('password'),
+				balance: 1000,
+				shopName: 'shoppy',
+				mobile: faker.phone.number().replace(/-/g, '').slice(3),
+				tags: faker.helpers.arrayElements(transactionTags, {
+					min: 0,
+					max: transactionTags.length - 1,
+				}),
+			},
+			{
+				email: 'tron@email.com',
+				role: 'STUDENT',
+				username: extractUsernameFromEmail('tron@email.com'),
+				password: await hashPassword('password'),
+				balance: 1000,
+				shopName: null,
+				mobile: faker.phone.number().replace(/-/g, '').slice(3),
+				tags: faker.helpers.arrayElements(transactionTags, {
+					min: 0,
+					max: transactionTags.length - 1,
+				}),
+			},
+		]
 
 	for (let i = 0; i < 50; i++) {
 		const email = faker.internet.email()
@@ -103,6 +112,10 @@ async function main() {
 			balance: faker.number.int({ min: 100, max: 10000 }),
 			shopName: null,
 			mobile: faker.phone.number().replace(/-/g, '').slice(3),
+			tags: faker.helpers.arrayElements(transactionTags, {
+				min: 0,
+				max: transactionTags.length - 1,
+			}),
 		})
 	}
 
@@ -116,6 +129,10 @@ async function main() {
 			balance: faker.number.int({ min: 1000, max: 10000 }),
 			shopName: SHOP_NAMES[i],
 			mobile: faker.phone.number().replace(/-/g, '').slice(3),
+			tags: faker.helpers.arrayElements(transactionTags, {
+				min: 0,
+				max: transactionTags.length - 1,
+			}),
 		})
 	}
 

@@ -152,15 +152,17 @@ export const validateTimelineReport = [
 		.withMessage('Invalid preset'),
 	query('fromDate').trim().optional(),
 	query('toDate').trim().optional(),
+	query('tags').isArray().optional(),
 ]
 export const getTimelineReport: RequestHandler = async (req, res, next) => {
 	try {
 		const user = getAuthorizedUser(req)
 
-		const { preset, fromDate, toDate } = validateRequest<{
+		const { preset, fromDate, toDate, tags } = validateRequest<{
 			preset?: string
 			fromDate?: string
 			toDate?: string
+			tags?: string[]
 		}>(req)
 
 		let startDate: Date,
@@ -215,6 +217,15 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 				getStartAndEndDates('month'))
 		}
 
+		const tagFilter =
+			!tags || (tags.length === 1 && tags[0] === '') || tags.length === 0
+				? {}
+				: {
+						senderTags: {
+							hasSome: [...tags],
+						},
+				  }
+
 		const transactionsMadeThisPeriod = await prisma.transaction.findMany({
 			where: {
 				createdAt: {
@@ -229,6 +240,7 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 						receiverUsername: user.username,
 					},
 				],
+				...tagFilter,
 			},
 		})
 
@@ -265,6 +277,7 @@ export const getTimelineReport: RequestHandler = async (req, res, next) => {
 						receiverUsername: user.username,
 					},
 				],
+				...tagFilter,
 			},
 		})
 		const sentPrevious = transactionsMadePreviousPeriod.filter(

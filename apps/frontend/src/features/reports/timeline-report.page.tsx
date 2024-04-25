@@ -1,7 +1,17 @@
 import { LineChart } from '@mantine/charts'
-import { Button, Card, Group, Select, Stack } from '@mantine/core'
+import {
+	Button,
+	Card,
+	ComboboxItem,
+	Group,
+	OptionsFilter,
+	Select,
+	Stack,
+	TagsInput,
+} from '@mantine/core'
 import { DateTimePicker } from '@mantine/dates'
 import { useForm } from '@mantine/form'
+import { User } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { Link } from 'react-router-dom'
@@ -24,12 +34,23 @@ type TimelineReport = {
 	}
 }
 
+const optionsFilter: OptionsFilter = ({ options, search }) => {
+	const splittedSearch = search.toLowerCase().trim().split(' ')
+	return (options as ComboboxItem[]).filter((option) => {
+		const words = option.label.toLowerCase().trim().split(' ')
+		return splittedSearch.every((searchWord) =>
+			words.some((word) => word.includes(searchWord)),
+		)
+	})
+}
+
 const TimelineReportPage = () => {
 	const filterForm = useForm({
 		initialValues: {
 			preset: 'month',
 			fromDate: '',
 			toDate: '',
+			tags: [],
 		},
 		validate: {
 			fromDate: (value, values) => {
@@ -65,12 +86,27 @@ const TimelineReportPage = () => {
 				preset: filterFormValues.preset,
 				fromDate: filterFormTransformedValues.fromDate,
 				toDate: filterFormTransformedValues.toDate,
+				tags: filterFormValues.tags,
 			},
 		],
 		queryFn: async () => {
+			let tagString = ''
+
+			filterFormValues.tags.forEach((tag) => {
+				tagString += `&tags[]=${tag}`
+			})
+
 			const response = await axios.get<TimelineReport>(
-				`/reports/timeline?preset=${filterFormValues.preset}&fromDate=${filterFormTransformedValues.fromDate}&toDate=${filterFormTransformedValues.toDate}`,
+				`/reports/timeline?preset=${filterFormValues.preset}&fromDate=${filterFormTransformedValues.fromDate}&toDate=${filterFormTransformedValues.toDate}${tagString}`,
 			)
+			return response.data
+		},
+	})
+
+	const userQuery = useQuery({
+		queryKey: ['user'],
+		queryFn: async () => {
+			const response = await axios.get<{ user: User }>('/user/details')
 			return response.data
 		},
 	})
@@ -111,6 +147,25 @@ const TimelineReportPage = () => {
 					label='End Date'
 					placeholder='End Date'
 				/>
+				<CustomLoader
+					errorMessage={"Couldn't get your tags"}
+					query={userQuery}
+					displayImage={false}
+				>
+					{(data) => (
+						<TagsInput
+							label='Select Tags'
+							placeholder='Pick value or enter anything'
+							data={data.user.tags}
+							filter={optionsFilter}
+							comboboxProps={{
+								transitionProps: { transition: 'pop', duration: 200 },
+							}}
+							{...filterForm.getInputProps('tags')}
+							clearable
+						/>
+					)}
+				</CustomLoader>
 				<Button onClick={filterForm.reset}>Clear Filters</Button>
 			</Group>
 			<CustomLoader query={reportsQuery} errorMessage='Failed to fetch reports'>
