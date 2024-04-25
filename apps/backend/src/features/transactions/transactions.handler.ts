@@ -74,6 +74,7 @@ export const validateTransactionFilters = [
 	query('toUser').trim().optional(),
 	query('fromDate').trim().optional(),
 	query('toDate').trim().optional(),
+	query('tags').isArray().optional(),
 	query('minAmount')
 		.trim()
 		.optional()
@@ -133,6 +134,7 @@ export const filterTransactionHistory: RequestHandler = async (
 			toUser,
 			fromDate,
 			toDate,
+			tags,
 			minAmount,
 			maxAmount,
 		} = validateRequest<{
@@ -149,9 +151,11 @@ export const filterTransactionHistory: RequestHandler = async (
 			toUser: string | undefined
 			fromDate: string | undefined
 			toDate: string | undefined
+			tags: string[] | undefined
 			minAmount: number | undefined
 			maxAmount: number | undefined
 		}>(req)
+		const user = getAuthorizedUser(req)
 
 		let numberOfItems = intOrNaN(items)
 		let currentPage = intOrNaN(page)
@@ -171,11 +175,17 @@ export const filterTransactionHistory: RequestHandler = async (
 			throw new BadRequest('Invalid page number')
 		}
 
-		const user = getAuthorizedUser(req)
-
 		const allTransactions = []
 
 		if (!fromUser && (transactionType === 'DEBIT' || !transactionType)) {
+			const senderTagFilter =
+				!tags || (tags.length === 1 && tags[0] === '') || tags.length === 0
+					? {}
+					: {
+							senderTags: {
+								hasSome: [...tags],
+							},
+					  }
 			const debitTransactions = await prisma.transaction.findMany({
 				where: {
 					senderUsername: user.username,
@@ -188,6 +198,7 @@ export const filterTransactionHistory: RequestHandler = async (
 						gte: minAmount ? minAmount : undefined,
 						lte: maxAmount ? maxAmount : undefined,
 					},
+					...senderTagFilter,
 				},
 				select: {
 					id: true,
@@ -208,6 +219,15 @@ export const filterTransactionHistory: RequestHandler = async (
 		}
 
 		if (!toUser && (transactionType === 'CREDIT' || !transactionType)) {
+			const receiverTagFilter =
+				!tags || (tags.length === 1 && tags[0] === '') || tags.length === 0
+					? {}
+					: {
+							receiverTags: {
+								hasSome: [...tags],
+							},
+					  }
+
 			const creditTransactions = await prisma.transaction.findMany({
 				where: {
 					senderUsername: fromUser ? fromUser : undefined,
@@ -220,6 +240,7 @@ export const filterTransactionHistory: RequestHandler = async (
 						gte: minAmount ? minAmount : undefined,
 						lte: maxAmount ? maxAmount : undefined,
 					},
+					...receiverTagFilter,
 				},
 				select: {
 					id: true,
