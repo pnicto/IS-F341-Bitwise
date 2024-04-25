@@ -177,9 +177,7 @@ const TransactionHistory = () => {
 			let tagString = ''
 
 			filterFormValues.tags.forEach((tag) => {
-				if (tag !== '') {
-					tagString += `&tags[]=${tag}`
-				}
+				tagString += `&tags[]=${tag}`
 			})
 
 			const response = await axios.get<{
