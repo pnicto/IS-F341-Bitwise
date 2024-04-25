@@ -118,8 +118,6 @@ const AdminReportsPage = () => {
 		},
 	})
 
-	console.log(reportsQuery.data)
-
 	return (
 		<>
 			<Group justify='center' className='py-4'>
