@@ -173,7 +173,12 @@ const TimelineReportPage = () => {
 					<>
 						<Group justify='center'>
 							<Stack gap={2}>
-								<h2 className='py-0 capitalize'>Current month</h2>
+								<h2 className='py-0 capitalize'>
+									Current{' '}
+									{filterFormValues.preset === ''
+										? 'Period'
+										: filterFormValues.preset}
+								</h2>
 								<Group>
 									<Card>
 										<h2>Amount sent</h2>
@@ -188,7 +193,12 @@ const TimelineReportPage = () => {
 								</Group>
 							</Stack>
 							<Stack gap={2}>
-								<h2 className='py-0 capitalize'>Previous Month</h2>
+								<h2 className='py-0 capitalize'>
+									Previous{' '}
+									{filterFormValues.preset === ''
+										? 'Period'
+										: filterFormValues.preset}
+								</h2>
 								<Group>
 									<Card>
 										<h2>Amount sent</h2>
