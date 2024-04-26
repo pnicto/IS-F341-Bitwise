@@ -36,7 +36,9 @@ export const calculateVendorDataForInterval = (
 	const diffDays = endDay.diff(startDay, 'day') + 1
 	const diffHours = endDay.diff(startDay, 'hour')
 
-	if (diffDays >= 28) {
+	if (diffDays >= 365) {
+		label = startDay.format('YYYY')
+	} else if (diffDays >= 28) {
 		label = startDay.format('MMMM')
 	} else if (diffDays >= 2) {
 		label = startDay.format('DD/MM')
@@ -159,7 +161,9 @@ export const calculateUserDataForInterval = (
 	const diffDays = endDay.diff(startDay, 'day') + 1
 	const diffHours = endDay.diff(startDay, 'hour')
 
-	if (diffDays >= 28) {
+	if (diffDays >= 365) {
+		label = startDay.format('YYYY')
+	} else if (diffDays >= 28) {
 		label = startDay.format('MMMM')
 	} else if (diffDays >= 2) {
 		label = startDay.format('DD/MM')
